@@ -4,6 +4,10 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="android:windowSplashScreenBackground">#0039A6</item>
+        <item name="colorControlActivated">#0039A6</item> <!-- Outline color when focused -->
+        <item name="colorOnSurface">#8C8CA1</item>        <!-- Label color -->
+        <item name="colorOutline">#D3D3D3</item>          <!-- Default outline -->
+
     </style>
 
     <style name="Theme.UMelec" parent="Base.Theme.UMelec" />

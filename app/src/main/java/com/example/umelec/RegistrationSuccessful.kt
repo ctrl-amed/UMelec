@@ -2,37 +2,21 @@ package com.example.umelec
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-class MainActivity : AppCompatActivity() {
+class RegistrationSuccessful : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-
-        // ✅ Apply system bar padding
+        setContentView(R.layout.activity_registration_successful)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-        }
-
-        // ✅ Load and start your slide-up animation
-        val slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up)
-        val bottomContainer = findViewById<LinearLayout>(R.id.bottomContainer)
-        bottomContainer.startAnimation(slideUp)
-
-        val btnRegister = findViewById<Button>(R.id.btnRegister)
-
-        btnRegister.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
         }
 
         val btnLogin= findViewById<Button>(R.id.btnLogin)

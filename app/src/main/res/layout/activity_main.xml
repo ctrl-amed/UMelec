@@ -12,14 +12,16 @@
   <!-- Logo -->
   <ImageView
       android:id="@+id/logoImage"
-      android:layout_width="150dp"
-      android:layout_height="150dp"
+      android:layout_width="250dp"
+      android:layout_height="250dp"
       android:src="@mipmap/ic_launcher"
       app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintBottom_toTopOf="@id/bottomContainer"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintVertical_bias="0.3" />
+      app:layout_constraintBottom_toTopOf="@id/bottomContainer"
+      app:layout_constraintVertical_bias="0.3"
+      android:layout_marginTop="80dp"
+      android:layout_marginBottom="40dp" />
 
   <!-- White bottom section with rounded corners -->
   <LinearLayout
@@ -29,48 +31,73 @@
       android:orientation="vertical"
       android:background="@drawable/rounded_white_bg"
       android:padding="24dp"
-      app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintTop_toBottomOf="@id/logoImage"
+      app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       android:gravity="center_horizontal">
 
-    <!-- Text above buttons -->
-    <TextView
-        android:id="@+id/welcomeTitle"
+    <!-- Text block -->
+    <LinearLayout
+        android:id="@+id/textBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to UMak Student Election System"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#0E0E2C"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="4dp" />
+        android:orientation="vertical"
+        android:layout_marginBottom="30dp">
 
-    <TextView
-        android:id="@+id/welcomeSubtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Let’s get started!"
-        android:textSize="16sp"
-        android:textColor="#333333"
-        android:gravity="center"
-        android:layout_marginBottom="24dp" />
+      <!-- Title -->
+      <TextView
+          android:id="@+id/welcomeTitle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:fontFamily="@font/montserrat_font_family"
+          android:text="Welcome to UMak Student Election System"
+          android:textSize="25dp"
+          android:textStyle="bold"
+          android:textColor="#0E0E2C"
+          android:gravity="start"
+          android:layout_marginBottom="10dp"
+          android:layout_marginLeft="10dp" />
+
+
+      <!-- Subtitle -->
+      <TextView
+          android:id="@+id/welcomeSubtitle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginBottom="20dp"
+          android:gravity="start"
+          android:text="Let’s get started!"
+          android:fontFamily="@font/poppins_regular"
+          android:textColor="#333333"
+          android:textSize="16sp" />
+    </LinearLayout>
 
     <!-- Buttons -->
     <Button
         android:id="@+id/btnRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Register" />
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:text="Register"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:background="@drawable/rounded_button_base"
+        app:backgroundTint="#0039A6"
+        android:fontFamily="@font/poppins_bold"
+        />
 
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login"
-        android:layout_marginTop="12dp" />
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:text="Log In"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_button_base"
+        app:backgroundTint="#FCBE6A"
+        android:fontFamily="@font/poppins_bold"/>
   </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
