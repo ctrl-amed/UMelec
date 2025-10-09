@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".Forgotpassword"
+            android:exported="false" />
+        <activity
+            android:name=".Loading"
+            android:exported="false" />
+        <activity
             android:name=".RegistrationSuccessful"
             android:exported="false" />
         <activity

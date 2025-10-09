@@ -49,7 +49,7 @@
             android:textColor="#0E0E2C"
             android:layout_marginBottom="24dp" />
 
-
+        <!-- EMAIL -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -94,6 +94,8 @@
                 android:fontFamily="@font/poppins_regular"/>
 
         </LinearLayout>
+
+        <!-- PASSWORD -->
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutPassword"
@@ -160,6 +162,8 @@
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="14sp" />
         </LinearLayout>
+
+        <!-- CONFIRMPASSWORD -->
 
 
         <com.google.android.material.textfield.TextInputLayout
