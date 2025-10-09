@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".Resetpassword"
+            android:exported="false" />
+        <activity
+            android:name=".Verificationcode"
+            android:exported="false" />
+        <activity
+            android:name=".Verification"
+            android:exported="false" />
+        <activity
             android:name=".Forgotpassword"
             android:exported="false" />
         <activity

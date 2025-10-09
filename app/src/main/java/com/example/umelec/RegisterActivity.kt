@@ -1,17 +1,17 @@
 package com.example.umelec
 
-import android.content.Intent
-import android.graphics.Color
-import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.View
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+    import android.content.Intent
+    import android.graphics.Color
+    import android.os.Bundle
+    import android.text.Editable
+    import android.text.TextWatcher
+    import android.view.View
+    import android.widget.Button
+    import android.widget.ImageButton
+    import android.widget.TextView
+    import androidx.appcompat.app.AppCompatActivity
+    import com.google.android.material.textfield.TextInputEditText
+    import com.google.android.material.textfield.TextInputLayout
 // Removed unused import: import androidx.core.content.ContextCompat
 
 class RegisterActivity : AppCompatActivity() {

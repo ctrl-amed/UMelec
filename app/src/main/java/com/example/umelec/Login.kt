@@ -92,7 +92,9 @@ class Login : AppCompatActivity() {
 
         // BACK BUTTON SETUP
         btnBack.setOnClickListener {
-            finish()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish() // optional — use if you don’t want to come back here when pressing back again
         }
 
         //FORGOT PASSWORD BUTTON SETUP
