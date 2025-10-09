@@ -12,7 +12,8 @@ package com.example.umelec
     import androidx.appcompat.app.AppCompatActivity
     import com.google.android.material.textfield.TextInputEditText
     import com.google.android.material.textfield.TextInputLayout
-// Removed unused import: import androidx.core.content.ContextCompat
+// Add this import to the top of your file
+    import android.app.AlertDialog
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -71,6 +72,20 @@ class RegisterActivity : AppCompatActivity() {
         ConfirmpasswordRequirements.visibility = View.GONE
         EmailRequirements.visibility = View.GONE
 
+        // Function to show the "Email already registered" dialog
+        fun showEmailAlreadyRegisteredDialog() {
+            // Using android.app.AlertDialog
+            AlertDialog.Builder(this)
+                .setTitle("Registration Error")
+                .setMessage("Email address already in use. Please use a different email or log in.")
+                .setPositiveButton("OK") { dialog, which ->
+                    // User stays on the current activity, allowing them to fix the email input
+                    dialog.dismiss()
+                }
+                .setCancelable(true) // Allow dismissal by tapping outside/back button
+                .show()
+        }
+
 
         // 🔹 Helper to update Next button state
         fun updateNextButtonState() {
@@ -92,8 +107,34 @@ class RegisterActivity : AppCompatActivity() {
         btnBack.setOnClickListener { finish() }
 
         btnNext.setOnClickListener {
-            val intent = Intent(this, RegisterActivity2::class.java)
-            startActivity(intent)
+            val email = inputEmail.text.toString().trim()
+            val password = inputPassword.text.toString()
+
+            // =========================================================================
+            // 🚨 BACKEND SIMULATION / INTEGRATION POINT 🚨
+            // =========================================================================
+            // NOTE FOR BACKEND: In a real app (e.g., using Firebase Auth):
+            // 1. You would call your authentication service here (e.g., auth.createUserWithEmailAndPassword).
+            // 2. The service returns a success or a failure/error code (e.g., FIREBASE_AUTH_EMAIL_ALREADY_IN_USE).
+            // 3. You check the error code to decide whether to navigate (SUCCESS) or show the error dialog (FAILURE).
+
+            // --- SIMULATION START ---
+            val REGISTERED_EMAIL_SIMULATION = "test@umak.edu.ph"
+
+            if (email.equals(REGISTERED_EMAIL_SIMULATION, ignoreCase = true)) {
+                // FAILURE CASE: Email is already registered
+                showEmailAlreadyRegisteredDialog()
+
+            } else {
+                // SUCCESS CASE: Proceed to the next registration step (RegisterActivity2)
+                val intent = Intent(this, RegisterActivity2::class.java)
+                // If using a real backend, you'd pass the email/password data here:
+                // intent.putExtra("USER_EMAIL", email)
+                // intent.putExtra("USER_PASSWORD", password)
+                startActivity(intent)
+            }
+            // --- SIMULATION END ---
+            // =========================================================================
         }
 
         // =====================================================================

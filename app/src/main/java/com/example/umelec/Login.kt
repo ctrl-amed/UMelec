@@ -13,13 +13,17 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import android.app.AlertDialog // <-- IMPORTANT: Add this import for the dialog
+import android.app.AlertDialog // <-- Keeping this import as per your original file
+
+
 
 class Login : AppCompatActivity() {
 
     // 🚨 SIMULATED CREDENTIALS (Replace with your actual authentication logic)
     private val CORRECT_EMAIL = "K12345678@umak.edu.ph"
     private val CORRECT_PASSWORD = "password123"
+    // NEW: Placeholder for the user's name (easy to change for the backend)
+    private val CORRECT_USER_NAME = "Juan Dela Cruz"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,12 +80,35 @@ class Login : AppCompatActivity() {
 
         // Function to show the error dialog without resetting data
         fun showLoginErrorDialog() {
+            // Using android.app.AlertDialog as per your original import
             AlertDialog.Builder(this)
                 .setTitle("Login Failed")
                 .setMessage("Wrong credentials and invalid email or password.")
                 .setPositiveButton("OK") { dialog, which ->
                     // Dialog is dismissed, user remains on the Login screen with data intact
                 }
+                .show()
+        }
+
+        // NEW: Function to show the success dialog and navigate to Homepage
+        fun showLoginSuccessDialog(userName: String) {
+            // 1. Show the Toast message
+            Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+
+            // 2. Display the custom AlertDialog
+            // Using android.app.AlertDialog as per your original import
+            AlertDialog.Builder(this)
+                .setTitle("Login Successful")
+                .setMessage("Welcome back, $userName!") // Use the changeable name here
+                .setPositiveButton("Continue to Homepage") { dialog, which ->
+                    // 3. Navigation to Homepage.kt upon clicking the button
+                    val intent = Intent(this, Homepage::class.java)
+                    // Clear the back stack so the user can't return to Login by pressing back
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish() // Finish the current login activity
+                }
+                .setCancelable(false) // Prevent dismissal
                 .show()
         }
 
@@ -283,10 +310,8 @@ class Login : AppCompatActivity() {
 
             // ⚠️ SIMULATED LOGIN CHECK ⚠️
             if (email == CORRECT_EMAIL && password == CORRECT_PASSWORD) {
-                // SUCCESSFUL LOGIN: Go to Loading activity
-                val intent = Intent(this, Loading::class.java) // Assuming 'Loading' is your class name
-                startActivity(intent)
-                finish() // Optionally finish the login activity
+                // UPDATED: Show custom success dialog instead of navigating directly
+                showLoginSuccessDialog(CORRECT_USER_NAME)
             } else {
                 // FAILED LOGIN: Show custom error dialog and stay on screen
                 showLoginErrorDialog()

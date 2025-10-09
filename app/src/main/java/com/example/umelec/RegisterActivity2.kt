@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import android.content.Intent // NOTE: Added missing import for Intent (for btnConfirm)
+import android.widget.Toast
+import android.app.AlertDialog // Use android.app.AlertDialog as per your previous files
 
 
 class RegisterActivity2 : AppCompatActivity() {
@@ -624,12 +626,36 @@ class RegisterActivity2 : AppCompatActivity() {
         // ---------------------------------------------------------------------
         // 🔹 BUTTON CLICK LISTENER (Final step)
         // ---------------------------------------------------------------------
+        /**
+         * Displays a custom AlertDialog upon successful registration, guiding the user to login.
+         */
+         fun showRegistrationSuccessDialog() {
+            // 1. Show the Toast message
+            Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show()
+
+            // 2. Display the custom AlertDialog
+            AlertDialog.Builder(this)
+                .setTitle("Registration Successful")
+                .setMessage("Your account has been created. Please Log In to continue.")
+                .setPositiveButton("Log In") { dialog, which ->
+                    // 3. Navigate to Login.kt upon clicking the button
+                    val intent = Intent(this, Login::class.java)
+                    // Clear the back stack so the user cannot press back to registration
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish() // Finish the current registration activity
+                }
+                .setCancelable(false) // Prevent dismissal
+                .show()
+        }
 
         btnConfirm.setOnClickListener {
-            // Navigate to RegistrationSuccessful activity
-            // NOTE: You will need to create the RegistrationSuccessful class
-            val intent = Intent(this, RegistrationSuccessful::class.java)
-            startActivity(intent)
+            // ⚠️ Placeholder for actual registration logic (e.g., Firebase call) ⚠️
+
+            // Assuming registration was successful, show the dialog
+            showRegistrationSuccessDialog()
+
+            // You can add an 'else' here if you need to handle registration failure later
         }
     }
 }
