@@ -1,19 +1,18 @@
 package com.example.umelec
 
-    import android.content.Intent
-    import android.graphics.Color
-    import android.os.Bundle
-    import android.text.Editable
-    import android.text.TextWatcher
-    import android.view.View
-    import android.widget.Button
-    import android.widget.ImageButton
-    import android.widget.TextView
-    import androidx.appcompat.app.AppCompatActivity
-    import com.google.android.material.textfield.TextInputEditText
-    import com.google.android.material.textfield.TextInputLayout
-// Add this import to the top of your file
-    import android.app.AlertDialog
+import android.content.Intent
+import android.graphics.Color
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import android.app.AlertDialog
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -21,8 +20,7 @@ class RegisterActivity : AppCompatActivity() {
     // 1. CLASS-LEVEL PROPERTIES
     // =========================================================================
     private var allValidationsPassed = false
-    // Note: The specialChars is defined twice. I've left both in place
-    // as per your instruction "don't change any code", but recommended fix is below.
+    // Retaining specialChars definition
     val specialChars = "!@#$%^&*-+=()_`~[]{}|\\:;\"'<,>.?/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,15 +53,27 @@ class RegisterActivity : AppCompatActivity() {
 
         // 🔹 Password Requirement Texts
         val reqLength = findViewById<TextView>(R.id.reqLength)
-        val reqUppercase = findViewById<TextView>(R.id.reqUppercase)
+
+        // 🚨 UPDATED VIEWS: Using new IDs from your XML
+        val reqMixedcase = findViewById<TextView>(R.id.reqMixedcase)
         val reqSpecial = findViewById<TextView>(R.id.reqSpecial)
+        val reqNumber = findViewById<TextView>(R.id.reqNumber)
+        // Note: reqUppercase is no longer used, replaced by reqMixedcase
+
         val reqMatch = findViewById<TextView>(R.id.reqMatch)
 
-        // 🔹 Redundant/Duplicated variable declaration
+        // 🔹 Redundant/Duplicated variable declaration (kept for non-modification constraint)
         val specialChars = "!@#$%^&*-+=()_`~[]{}|\\:;\"'<,>.?/"
 
         // =====================================================================
-        // 3. INITIAL SETUP AND HELPER FUNCTION
+        // 3. CONFIRM PASSWORD WATCHER DECLARATION (FIXED UNRESOLVED REFERENCE)
+        // =====================================================================
+        // 🚨 FIX 1: Declaring the variable here so it can be referenced in passwordWatcher
+        // later in the file, resolving the "Unresolved reference" error.
+        lateinit var confirmPasswordWatcher: TextWatcher
+
+        // =====================================================================
+        // 4. INITIAL SETUP AND HELPER FUNCTION (Previously Section 3)
         // =====================================================================
 
         // Initial State Setup
@@ -94,9 +104,14 @@ class RegisterActivity : AppCompatActivity() {
             val confirmPassword = inputConfirmPassword.text.toString()
 
             val isEmailValid = email.endsWith("@umak.edu.ph", ignoreCase = true)
+
+            // 🚨 UPDATED VALIDATION LOGIC 🚨
             val isPasswordValid = password.length >= 8 &&
-                    password.any { it.isUpperCase() } &&
-                    password.any { it in specialChars }
+                    password.any { it.isUpperCase() } && // Check for uppercase
+                    password.any { it.isLowerCase() } && // Check for lowercase
+                    password.any { it in specialChars } &&
+                    password.any { it.isDigit() } // Check for number
+
             val isConfirmMatch = password == confirmPassword && confirmPassword.isNotEmpty()
 
             // Enable or disable button; background changes automatically (if set up via XML selector)
@@ -113,10 +128,6 @@ class RegisterActivity : AppCompatActivity() {
             // =========================================================================
             // 🚨 BACKEND SIMULATION / INTEGRATION POINT 🚨
             // =========================================================================
-            // NOTE FOR BACKEND: In a real app (e.g., using Firebase Auth):
-            // 1. You would call your authentication service here (e.g., auth.createUserWithEmailAndPassword).
-            // 2. The service returns a success or a failure/error code (e.g., FIREBASE_AUTH_EMAIL_ALREADY_IN_USE).
-            // 3. You check the error code to decide whether to navigate (SUCCESS) or show the error dialog (FAILURE).
 
             // --- SIMULATION START ---
             val REGISTERED_EMAIL_SIMULATION = "test@umak.edu.ph"
@@ -128,9 +139,6 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 // SUCCESS CASE: Proceed to the next registration step (RegisterActivity2)
                 val intent = Intent(this, RegisterActivity2::class.java)
-                // If using a real backend, you'd pass the email/password data here:
-                // intent.putExtra("USER_EMAIL", email)
-                // intent.putExtra("USER_PASSWORD", password)
                 startActivity(intent)
             }
             // --- SIMULATION END ---
@@ -138,7 +146,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         // =====================================================================
-        // 4. EMAIL FIELD LOGIC
+        // 5. EMAIL FIELD LOGIC (Previously Section 4)
         // =====================================================================
 
         // 🔹 Focus Change Listener for Email
@@ -184,10 +192,10 @@ class RegisterActivity : AppCompatActivity() {
         })
 
         // =====================================================================
-        // 5. PASSWORD FIELD LOGIC
+        // 6. PASSWORD FIELD LOGIC (Previously Section 5)
         // =====================================================================
 
-        // 🔹 Focus Change Listener for Password
+        // 🔹 Focus Change Listener for Password (No change needed here)
         inputPassword.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 passwordRequirements.visibility = View.VISIBLE
@@ -210,11 +218,13 @@ class RegisterActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 val password = inputPassword.text.toString()
 
+                // New flags for the four requirements
                 var isLengthValid = false
-                var isUppercaseValid = false
+                var isMixedCaseValid = false
                 var isSpecialValid = false
+                var isNumberValid = false
 
-                // Check 1: Length
+                // Check 1: Length (>= 8 characters)
                 if (password.length >= 8) {
                     reqLength.setTextColor(Color.parseColor("#4CAF50"))
                     reqLength.text = "✓ Must be at least 8 characters"
@@ -224,14 +234,16 @@ class RegisterActivity : AppCompatActivity() {
                     reqLength.text = "• Must be at least 8 characters"
                 }
 
-                // Check 2: Uppercase
-                if (password.any { it.isUpperCase() }) {
-                    reqUppercase.setTextColor(Color.parseColor("#4CAF50"))
-                    reqUppercase.text = "✓ Must contain an uppercase letter"
-                    isUppercaseValid = true
+                // Check 2: Mixed Case (Upper and Lower)
+                val hasUppercase = password.any { it.isUpperCase() }
+                val hasLowercase = password.any { it.isLowerCase() }
+                if (hasUppercase && hasLowercase) {
+                    reqMixedcase.setTextColor(Color.parseColor("#4CAF50"))
+                    reqMixedcase.text = "✓ Mixed case"
+                    isMixedCaseValid = true
                 } else {
-                    reqUppercase.setTextColor(Color.parseColor("#D32F2F"))
-                    reqUppercase.text = "• Must contain an uppercase letter"
+                    reqMixedcase.setTextColor(Color.parseColor("#D32F2F"))
+                    reqMixedcase.text = "• Mixed case (Uppercase and Lowercase)"
                 }
 
                 // Check 3: Special character
@@ -244,8 +256,24 @@ class RegisterActivity : AppCompatActivity() {
                     reqSpecial.text = "• Must contain a special character"
                 }
 
-                allValidationsPassed = isLengthValid && isUppercaseValid && isSpecialValid
+                // Check 4: Number
+                if (password.any { it.isDigit() }) {
+                    reqNumber.setTextColor(Color.parseColor("#4CAF50"))
+                    reqNumber.text = "✓ Must contain a number"
+                    isNumberValid = true
+                } else {
+                    reqNumber.setTextColor(Color.parseColor("#D32F2F"))
+                    reqNumber.text = "• Must contain a number"
+                }
+
+                // Update final validation status
+                allValidationsPassed = isLengthValid && isMixedCaseValid && isSpecialValid && isNumberValid
                 updateNextButtonState()
+
+                // IMPORTANT: Ensure confirm password logic is re-run immediately after
+                // password changes to check for a match.
+                // 🚨 FIX 2: We can now reference confirmPasswordWatcher because it was declared earlier.
+                inputConfirmPassword.text?.let { confirmPasswordWatcher.afterTextChanged(it) }
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -255,10 +283,10 @@ class RegisterActivity : AppCompatActivity() {
         inputPassword.addTextChangedListener(passwordWatcher)
 
         // =====================================================================
-        // 6. CONFIRM PASSWORD FIELD LOGIC
+        // 7. CONFIRM PASSWORD FIELD LOGIC (Previously Section 6)
         // =====================================================================
 
-        // 🔹 Focus Change Listener for Confirm Password
+        // 🔹 Focus Change Listener for Confirm Password (No change)
         inputConfirmPassword.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 ConfirmpasswordRequirements.visibility = View.VISIBLE
@@ -284,7 +312,8 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         // 🔹 Text Watcher for Confirm Password (Live Validation)
-        val confirmPasswordWatcher = object : TextWatcher {
+        // 🚨 FIX 3: Assigning the value to the previously declared lateinit variable.
+        confirmPasswordWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val password = inputPassword.text.toString()
                 val confirmPassword = inputConfirmPassword.text.toString()
@@ -315,8 +344,7 @@ class RegisterActivity : AppCompatActivity() {
 
         inputConfirmPassword.addTextChangedListener(confirmPasswordWatcher)
 
-        // 🔹 Redundant Email TextWatcher for UpdateNextButtonState
-        // The more detailed email TextWatcher above covers this, but kept for non-modification constraint.
+        // 🔹 Redundant Email TextWatcher for UpdateNextButtonState (No change)
         inputEmail.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 updateNextButtonState()
