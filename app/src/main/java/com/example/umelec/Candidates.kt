@@ -130,7 +130,10 @@ class Candidates : AppCompatActivity() {
             animateAndNavigate(
                 view = it,
                 originalBgResource = R.drawable.blue_rounded_button,
-                targetActivity = Position::class.java
+                targetActivity = Position::class.java,
+                // ⭐️ NEW: Pass the position name to the next activity
+                extraKey = "POSITION_NAME",
+                extraValue = positionName
             )
         }
 
@@ -172,6 +175,7 @@ class Candidates : AppCompatActivity() {
                 view = it,
                 originalBgResource = R.drawable.blue_rounded_button,
                 targetActivity = Comparison::class.java
+
             )
         }
     }
@@ -181,7 +185,10 @@ class Candidates : AppCompatActivity() {
      * Helper function to provide visual feedback and then navigate to a new activity.
      * Applies a temporary color change to FCBE6A before navigating.
      */
-    private fun animateAndNavigate(view: View, originalBgResource: Int, targetActivity: Class<*>) {
+    private fun animateAndNavigate(view: View, originalBgResource: Int, targetActivity: Class<*>,
+        // ⭐️ NEW: Optional Intent Extra parameters
+        extraKey: String? = null,
+        extraValue: String? = null) {
         // 1. Get the original background (assuming it's a GradientDrawable with corners)
         val originalBackground = view.background
 
@@ -207,6 +214,10 @@ class Candidates : AppCompatActivity() {
 
             // Navigate to the target activity
             val intent = Intent(this, targetActivity)
+            // ⭐️ NEW: Add the extra to the intent if provided
+            if (extraKey != null && extraValue != null) {
+                intent.putExtra(extraKey, extraValue)
+            }
             startActivity(intent)
         }, 100) // 100ms delay for visual feedback
     }

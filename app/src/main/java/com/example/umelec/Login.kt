@@ -20,8 +20,8 @@ import android.app.AlertDialog // <-- Keeping this import as per your original f
 class Login : AppCompatActivity() {
 
     // 🚨 SIMULATED CREDENTIALS (Replace with your actual authentication logic)
-    private val CORRECT_EMAIL = "K12345678@umak.edu.ph"
-    private val CORRECT_PASSWORD = "password123"
+    private val CORRECT_EMAIL = "@umak.edu.ph"
+    private val CORRECT_PASSWORD = "a"
     // NEW: Placeholder for the user's name (easy to change for the backend)
     private val CORRECT_USER_NAME = "Juan Dela Cruz"
 
