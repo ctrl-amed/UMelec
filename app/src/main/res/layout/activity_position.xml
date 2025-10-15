@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0039A6"
+    tools:context=".RegisterActivity">
+
+
+
+
+    <!-- Header Content (Fixed at the top) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/HeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 🔹 Back Arrow (Left-Aligned) -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="back_button_content_description"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- 🔹 Centered Title -->
+        <TextView
+            android:id="@+id/NameTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Position"
+            android:textSize="25sp"
+            android:fontFamily="@font/montserrat_bold"
+            android:textColor="#FAFCFE"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- 🔹 White Rounded Container for Registration -->
+    <LinearLayout
+        android:id="@+id/registerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_white_bg"
+        android:padding="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="100dp"
+        android:gravity="center_horizontal"
+        android:backgroundTint="#0039A6">
+
+
+        <!-- Email -->
+        <!-- The main card container: horizontal layout to split into two columns -->
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_gray_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginHorizontal="16dp"
+            android:outlineProvider="bounds"
+            android:clipToPadding="false"
+            android:gravity="top"
+            android:baselineAligned="false">
+
+            <!-- === LEFT SIDE: PROFILE INFO (Vertical Layout) === -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_horizontal"
+                android:paddingTop="4dp">
+
+                <!-- 1. Profile Picture -->
+                <ImageView
+                    android:id="@+id/iv_profile_picture"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@android:drawable/sym_def_app_icon"
+                    android:contentDescription="User Profile Picture"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/rounded_image_bg"/>
+
+                <!-- 2. Name -->
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jane Doe"
+                    android:textSize="16sp"
+                    android:textColor="#4A4A68"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/montserrat_semi_bold"/>
+
+                <!-- 3. Position -->
+                <TextView
+                    android:id="@+id/tv_position"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Marketing Director"
+                    android:textSize="14sp"
+                    android:textColor="#8C8CA1"
+                    android:fontFamily="@font/poppins_regular"/>
+
+                <!-- 4. Year and Course -->
+                <TextView
+                    android:id="@+id/tv_course_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="III - BCSAD"
+                    android:textSize="12sp"
+                    android:textColor="#8C8CA1"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/poppins_regular"/>
+
+            </LinearLayout>
+
+            <!-- A simple drawable for rounded image to be used for the ImageView -->
+            <!-- This is a quick fix, ideally you'd use a dedicated library like Glide or Coil for circular images. -->
+            <!-- You would create this file: rounded_image_bg.xml to apply a circular mask to the ImageView -->
+
+            <!-- === RIGHT SIDE: PREVIEW TEXT AND ACTION (Vertical Layout) === -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- 1. Preview Text (Limited to 3 lines) -->
+                <TextView
+                    android:id="@+id/tv_preview_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                    android:textSize="14sp"
+                    android:textColor="#8C8CA1"
+                    android:maxLines="4"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="2dp"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/poppins_regular"/>
+
+                <!-- 2. View All Button -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnViewAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="View All"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:background="@drawable/blue_rounded_button"
+                    android:textAllCaps="false"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:layout_gravity="center_horizontal"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- END FIRST CONTENT CARD -->
+
+
+
+
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+

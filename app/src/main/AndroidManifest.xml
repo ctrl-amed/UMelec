@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".Position"
+            android:exported="false" />
+        <activity
+            android:name=".Comparison"
+            android:exported="false" />
+        <activity
             android:name=".Faq"
             android:exported="false" />
         <activity
