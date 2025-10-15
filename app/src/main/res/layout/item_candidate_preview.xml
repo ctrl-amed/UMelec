@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/candidatePhoto"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/rounded_gray_bg"
+        android:contentDescription="Candidate Photo"
+        android:background="#D0D0D0"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@+id/candidateName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Candidate Name"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/montserrat_semi_bold" />
+
+    <TextView
+        android:id="@+id/candidatePosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Position"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:fontFamily="@font/poppins_regular"/>
+</LinearLayout>

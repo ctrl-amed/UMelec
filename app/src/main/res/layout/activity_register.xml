@@ -145,10 +145,10 @@
                 android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/reqUppercase"
+                android:id="@+id/reqMixedcase"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="• Must contain an uppercase letter"
+                android:text="• Mixed case"
                 android:textColor="#8C8CA1"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="14sp" />
@@ -161,6 +161,16 @@
                 android:textColor="#8C8CA1"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/reqNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Must contain a number"
+                android:textColor="#8C8CA1"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="14sp" />
+
         </LinearLayout>
 
         <!-- CONFIRMPASSWORD -->
