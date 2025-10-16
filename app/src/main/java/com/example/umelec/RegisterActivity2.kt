@@ -652,7 +652,7 @@ class RegisterActivity2 : AppCompatActivity() {
         }
 
         btnConfirm.setOnClickListener {
-            val studentID = inputStudentID.text.toString().trim()
+            val student_id = inputStudentID.text.toString().trim()
             val firstname = inputFirstname.text.toString().trim()
             val lastname = inputLastname.text.toString().trim()
             val college = inputCollege.text.toString().trim()
@@ -664,15 +664,16 @@ class RegisterActivity2 : AppCompatActivity() {
                 val userId = currentUser.uid
                 val db = FirebaseFirestore.getInstance()
 
-                // Prepare the data to store
+// Prepare the data to store
                 val userInfo = hashMapOf(
-                    "studentID" to studentID,
+                    "student_id" to student_id,
                     "firstname" to firstname,
                     "lastname" to lastname,
                     "college" to college,
                     "year" to year,
                     "email" to currentUser.email,
-                    "createdAt" to com.google.firebase.Timestamp.now() // ✅ Store as Firestore Timestamp
+                    "status" to 0, // <-- default: Not Voted
+                    "createdAt" to com.google.firebase.Timestamp.now()
                 )
 
                 // Save user info under "users" collection
