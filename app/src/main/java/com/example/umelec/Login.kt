@@ -19,11 +19,6 @@ import android.app.AlertDialog // <-- Keeping this import as per your original f
 
 class Login : AppCompatActivity() {
 
-    // 🚨 SIMULATED CREDENTIALS (Replace with your actual authentication logic)
-    private val CORRECT_EMAIL = "K12345678@umak.edu.ph"
-    private val CORRECT_PASSWORD = "password123"
-    // NEW: Placeholder for the user's name (easy to change for the backend)
-    private val CORRECT_USER_NAME = "Juan Dela Cruz"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -308,14 +303,36 @@ class Login : AppCompatActivity() {
             val email = inputEmail.text.toString().trim()
             val password = inputPassword.text.toString()
 
-            // ⚠️ SIMULATED LOGIN CHECK ⚠️
-            if (email == CORRECT_EMAIL && password == CORRECT_PASSWORD) {
-                // UPDATED: Show custom success dialog instead of navigating directly
-                showLoginSuccessDialog(CORRECT_USER_NAME)
-            } else {
-                // FAILED LOGIN: Show custom error dialog and stay on screen
-                showLoginErrorDialog()
-            }
+            // Use FirebaseAuth to sign in
+            val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener { authResult ->
+                    // Login successful, fetch user's name from Firestore
+                    val userId = authResult.user?.uid
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+                    if (userId != null) {
+                        db.collection("users").document(userId).get()
+                            .addOnSuccessListener { document ->
+                                val firstName = document.getString("firstname") ?: ""
+                                val lastName = document.getString("lastname") ?: ""
+                                val fullName = "$firstName $lastName"
+                                showLoginSuccessDialog(fullName)
+                            }
+                            .addOnFailureListener {
+                                // If fetching name fails, just use email
+                                showLoginSuccessDialog(email)
+                            }
+                    } else {
+                        // Fallback if uid is null
+                        showLoginSuccessDialog(email)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    // Login failed
+                    Toast.makeText(this, "Login Failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    showLoginErrorDialog()
+                }
         }
     }
 }

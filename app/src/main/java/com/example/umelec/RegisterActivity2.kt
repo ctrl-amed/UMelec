@@ -17,6 +17,8 @@ import com.google.android.material.textfield.TextInputLayout
 import android.content.Intent // NOTE: Added missing import for Intent (for btnConfirm)
 import android.widget.Toast
 import android.app.AlertDialog // Use android.app.AlertDialog as per your previous files
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class RegisterActivity2 : AppCompatActivity() {
@@ -650,12 +652,43 @@ class RegisterActivity2 : AppCompatActivity() {
         }
 
         btnConfirm.setOnClickListener {
-            // ⚠️ Placeholder for actual registration logic (e.g., Firebase call) ⚠️
+            val studentID = inputStudentID.text.toString().trim()
+            val firstname = inputFirstname.text.toString().trim()
+            val lastname = inputLastname.text.toString().trim()
+            val college = inputCollege.text.toString().trim()
+            val year = inputYear.text.toString().trim()
 
-            // Assuming registration was successful, show the dialog
-            showRegistrationSuccessDialog()
+            val currentUser = FirebaseAuth.getInstance().currentUser
 
-            // You can add an 'else' here if you need to handle registration failure later
+            if (currentUser != null) {
+                val userId = currentUser.uid
+                val db = FirebaseFirestore.getInstance()
+
+                // Prepare the data to store
+                val userInfo = hashMapOf(
+                    "studentID" to studentID,
+                    "firstname" to firstname,
+                    "lastname" to lastname,
+                    "college" to college,
+                    "year" to year,
+                    "email" to currentUser.email,
+                    "createdAt" to com.google.firebase.Timestamp.now() // ✅ Store as Firestore Timestamp
+                )
+
+                // Save user info under "users" collection
+                db.collection("users").document(userId)
+                    .set(userInfo)
+                    .addOnSuccessListener {
+                        // Show dialog when successfully saved
+                        showRegistrationSuccessDialog()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Failed to save data: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+            } else {
+                Toast.makeText(this, "No authenticated user found.", Toast.LENGTH_LONG).show()
+            }
         }
+
     }
 }

@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import android.app.AlertDialog
+import com.google.firebase.auth.FirebaseAuth
+import android.widget.Toast
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -23,9 +25,13 @@ class RegisterActivity : AppCompatActivity() {
     // Retaining specialChars definition
     val specialChars = "!@#$%^&*-+=()_`~[]{}|\\:;\"'<,>.?/"
 
+    private lateinit var auth: FirebaseAuth
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+        auth = FirebaseAuth.getInstance()
 
         // =====================================================================
         // 2. VIEW INITIALIZATION (FIND VIEW BY ID)
@@ -125,24 +131,34 @@ class RegisterActivity : AppCompatActivity() {
             val email = inputEmail.text.toString().trim()
             val password = inputPassword.text.toString()
 
-            // =========================================================================
-            // 🚨 BACKEND SIMULATION / INTEGRATION POINT 🚨
-            // =========================================================================
-
-            // --- SIMULATION START ---
-            val REGISTERED_EMAIL_SIMULATION = "test@umak.edu.ph"
-
-            if (email.equals(REGISTERED_EMAIL_SIMULATION, ignoreCase = true)) {
-                // FAILURE CASE: Email is already registered
-                showEmailAlreadyRegisteredDialog()
-
-            } else {
-                // SUCCESS CASE: Proceed to the next registration step (RegisterActivity2)
-                val intent = Intent(this, RegisterActivity2::class.java)
-                startActivity(intent)
+            // Validate fields before sending to Firebase
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            // --- SIMULATION END ---
-            // =========================================================================
+
+            btnNext.isEnabled = false // disable while loading
+
+            // 🔥 Firebase create account
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    btnNext.isEnabled = true // enable again
+
+                    if (task.isSuccessful) {
+                        // ✅ Registration successful → Go to RegisterActivity2
+                        Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, RegisterActivity2::class.java)
+                        startActivity(intent)
+                    } else {
+                        // ❌ Error handling
+                        val errorMessage = task.exception?.message ?: "Registration failed"
+                        if (errorMessage.contains("email address is already in use", ignoreCase = true)) {
+                            showEmailAlreadyRegisteredDialog()
+                        } else {
+                            Toast.makeText(this, "Error: $errorMessage", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
         }
 
         // =====================================================================

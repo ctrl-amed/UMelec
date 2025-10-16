@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">UMelec</string>
+
+    <string-array name="user_types">
+        <item>Student</item>
+        <item>Leader</item>
+        <item>Adviser</item>
+    </string-array>
+
 </resources>
