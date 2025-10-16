@@ -50,6 +50,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("de.hdodenhof:circleimageview:3.1.0") // add this line
 
     // Firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
