@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".Notification2"
+            android:exported="false" />
+        <activity
             android:name=".Platform"
             android:exported="false" />
         <activity

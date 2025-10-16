@@ -130,7 +130,6 @@
                 android:background="@drawable/rounded_gray_bg"
                 android:padding="16dp"
                 android:layout_marginBottom="20dp"
-                android:elevation="4dp"
                 android:outlineProvider="bounds"
                 android:clipToPadding="false">
 

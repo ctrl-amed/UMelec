@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0039A6"
-    tools:context=".RegisterActivity">
+    tools:context=".Notification2">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/HeaderLayout"
@@ -35,7 +35,7 @@
             android:id="@+id/NameTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Compare Candidates"
+            android:text="Notification"
             android:textSize="25sp"
             android:fontFamily="@font/montserrat_bold"
             android:textColor="#FAFCFE"
@@ -62,35 +62,41 @@
         android:backgroundTint="#FAFCFE">
 
         <LinearLayout
+            android:id="@+id/NotificationContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="20dp">
+            android:orientation="vertical"
+            android:padding="30dp"
+            android:gravity="left">
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnFilter"
+
+            <TextView
+                android:id="@+id/notification_title"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Filter"
-                android:textColor="@android:color/white"
-                android:textSize="15sp"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:layout_marginRight="20dp"
-                android:background="@drawable/blue_rounded_button"
-                android:textAllCaps="false"
-                android:fontFamily="@font/poppins_bold"
-                android:drawableStart="@drawable/ic_filter"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical|center_horizontal"
-                />
+                android:layout_height="wrap_content"
+                android:text="Notification Title"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#0E0E2C"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/montserrat_semi_bold" />
+
+            <TextView
+                android:id="@+id/notification_preview_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                android:textSize="14sp"
+                android:textColor="#8C8CA1"
+                android:ellipsize="end"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/poppins_regular"/>
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-
-    <!-- FOOTER -->
 
     <LinearLayout
         android:id="@+id/FooterLayout"
@@ -178,15 +184,14 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_candidates"
                 android:contentDescription="Candidates"
-                app:tint="#0039A6" />
+                app:tint="#666666" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=" Candidates "
+                android:text="Candidates"
                 android:textSize="12sp"
-                android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_text_bg"
+                android:textColor="#333333"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>

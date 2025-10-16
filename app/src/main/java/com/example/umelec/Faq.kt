@@ -12,9 +12,6 @@ import androidx.core.content.ContextCompat // For resource color/drawable handli
 
 // --- DATA STRUCTURE FOR FAQ ---
 
-
-
-
 class Faq : AppCompatActivity() {
 
     // A list to hold your notification data (Simulated data)

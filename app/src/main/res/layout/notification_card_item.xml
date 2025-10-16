@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/notification_unread_bg"
+    android:padding="15dp"
+    android:outlineProvider="bounds"
+    android:clipToPadding="false"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_marginBottom="10dp"
+    >
+
+    <TextView
+        android:id="@+id/notification_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notification Title"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#0E0E2C"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/montserrat_semi_bold" />
+
+    <TextView
+        android:id="@+id/notification_preview_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua..."
+        android:textSize="14sp"
+        android:textColor="#8C8CA1"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:lineSpacingExtra="2dp"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/poppins_regular"/>
+</LinearLayout>
