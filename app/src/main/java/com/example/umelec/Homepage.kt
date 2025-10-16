@@ -22,8 +22,7 @@ enum class ElectionState {
 // Data class to easily handle election details for the ONGOING phase
 data class ElectionDetails(val title: String, val period: String, val status: String)
 
-// Define a data class to represent a notification item
-data class NotificationItem(val title: String, val isRead: Boolean)
+
 
 
 // Data class to represent a single candidate's information

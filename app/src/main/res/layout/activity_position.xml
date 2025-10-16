@@ -6,92 +6,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0039A6"
-    tools:context=".Homepage">
+    tools:context=".RegisterActivity">
 
-    <!-- Header Content (Fixed at the top) -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/HeaderLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="back_button_content_description"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
         <TextView
+            android:id="@+id/NameTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Candidates"
-            android:textSize="30sp"
-            android:textStyle="bold"
+            android:text="Position"
+            android:textSize="25sp"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#FAFCFE" />
+            android:textColor="#FAFCFE"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/GreetingLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
-
-
-
-            <LinearLayout
-                android:id="@+id/greetingTextLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
-                <!-- <TextView
-                    android:id="@+id/NameTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/montserrat_semi_bold"
-                    android:textColor="#FAFCFE" /> -->
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/notificationIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/notification"
-                android:contentDescription="Notification"
-                app:tint="#FAFCFE"
-                app:layout_constraintEnd_toStartOf="@id/profileIcon"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true"/>
-
-            <ImageView
-                android:id="@+id/profileIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/profile"
-                android:contentDescription="Profile"
-                app:tint="#FAFCFE"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:clickable="true"
-                android:focusable="true"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-
-
-    <!-- 🔹 SCROLLABLE WHITE CONTAINER (Main Content) 🔹 -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/WhiteContainerScroll"
         android:layout_width="match_parent"
@@ -101,156 +57,123 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/FooterLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fillViewport="true"
+        android:backgroundTint="#0039A6">
 
-        <!-- CONTENT CONTAINER: ADD ALL YOUR SCROLLABLE CONTENT HERE -->
         <LinearLayout
-            android:id="@+id/ContentContainer"
+            android:id="@+id/registerContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="30dp"
-            android:gravity="center_horizontal">
-
-        <LinearLayout
-
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Candidates Position"
-                android:textSize="20sp"
-                android:textColor="#0E0E2C"
-
-                android:fontFamily="@font/montserrat_semi_bold" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Click the position name to see all the candidates applying for that position."
-                android:textSize="15sp"
-                android:textColor="#0E0E2C"
-                android:layout_marginBottom="20dp"
-                android:fontFamily="@font/poppins_regular" />
-
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:id="@+id/PositionContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:paddingTop="30dp"
+            android:paddingBottom="10dp"
             android:gravity="center_horizontal"
-            android:layout_marginBottom="20dp"
-            >
+            android:backgroundTint="#0039A6">
 
             <LinearLayout
-                android:id="@+id/btnPosition"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp"
-                android:gravity="center"
-                android:background="@drawable/blue_rounded_button"
-                android:clickable="true"
-                android:focusable="true"
-                android:layout_marginBottom="10dp">
-
-                <TextView
-                    android:id="@+id/Positions"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Chairperson"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:fontFamily="@font/montserrat_bold"/>
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/FaqLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_gray_bg"
-                android:padding="16dp"
-                android:layout_marginBottom="20dp"
-
-                android:outlineProvider="bounds"
-                android:clipToPadding="false">
-
-                <TextView
-                    android:id="@+id/QuestionText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Candidates Comparison"
-                    android:textSize="20sp"
-                    android:textColor="#0E0E2C"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/montserrat_semi_bold" />
-
-                <TextView
-                    android:id="@+id/AnswerText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="You can compare up to 2 candidates for each position."
-                    android:textSize="15sp"
-                    android:textColor="#4A4A68"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/montserrat_semi_bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
+                android:id="@+id/cardContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="end"
-                android:layout_marginBottom="20dp">
+                android:background="@drawable/rounded_gray_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginHorizontal="16dp"
+                android:outlineProvider="bounds"
+                android:clipToPadding="false"
+                android:gravity="top"
+                android:baselineAligned="false">
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnCompare"
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:text="Compare"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:background="@drawable/blue_rounded_button"
-                    android:textAllCaps="false"
-                    android:fontFamily="@font/montserrat_bold"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="center_horizontal"
+                    android:paddingTop="4dp">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/iv_profile_picture"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@android:drawable/sym_def_app_icon"
+                        android:scaleType="centerCrop"
+                        app:civ_border_width="2dp"
+                        app:civ_border_color="#CCCCCC"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jane Doe"
+                        android:textSize="16sp"
+                        android:textColor="#4A4A68"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/montserrat_semi_bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_position"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Marketing Director"
+                        android:textSize="14sp"
+                        android:textColor="#8C8CA1"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <TextView
+                        android:id="@+id/tv_course_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="III - BCSAD"
+                        android:textSize="12sp"
+                        android:textColor="#8C8CA1"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_preview_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                        android:textSize="14sp"
+                        android:textColor="#8C8CA1"
+                        android:maxLines="4"
+                        android:ellipsize="end"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnViewAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="View All"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:background="@drawable/blue_rounded_button"
+                        android:textAllCaps="false"
+                        android:fontFamily="@font/montserrat_bold"
+                        android:layout_gravity="center_horizontal"/>
+
+                </LinearLayout>
 
             </LinearLayout>
-
-
-
-
-
-            <!-- Placeholder for long content to enable scrolling -->
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#F0F7F0"
-                android:layout_marginBottom="10dp"/>
-
         </LinearLayout>
-        <!-- END CONTENT CONTAINER -->
-
     </androidx.core.widget.NestedScrollView>
 
 
-    <!-- FOOTER (Fixed at the bottom with elevation for shadow effect) -->
     <LinearLayout
         android:id="@+id/FooterLayout"
         android:layout_width="match_parent"
@@ -403,6 +326,5 @@
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
-
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

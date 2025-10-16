@@ -73,9 +73,9 @@
                     android:id="@+id/ProfilePicture"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/rounded_gray_bg"
+                    android:src="@drawable/profile"
                     android:contentDescription="Candidate Photo"
-                    android:background="#D0D0D0"
+
                     android:scaleType="centerCrop"/>
 
 
