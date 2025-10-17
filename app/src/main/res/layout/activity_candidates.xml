@@ -176,61 +176,6 @@
         </LinearLayout>
 
 
-            <LinearLayout
-                android:id="@+id/FaqLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_gray_bg"
-                android:padding="16dp"
-                android:layout_marginBottom="20dp"
-
-                android:outlineProvider="bounds"
-                android:clipToPadding="false">
-
-                <TextView
-                    android:id="@+id/QuestionText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Candidates Comparison"
-                    android:textSize="20sp"
-                    android:textColor="#0E0E2C"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/montserrat_semi_bold" />
-
-                <TextView
-                    android:id="@+id/AnswerText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="You can compare up to 2 candidates for each position."
-                    android:textSize="15sp"
-                    android:textColor="#4A4A68"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/montserrat_semi_bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end"
-                android:layout_marginBottom="20dp">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnCompare"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:text="Compare"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:background="@drawable/blue_rounded_button"
-                    android:textAllCaps="false"
-                    android:fontFamily="@font/montserrat_bold"/>
-
-            </LinearLayout>
 
 
 

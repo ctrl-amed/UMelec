@@ -154,7 +154,7 @@ class Candidates : AppCompatActivity() {
         val notificationIcon: ImageView = findViewById(R.id.notificationIcon)
 
         // 🆕 Find the Compare button
-        val compareButton: Button = findViewById(R.id.btnCompare)
+        //val compareButton: Button = findViewById(R.id.btnCompare)
 
 
         // --- Profile Icon Click Listener ---
@@ -169,15 +169,15 @@ class Candidates : AppCompatActivity() {
         }
 
         // --- Compare Button Click Listener ---
-        compareButton.setOnClickListener {
+        //compareButton.setOnClickListener {
             // Apply the color change animation and navigate to Comparison.kt
-            animateAndNavigate(
-                view = it,
-                originalBgResource = R.drawable.blue_rounded_button,
-                targetActivity = Comparison::class.java
+            //animateAndNavigate(
+                //view = it,
+               // originalBgResource = R.drawable.blue_rounded_button,
+                //targetActivity = Comparison::class.java
 
-            )
-        }
+           // )
+        //}
     }
 
 

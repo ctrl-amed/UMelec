@@ -47,7 +47,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     <androidx.core.widget.NestedScrollView
         android:id="@+id/WhiteContainerScroll"
         android:layout_width="match_parent"
@@ -59,38 +58,189 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
-        android:backgroundTint="#FAFCFE">
+        android:backgroundTint="#0039A6">
 
         <LinearLayout
+            android:id="@+id/ComparisonContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="20dp">
+            android:orientation="vertical"
+            android:layout_marginHorizontal="30dp"
+            android:gravity="center_horizontal">
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnFilter"
+            <LinearLayout
+                android:id="@+id/Candidate1Container"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Filter"
-                android:textColor="@android:color/white"
-                android:textSize="15sp"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:layout_marginRight="20dp"
-                android:background="@drawable/blue_rounded_button"
-                android:textAllCaps="false"
-                android:fontFamily="@font/poppins_bold"
-                android:drawableStart="@drawable/ic_filter"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical|center_horizontal"
-                />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/rounded_gray_bg"
+                android:padding="20dp"
+                android:layout_marginBottom="20dp"
+                android:outlineProvider="bounds"
+                android:clipToPadding="false"
+                android:gravity="top"
+                android:baselineAligned="false">
 
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:paddingTop="4dp">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/iv_profile_picture1"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@android:drawable/sym_def_app_icon"
+                        android:scaleType="centerCrop"
+                        app:civ_border_width="2dp"
+                        app:civ_border_color="#CCCCCC" />
+
+                    <TextView
+                        android:id="@+id/tv_name1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jane Doe"
+                        android:textSize="20sp"
+                        android:textColor="#4A4A68"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/montserrat_semi_bold"/>
+
+                    <TextView
+                        android:id="@+id/credentialsTitle1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Credentials:"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:textColor="#4A4A68"
+                        android:layout_marginBottom="5dp"
+                        android:layout_gravity="left"/>
+
+                    <TextView
+                        android:id="@+id/credentialsValue1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lorem ipsum"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="#4A4A68"
+                        android:layout_marginBottom="20dp"
+                        android:layout_gravity="left" />
+
+                    <TextView
+                        android:id="@+id/advocacyTitle1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Advocacy:"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:textColor="#4A4A68"
+                        android:layout_marginBottom="5dp"
+                        android:layout_gravity="left"/>
+
+                    <TextView
+                        android:id="@+id/advocacyValue1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lorem ipsum"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="#4A4A68"
+                        android:layout_gravity="left" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/Candidate2Container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rounded_gray_bg"
+                android:baselineAligned="false"
+                android:clipToPadding="false"
+                android:gravity="top"
+                android:orientation="horizontal"
+                android:outlineProvider="bounds"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingTop="4dp">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/iv_profile_picture2"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/sym_def_app_icon"
+                        app:civ_border_color="#CCCCCC"
+                        app:civ_border_width="2dp" />
+
+                    <TextView
+                        android:id="@+id/tv_name2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:text="Jane Doe"
+                        android:textColor="#4A4A68"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/credentialsTitle2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:text="Credentials:"
+                        android:textColor="#4A4A68"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/credentialsValue2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginBottom="20dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="Lorem ipsum"
+                        android:textColor="#4A4A68"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/advocacyTitle2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:text="Advocacy:"
+                        android:textColor="#4A4A68"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/advocacyValue2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="Lorem ipsum"
+                        android:textColor="#4A4A68"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-
-    <!-- FOOTER -->
 
     <LinearLayout
         android:id="@+id/FooterLayout"

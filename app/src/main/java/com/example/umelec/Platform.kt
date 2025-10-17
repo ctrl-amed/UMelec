@@ -10,15 +10,7 @@ import android.widget.ImageButton // ⭐️ Import ImageButton
 import androidx.appcompat.app.AppCompatActivity
 
 // --- DATA STRUCTURE FOR CANDIDATE'S PLATFORM DETAILS ---
-data class CandidatePlatformDetails(
-    val candidateId: String,
-    val name: String,
-    val position: String,
-    val courseInfo: String,
-    val profilePictureResource: Int,
-    val credentials: String,
-    val advocacy: String
-)
+
 
 class Platform : AppCompatActivity() {
 

@@ -66,10 +66,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="30dp"
-            android:paddingBottom="10dp"
-            android:gravity="center_horizontal"
-            android:backgroundTint="#0039A6">
+            android:layout_marginHorizontal="30dp"
+            android:gravity="center_horizontal">
 
             <LinearLayout
                 android:id="@+id/cardContainer"
@@ -77,9 +75,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/rounded_gray_bg"
-                android:padding="16dp"
+                android:padding="20dp"
                 android:layout_marginBottom="20dp"
-                android:layout_marginHorizontal="16dp"
                 android:outlineProvider="bounds"
                 android:clipToPadding="false"
                 android:gravity="top"
@@ -169,8 +166,62 @@
 
                 </LinearLayout>
 
+
+
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/CompareLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_gray_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                >
+
+            <TextView
+                android:id="@+id/QuestionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Want to compare candidates?"
+                android:textSize="20sp"
+                android:textColor="#4A4A68"
+                android:fontFamily="@font/montserrat_semi_bold"
+                android:gravity="center_horizontal"/>
+
+            <TextView
+                android:id="@+id/AnswerText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="You can compare up to 2 candidates for each position."
+                android:textSize="15sp"
+                android:textColor="#8C8CA1"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center_horizontal"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCompare"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Compare"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:background="@drawable/blue_rounded_button"
+                android:textAllCaps="false"
+                android:fontFamily="@font/montserrat_bold"
+                />
+
         </LinearLayout>
+
+
+
+    </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
 
