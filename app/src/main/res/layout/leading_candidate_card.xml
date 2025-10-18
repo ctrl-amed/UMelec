@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Root LinearLayout acts as the single item view in the carousel -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp">
+
+    <!-- 1. Custom Circle Profile Picture -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/candidateProfilePicture"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/profile"
+        android:scaleType="centerCrop"
+        app:civ_border_color="#FCBE6A"
+        app:civ_border_width="3dp"
+        android:contentDescription="Leading Candidate Profile"/>
+
+    <!-- 2. Name and Trophy Container -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp">
+
+        <!-- Trophy Icon -->
+        <ImageView
+            android:id="@+id/trophyIconImageView"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_trophy"
+            android:tint="#FCBE6A"
+            android:contentDescription="Trophy Icon"/>
+
+        <!-- Candidate Name -->
+        <TextView
+            android:id="@+id/candidateNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="Candidate Name"
+            android:textSize="22sp"
+            android:textColor="#0E0E2C"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:fontFamily="@font/montserrat_bold"
+            />
+    </LinearLayout>
+
+    <!-- 3. Position -->
+    <TextView
+        android:id="@+id/candidatePositionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Candidate Position"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_regular"
+        />
+
+    <!-- 4. Vote Count -->
+    <TextView
+        android:id="@+id/candidateVotesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="0 Votes"
+        android:textSize="18sp"
+        android:textColor="#0039A6"
+        android:fontFamily="@font/montserrat_semi_bold"
+        />
+</LinearLayout>

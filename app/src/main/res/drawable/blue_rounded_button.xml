@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Enabled state -->
-    <item android:state_enabled="true">
+    <!-- Pressed state (Click/Tap) - Changes color to gold/yellow when clicked -->
+    <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <corners android:radius="16dp" />
-            <solid android:color="#0039A6" /> <!-- Your desired blue -->
+            <solid android:color="#FCBE6A" />
         </shape>
     </item>
 
-    <!-- Disabled state -->
+    <!-- Enabled state (Default Blue) -->
+    <item android:state_enabled="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="#0039A6" />
+        </shape>
+    </item>
+
+    <!-- Disabled state (Gray) -->
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
-            <corners android:radius="20dp" />
-            <solid android:color="#9E9E9E" /> <!-- Gray when disabled -->
+            <corners android:radius="16dp" />
+            <solid android:color="#9E9E9E" />
         </shape>
     </item>
 
 </selector>
-
-

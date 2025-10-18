@@ -151,7 +151,9 @@
                     android:textSize="16sp"
                     android:textColor="#666666"
                     android:fontFamily="@font/poppins_regular"
-                    android:visibility="gone" /> <LinearLayout
+                    android:visibility="gone" />
+
+                <LinearLayout
                 android:id="@+id/UpcomingLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -299,7 +301,7 @@
                 android:background="@drawable/rounded_gray_bg"
                 android:padding="16dp"
                 android:layout_marginBottom="20dp"
-                android:elevation="4dp"
+
                 android:outlineProvider="bounds"
                 android:clipToPadding="false">
 
@@ -464,7 +466,7 @@
                 android:background="@drawable/rounded_gray_bg"
                 android:padding="16dp"
                 android:layout_marginBottom="20dp"
-                android:elevation="4dp"
+
                 android:outlineProvider="bounds"
                 android:clipToPadding="false">
 

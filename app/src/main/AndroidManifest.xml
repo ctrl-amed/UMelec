@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".OfficialResults"
+            android:exported="false" />
+        <activity
+            android:name=".Tallies"
+            android:exported="false" />
+        <activity
             android:name=".Notification2"
             android:exported="false" />
         <activity

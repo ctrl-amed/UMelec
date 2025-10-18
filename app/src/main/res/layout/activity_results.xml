@@ -1,10 +1,567 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0039A6"
     tools:context=".Results">
 
+    <!-- Header Content (Fixed at the top) -->
+    <LinearLayout
+        android:id="@+id/HeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/ResultsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Election Monitoring"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/montserrat_bold"
+            android:textColor="#FAFCFE" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/GreetingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/CollegeLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+
+                <TextView
+                    android:id="@+id/CollegeTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="College"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/montserrat_semi_bold"
+                    android:textColor="#FAFCFE" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/notificationIcon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/notification"
+                android:contentDescription="Notification"
+                app:tint="#FAFCFE"
+                app:layout_constraintEnd_toStartOf="@id/profileIcon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true"/>
+
+            <ImageView
+                android:id="@+id/profileIcon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/profile"
+                android:contentDescription="Profile"
+                app:tint="#FAFCFE"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:clickable="true"
+                android:focusable="true"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+
+    <!-- 🔹 SCROLLABLE WHITE CONTAINER (Main Content) 🔹 -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/WhiteContainerScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/rounded_white_bg"
+        android:layout_marginTop="100dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/FooterLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- CONTENT CONTAINER: ADD ALL YOUR SCROLLABLE CONTENT HERE -->
+        <LinearLayout
+            android:id="@+id/ContentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="30dp"
+            android:gravity="center_horizontal">
+
+
+
+            <!-- 📝 FIRST CONTENT CARD: Leading Preview 📝 -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_gray_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp"
+                android:outlineProvider="bounds"
+                android:clipToPadding="false">
+
+                <!-- Card Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Leading Preview"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#0039A6"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/montserrat_semi_bold" />
+
+
+                <!-- 1. EMPTY STATE / ELECTION ENDED MESSAGES CONTAINER -->
+                <LinearLayout
+                    android:id="@+id/leadingCandidatesMessageContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingVertical="30dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+                    <!-- Text View for when there is NO DATA -->
+                    <TextView
+                        android:id="@+id/noElectionDataTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No election data available."
+                        android:textSize="16sp"
+                        android:textColor="#666666"
+                        android:fontFamily="@font/poppins_regular"
+                        android:visibility="gone"
+                        tools:visibility="visible"/>
+
+                    <!-- Text View for the ELECTION ENDED PHASE -->
+                    <TextView
+                        android:id="@+id/electionEndedTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Election has ended. Leading candidates are no longer displayed."
+                        android:textSize="16sp"
+                        android:textColor="#666666"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textAlignment="center"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+
+                <!-- 2. LEADING CANDIDATES CAROUSEL CONTAINER (Visible when election is ONGOING) -->
+                <LinearLayout
+                    android:id="@+id/leadingCandidatesCarouselContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="visible"
+                    tools:visibility="visible">
+
+                    <!-- Left Arrow Button -->
+                    <ImageButton
+                        android:id="@+id/btnPrevCandidate"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_chevron_left"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Previous Candidate"
+                        app:tint="#0039A6" />
+
+                    <!-- Candidate Display Area (This is what cycles) -->
+                    <LinearLayout
+                        android:id="@+id/candidateDisplayArea"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:paddingHorizontal="8dp">
+
+                        <!-- Candidate Profile Section -->
+                        <ImageView
+                            android:id="@+id/candidateProfilePicture"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@android:drawable/sym_def_app_icon"
+                            android:scaleType="centerCrop"
+                            android:clipToOutline="true"
+                            android:contentDescription="Leading Candidate Profile"/>
+
+                        <!-- Name and Trophy -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginBottom="4dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_trophy"
+                                app:tint="#FCBE6A"
+                                android:contentDescription="Trophy Icon"/>
+
+                            <TextView
+                                android:id="@+id/candidateName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Jane Doe"
+                                android:textSize="20sp"
+                                android:textColor="#0E0E2C"
+                                android:fontFamily="@font/montserrat_bold"
+                                android:layout_marginStart="4dp"/>
+                        </LinearLayout>
+
+                        <!-- Position -->
+                        <TextView
+                            android:id="@+id/candidatePosition"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chairperson"
+                            android:textSize="16sp"
+                            android:textColor="#333333"
+                            android:fontFamily="@font/poppins_regular"/>
+
+                        <!-- Vote Count -->
+                        <TextView
+                            android:id="@+id/candidateVoteCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2,540 Votes"
+                            android:textSize="18sp"
+                            android:textColor="#0039A6"
+                            android:fontFamily="@font/montserrat_semi_bold"
+                            android:layout_marginTop="8dp"/>
+                    </LinearLayout>
+
+                    <!-- Right Arrow Button -->
+                    <ImageButton
+                        android:id="@+id/btnNextCandidate"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Next Candidate"
+                        app:tint="#0039A6"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+
+
+            <!-- TALLIES CARD -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_gray_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp"
+                android:outlineProvider="bounds"
+                android:clipToPadding="false">
+
+                <!-- Title and Content area for Tallies Card -->
+                <TextView
+                    android:id="@+id/talliesCardTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tallies"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#0039A6"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/montserrat_semi_bold" />
+
+                <!-- Message -->
+                <TextView
+                    android:id="@+id/talliesCardMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No election data available."
+                    android:textSize="16sp"
+                    android:textColor="#333333"
+                    android:fontFamily="@font/poppins_regular"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:layout_marginBottom="20dp">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnViewTallies"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="View Live Tally"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:background="@drawable/blue_rounded_button"
+                        android:textAllCaps="false"
+                        android:fontFamily="@font/poppins_bold"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- OFFICIAL RESULTS CARD -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_gray_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp"
+                android:outlineProvider="bounds"
+                android:clipToPadding="false">
+
+                <!-- Title -->
+                <TextView
+                    android:id="@+id/officialResultsCardTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Official Results"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#0039A6"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/montserrat_semi_bold" />
+
+                <!-- Message -->
+                <TextView
+                    android:id="@+id/officialResultsCardMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No Election data available."
+                    android:textSize="16sp"
+                    android:textColor="#333333"
+                    android:fontFamily="@font/poppins_regular"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:layout_marginBottom="20dp">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnViewOfficialResult"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="View Result"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:background="@drawable/blue_rounded_button"
+                        android:textAllCaps="false"
+                        android:fontFamily="@font/poppins_bold"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <!-- Placeholder for long content to enable scrolling -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#F0F7F0"
+                android:layout_marginBottom="10dp"/>
+
+        </LinearLayout>
+        <!-- END CONTENT CONTAINER -->
+
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
+    <!-- FOOTER (Fixed at the bottom with elevation for shadow effect) -->
+    <LinearLayout
+        android:id="@+id/FooterLayout"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:background="@drawable/footer"
+        android:gravity="center"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/nav_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_home"
+                android:contentDescription="Home"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_vote"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_vote"
+                android:contentDescription="Vote"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vote"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_candidates"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_candidates"
+                android:contentDescription="Candidates"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Candidates"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_results"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_results"
+                android:contentDescription="Results"
+                app:tint="#0039A6" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  Results  "
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/blue_rounded_text_bg"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_faq"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_faq"
+                android:contentDescription="FAQs"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FAQs"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
