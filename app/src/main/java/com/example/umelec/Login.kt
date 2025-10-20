@@ -13,8 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import android.app.AlertDialog // <-- Keeping this import as per your original file
-
+import android.app.AlertDialog
 
 
 class Login : AppCompatActivity() {
@@ -56,11 +55,13 @@ class Login : AppCompatActivity() {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         val forgotPassword = findViewById<TextView>(R.id.ForgotPassword)
+        // ⭐️ New: Register Button ⭐️
+        val registerButton = findViewById<TextView>(R.id.RegisterButton)
 
         // --- HELPER FUNCTIONS ---
         fun isEmailValid(email: String): Boolean {
             // Requires non-empty AND ends with the specific domain
-            return email.isNotEmpty() && email.endsWith("@umak.edu.ph", ignoreCase = true)
+            return email.isNotEmpty() && email.endsWith(CORRECT_EMAIL, ignoreCase = true)
         }
 
         fun isPasswordValid(password: String): Boolean {
@@ -83,7 +84,7 @@ class Login : AppCompatActivity() {
             // Using android.app.AlertDialog as per your original import
             AlertDialog.Builder(this)
                 .setTitle("Login Failed")
-                .setMessage("Wrong credentials and invalid email or password.")
+                .setMessage("Invalid Credentials. Please try again.")
                 .setPositiveButton("OK") { dialog, which ->
                     // Dialog is dismissed, user remains on the Login screen with data intact
                 }
@@ -119,14 +120,21 @@ class Login : AppCompatActivity() {
 
         // BACK BUTTON SETUP
         btnBack.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            //val intent = Intent(this, MainActivity::class.java)
+            //startActivity(intent)
             finish() // optional — use if you don’t want to come back here when pressing back again
         }
 
-        //FORGOT PASSWORD BUTTON SETUP
+        // FORGOT PASSWORD BUTTON SETUP
         forgotPassword.setOnClickListener {
             val intent = Intent(this, Forgotpassword::class.java)
+            startActivity(intent)
+        }
+
+        // ⭐️ REGISTER BUTTON SETUP ⭐️
+        registerButton.setOnClickListener {
+            // Start the RegisterActivity when the button is clicked
+            val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
 
@@ -157,7 +165,7 @@ class Login : AppCompatActivity() {
                 } else {
                     // 🩶 NOT VALID/TYPING & FOCUSED: Show hint state
                     reqEmail.setTextColor(COLOR_HINT_GRAY)
-                    reqEmail.text = "• Please use your UMak email (@umak.edu.ph)"
+                    reqEmail.text = "• Please use your UMak email ($CORRECT_EMAIL)"
                     layoutEmail.boxStrokeColor = COLOR_PRIMARY_BLUE // SET BLUE
                 }
             } else {
@@ -176,7 +184,7 @@ class Login : AppCompatActivity() {
                     // ❌ INVALID on BLUR: Keep error visible
                     emailRequirementsContainer.visibility = View.VISIBLE
                     reqEmail.setTextColor(COLOR_ERROR_RED)
-                    reqEmail.text = "• Email must end with @umak.edu.ph"
+                    reqEmail.text = "• Email must end with $CORRECT_EMAIL"
                     layoutEmail.boxStrokeColor = COLOR_ERROR_RED // Ensure it's red
                 }
             }
@@ -205,9 +213,9 @@ class Login : AppCompatActivity() {
                     }
 
                     // ❌ INVALID FORMAT: Contains text but doesn't end with required domain
-                    text.isNotEmpty() && !text.endsWith("@umak.edu.ph", ignoreCase = true) -> {
+                    text.isNotEmpty() && !text.endsWith(CORRECT_EMAIL, ignoreCase = true) -> {
                         reqEmail.setTextColor(COLOR_ERROR_RED)
-                        reqEmail.text = "• Email must end with @umak.edu.ph"
+                        reqEmail.text = "• Email must end with $CORRECT_EMAIL"
                         layoutEmail.boxStrokeColor = COLOR_ERROR_RED
                         emailRequirementsContainer.visibility = View.VISIBLE
                     }
@@ -215,7 +223,7 @@ class Login : AppCompatActivity() {
                     // 🩶 DEFAULT TYPING STATE: Empty or still typing (focused state)
                     else -> {
                         reqEmail.setTextColor(COLOR_HINT_GRAY)
-                        reqEmail.text = "• Please use your UMak email (@umak.edu.ph)"
+                        reqEmail.text = "• Please use your UMak email ($CORRECT_EMAIL)"
                         layoutEmail.boxStrokeColor = COLOR_PRIMARY_BLUE
                         emailRequirementsContainer.visibility = View.VISIBLE
                     }
@@ -309,7 +317,7 @@ class Login : AppCompatActivity() {
             val password = inputPassword.text.toString()
 
             // ⚠️ SIMULATED LOGIN CHECK ⚠️
-            if (email == CORRECT_EMAIL && password == CORRECT_PASSWORD) {
+            if (email.endsWith(CORRECT_EMAIL, ignoreCase = true) && password == CORRECT_PASSWORD) {
                 // UPDATED: Show custom success dialog instead of navigating directly
                 showLoginSuccessDialog(CORRECT_USER_NAME)
             } else {

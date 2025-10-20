@@ -34,6 +34,8 @@ class RegisterActivity : AppCompatActivity() {
         // 🔹 Buttons and Navigation
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         val btnNext = findViewById<Button>(R.id.btnNext)
+        // ⭐️ New: Login Button Initialization ⭐️
+        val loginButton = findViewById<TextView>(R.id.LoginButton)
 
         // 🔹 Email Fields
         val inputEmail = findViewById<TextInputEditText>(R.id.inputEmail)
@@ -68,12 +70,10 @@ class RegisterActivity : AppCompatActivity() {
         // =====================================================================
         // 3. CONFIRM PASSWORD WATCHER DECLARATION (FIXED UNRESOLVED REFERENCE)
         // =====================================================================
-        // 🚨 FIX 1: Declaring the variable here so it can be referenced in passwordWatcher
-        // later in the file, resolving the "Unresolved reference" error.
         lateinit var confirmPasswordWatcher: TextWatcher
 
         // =====================================================================
-        // 4. INITIAL SETUP AND HELPER FUNCTION (Previously Section 3)
+        // 4. INITIAL SETUP AND HELPER FUNCTION
         // =====================================================================
 
         // Initial State Setup
@@ -121,6 +121,13 @@ class RegisterActivity : AppCompatActivity() {
         // 🔹 Back and Next Button Click Listeners
         btnBack.setOnClickListener { finish() }
 
+        // ⭐️ New: Login Button Listener ⭐️
+        loginButton.setOnClickListener {
+            // Start the Login activity
+            val intent = Intent(this, Login::class.java)
+            startActivity(intent)
+        }
+
         btnNext.setOnClickListener {
             val email = inputEmail.text.toString().trim()
             val password = inputPassword.text.toString()
@@ -146,7 +153,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         // =====================================================================
-        // 5. EMAIL FIELD LOGIC (Previously Section 4)
+        // 5. EMAIL FIELD LOGIC
         // =====================================================================
 
         // 🔹 Focus Change Listener for Email
@@ -192,7 +199,7 @@ class RegisterActivity : AppCompatActivity() {
         })
 
         // =====================================================================
-        // 6. PASSWORD FIELD LOGIC (Previously Section 5)
+        // 6. PASSWORD FIELD LOGIC
         // =====================================================================
 
         // 🔹 Focus Change Listener for Password (No change needed here)
@@ -272,7 +279,6 @@ class RegisterActivity : AppCompatActivity() {
 
                 // IMPORTANT: Ensure confirm password logic is re-run immediately after
                 // password changes to check for a match.
-                // 🚨 FIX 2: We can now reference confirmPasswordWatcher because it was declared earlier.
                 inputConfirmPassword.text?.let { confirmPasswordWatcher.afterTextChanged(it) }
             }
 
@@ -283,7 +289,7 @@ class RegisterActivity : AppCompatActivity() {
         inputPassword.addTextChangedListener(passwordWatcher)
 
         // =====================================================================
-        // 7. CONFIRM PASSWORD FIELD LOGIC (Previously Section 6)
+        // 7. CONFIRM PASSWORD FIELD LOGIC
         // =====================================================================
 
         // 🔹 Focus Change Listener for Confirm Password (No change)
@@ -312,7 +318,6 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         // 🔹 Text Watcher for Confirm Password (Live Validation)
-        // 🚨 FIX 3: Assigning the value to the previously declared lateinit variable.
         confirmPasswordWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val password = inputPassword.text.toString()

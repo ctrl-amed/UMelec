@@ -69,9 +69,6 @@
             android:name=".Loading"
             android:exported="false" />
         <activity
-            android:name=".RegistrationSuccessful"
-            android:exported="false" />
-        <activity
             android:name=".Login"
             android:exported="false" />
         <activity

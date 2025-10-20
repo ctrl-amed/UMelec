@@ -75,29 +75,32 @@
     </LinearLayout>
 
     <!-- Buttons -->
-    <Button
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnRegister"
         android:layout_width="300dp"
         android:layout_height="55dp"
         android:text="Register"
-        android:textColor="#FFFFFF"
+        android:textColor="@android:color/white"
         android:textSize="16sp"
-        android:background="@drawable/rounded_button_base"
-        app:backgroundTint="#0039A6"
+        android:background="@drawable/blue_rounded_button"
+        android:textAllCaps="false"
         android:fontFamily="@font/poppins_bold"
         />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnLogin"
         android:layout_width="300dp"
         android:layout_height="55dp"
-        android:text="Log In"
-        android:textColor="#FFFFFF"
+        android:text="Log in"
+        android:textColor="#0E0E2C"
         android:textSize="16sp"
+        android:background="@drawable/yellow_rounded_button"
+        android:textAllCaps="false"
+        android:fontFamily="@font/poppins_bold"
         android:layout_marginTop="12dp"
-        android:background="@drawable/rounded_button_base"
-        app:backgroundTint="#FCBE6A"
-        android:fontFamily="@font/poppins_bold"/>
+        />
+
   </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,22 +9,16 @@
     tools:context=".RegisterActivity">
 
 
-
-
-    <!-- Header Content (Fixed at the top) -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/HeaderLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- 🔹 Back Arrow (now outside the white container) -->
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -33,15 +27,40 @@
             android:background="@android:color/transparent"
             android:contentDescription="back_button_content_description"
             android:src="@drawable/ic_arrow_back"
+            app:tint="#FFFFFF"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#FFFFFF" />
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/NameTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textSize="25sp"
+            android:fontFamily="@font/montserrat_bold"
+            android:textColor="#FAFCFE"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- Header Content (Fixed at the top) -->
+
+
+        <!-- 🔹 Back Arrow (now outside the white container) -->
+
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/GreetingLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/HeaderLayout"
 
             >
 
@@ -59,23 +78,12 @@
                 >
 
 
-
-            <TextView
-                    android:id="@+id/NameTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Profile"
-                    android:textSize="25sp"
-                    android:fontFamily="@font/montserrat_bold"
-                    android:textColor="#FAFCFE"
-                    />
                 <ImageView
                     android:id="@+id/ProfilePicture"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:src="@drawable/profile"
                     android:contentDescription="Candidate Photo"
-
                     android:scaleType="centerCrop"/>
 
 
@@ -85,7 +93,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </LinearLayout>
+
 
     <!-- 🔹 White Rounded Container for Registration -->
     <LinearLayout
@@ -99,7 +107,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="230dp"
+        android:layout_marginTop="150dp"
         android:gravity="center_horizontal">
 
         <!-- Your registration form content goes here -->
@@ -122,7 +130,6 @@
             android:background="@drawable/rounded_gray_bg"
             android:padding="16dp"
             android:layout_marginBottom="20dp"
-            android:elevation="4dp"
             android:outlineProvider="bounds"
             android:clipToPadding="false">
 
@@ -165,7 +172,6 @@
             android:background="@drawable/rounded_gray_bg"
             android:padding="16dp"
             android:layout_marginBottom="20dp"
-            android:elevation="4dp"
             android:outlineProvider="bounds"
             android:clipToPadding="false">
 
@@ -208,7 +214,6 @@
             android:background="@drawable/rounded_gray_bg"
             android:padding="16dp"
             android:layout_marginBottom="20dp"
-            android:elevation="4dp"
             android:outlineProvider="bounds"
             android:clipToPadding="false">
 
@@ -251,7 +256,6 @@
             android:background="@drawable/rounded_gray_bg"
             android:padding="16dp"
             android:layout_marginBottom="20dp"
-            android:elevation="4dp"
             android:outlineProvider="bounds"
             android:clipToPadding="false">
 
@@ -294,7 +298,6 @@
             android:background="@drawable/rounded_gray_bg"
             android:padding="16dp"
             android:layout_marginBottom="20dp"
-            android:elevation="4dp"
             android:outlineProvider="bounds"
             android:clipToPadding="false">
 
@@ -327,6 +330,19 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:textColor="@android:color/white"
+            android:textSize="15sp"
+            android:paddingVertical="16dp"
+            android:background="@drawable/blue_rounded_button"
+            android:textAllCaps="false"
+            android:fontFamily="@font/montserrat_bold"
+            />
         <!-- END FIRST CONTENT CARD -->
 
 

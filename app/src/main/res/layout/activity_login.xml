@@ -179,11 +179,43 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+        <LinearLayout
+            android:id="@+id/RegisterLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="5dp"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/RegisterText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don’t have an account? "
+                android:textColor="#4A4A68"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_regular"
+                />
+
+            <TextView
+                android:id="@+id/RegisterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Register"
+                android:textColor="#FCBE6A"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_bold"
+                android:clickable="true"
+                android:focusable="true"
+                />
+        </LinearLayout>
+
+
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="300dp"
             android:layout_height="55dp"
-            android:background="@drawable/rounded_button_selector"
+            android:background="@drawable/blue_rounded_button"
             android:text="Login"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
