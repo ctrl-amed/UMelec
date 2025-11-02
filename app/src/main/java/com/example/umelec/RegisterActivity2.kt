@@ -3,29 +3,163 @@ package com.example.umelec
 import android.widget.ImageButton
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Filter
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.TextView
-import android.widget.Button // NOTE: Added missing import for Button
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import android.content.Intent // NOTE: Added missing import for Intent (for btnConfirm)
+import android.content.Intent
 import android.widget.Toast
-import android.app.AlertDialog // Use android.app.AlertDialog as per your previous files
-
+import android.app.AlertDialog
+// IMPORTS for Keyboard, Focus, and Custom Dialog (Added for click-outside-to-unfocus)
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
+import android.view.MotionEvent
+import android.graphics.Rect
+import android.view.Gravity
+import android.graphics.drawable.ColorDrawable
+import android.view.LayoutInflater // <-- Essential for custom dialog
 
 class RegisterActivity2 : AppCompatActivity() {
+
     // Declare the constants here
     companion object {
         const val MIN_NAME_LENGTH = 2
         const val MAX_NAME_LENGTH = 50
-        // NOTE: Regex cannot be 'const val', so use 'val' here
         val VALID_NAME_PATTERN = Regex("^[a-zA-Z\\s'-]+\$")
+        val VALID_ID_PATTERN = Regex("^[A-Z][0-9]{8}\$")
+    }
+
+    // 🚨 Define Color Constants
+    private val COLOR_PRIMARY_BLUE = Color.parseColor("#0039A6")
+    private val COLOR_ERROR_RED = Color.parseColor("#D32F2F")
+    private val COLOR_SUCCESS_GREEN = Color.parseColor("#31D0AA")
+    private val COLOR_HINT_GRAY = Color.parseColor("#8C8CA1")
+
+    // Dropdown options (Defined at class level for use in helper functions)
+    private val genderLevels = listOf("Female", "Male", "Prefer not to say") // 🚨 NEW GENDER OPTIONS
+    private val colleges = listOf(
+        "College of Liberal Arts and Sciences (CLAS)",
+        "College of Human Kinetics (CHK)",
+        "College of Continuing, Advanced and Professional Studies (CCAPS)",
+        "College of Business and Financial Science (CBFS)",
+        "Institute of Arts and Design (IAD)",
+        "College of Innovative Teacher Education (CITE)",
+        "College of Computing and Information Sciences (CCIS)",
+        "Institute of Technical Education and Skills Training (ITEST)"
+    )
+    private val yearLevels = listOf("1st Year", "2nd Year", "3rd Year", "4th Year")
+
+    // ⚠️ SIMULATION CONSTANT: Use this to test the error dialog
+    private val REGISTERED_STUDENT_ID_SIMULATION = "K12345678"
+
+    // Declare all layouts/inputs at class level for use in dispatchTouchEvent and helpers
+    private lateinit var layoutStudentID: TextInputLayout
+    private lateinit var inputStudentID: TextInputEditText
+    private lateinit var layoutFirstname: TextInputLayout
+    private lateinit var inputFirstname: TextInputEditText
+    private lateinit var layoutLastname: TextInputLayout
+    private lateinit var inputLastname: TextInputEditText
+
+    private lateinit var layoutGender: TextInputLayout // 🚨 NEW
+    private lateinit var inputGender: AutoCompleteTextView // 🚨 NEW
+
+    private lateinit var layoutYear: TextInputLayout // Redefined for visibility (REORDERED)
+    private lateinit var inputYear: AutoCompleteTextView // (REORDERED)
+
+    private lateinit var layoutCollege: TextInputLayout // Redefined for visibility (REORDERED)
+    private lateinit var inputCollege: AutoCompleteTextView // (REORDERED)
+
+
+    // =========================================================================
+    // 🚨 0. CORE HELPER FUNCTIONS 🚨
+    // =========================================================================
+
+    private fun clearValidationState(layout: TextInputLayout) {
+        layout.error = null
+        layout.isActivated = false
+    }
+
+    private fun hideKeyboardAndClearFocus() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        currentFocus?.clearFocus()
+    }
+
+    // Firstname validation check function
+    private fun isFirstnameValid(name: String): Boolean {
+        return name.isNotEmpty() &&
+                name.length >= MIN_NAME_LENGTH &&
+                name.length <= MAX_NAME_LENGTH &&
+                VALID_NAME_PATTERN.matches(name)
+    }
+
+    // Lastname validation check function
+    private fun isLastnameValid(name: String): Boolean {
+        return name.isNotEmpty() &&
+                name.length >= MIN_NAME_LENGTH &&
+                name.length <= MAX_NAME_LENGTH &&
+                VALID_NAME_PATTERN.matches(name)
+    }
+
+    // 🚨 NEW GENDER VALIDATION
+    private fun isGenderValid(selection: String): Boolean {
+        return selection.isNotEmpty() && genderLevels.contains(selection)
+    }
+
+    // Year validation check function
+    private fun isYearValid(selection: String): Boolean {
+        return selection.isNotEmpty() && yearLevels.contains(selection)
+    }
+
+    // College validation check function
+    private fun isCollegeValid(selection: String): Boolean {
+        return selection.isNotEmpty() && colleges.contains(selection)
+    }
+
+    /**
+     * Shows a custom AlertDialog for a Student ID conflict.
+     */
+    private fun showStudentIDErrorDialog() {
+        val layoutInflater = LayoutInflater.from(this)
+        // Ensure R.layout.custom_toast_error exists in your resources
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_error, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        hideKeyboardAndClearFocus()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        // Set custom title and value
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Registration Error"
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Student ID already in use."
+        dialogView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
+            dialog.dismiss()
+            // Clear the error/activation state on the Student ID field only
+            clearValidationState(layoutStudentID)
+        }
+
+        // Trigger Red border ONLY on the Student ID field
+        layoutStudentID.error = " "
+
+        // Clear error state on other fields just in case
+        layoutFirstname.error = null
+        layoutLastname.error = null
+        layoutCollege.error = null
+        layoutYear.error = null
+        layoutGender.error = null // 🚨 NEW
+
+        dialog.show()
     }
 
 
@@ -40,118 +174,80 @@ class RegisterActivity2 : AppCompatActivity() {
         btnBack.setOnClickListener { finish() }
 
         // =====================================================================
-        // 🚨 1. GLOBAL CONSTANTS AND VIEW INITIALIZATION BLOCK 🚨
+        // 🚨 1. VIEW INITIALIZATION (USING CLASS-LEVEL DECLARATIONS) 🚨
         // =====================================================================
 
-        // Define color constants for readability (Recommended Android practice)
-        val COLOR_PRIMARY_BLUE = Color.parseColor("#0039A6") // Focus/Typing/Info
-        val COLOR_ERROR_RED = Color.parseColor("#D32F2F")     // Error
-        val COLOR_SUCCESS_GREEN = Color.parseColor("#4CAF50") // Valid
-        val COLOR_HINT_GRAY = Color.parseColor("#8C8CA1")     // Default Hint
-
-        // Define the required pattern: 1 uppercase letter followed by 8 digits
-        val VALID_ID_PATTERN = Regex("^[A-Z][0-9]{8}\$")
-
         // ---------------------------------------------------------------------
-        // 1.1 Text Field View Initialization
+        // 1.1 Text Field View Initialization (UNCHANGED)
         // ---------------------------------------------------------------------
-        val layoutStudentID = findViewById<TextInputLayout>(R.id.textInputLayoutStudentID)
-        val inputStudentID = findViewById<TextInputEditText>(R.id.inputStudentID)
+        layoutStudentID = findViewById(R.id.textInputLayoutStudentID)
+        inputStudentID = findViewById(R.id.inputStudentID)
         val studentIDRequirementsContainer = findViewById<View>(R.id.StudentIDRequirements)
         val reqStudentID = findViewById<TextView>(R.id.reqStudentID)
 
-        val layoutFirstname = findViewById<TextInputLayout>(R.id.textInputLayoutFirstname)
-        val inputFirstname = findViewById<TextInputEditText>(R.id.inputFirstname)
+        layoutFirstname = findViewById(R.id.textInputLayoutFirstname)
+        inputFirstname = findViewById(R.id.inputFirstname)
         val firstnameRequirementsContainer = findViewById<View>(R.id.FirstnameRequirements)
         val reqFirstname = findViewById<TextView>(R.id.reqFirstname)
 
-        val layoutLastname = findViewById<TextInputLayout>(R.id.textInputLayoutLastname)
-        val inputLastname = findViewById<TextInputEditText>(R.id.inputLastname)
+        layoutLastname = findViewById(R.id.textInputLayoutLastname)
+        inputLastname = findViewById(R.id.inputLastname)
         val lastnameRequirementsContainer = findViewById<View>(R.id.LastnameRequirements)
         val reqLastname = findViewById<TextView>(R.id.reqLastname)
 
         // ---------------------------------------------------------------------
-        // 1.2 Dropdown View Initialization and Setup
+        // 1.2 Dropdown View Initialization and Setup (REORDERED + NEW GENDER)
         // ---------------------------------------------------------------------
-        val layoutCollege = findViewById<TextInputLayout>(R.id.textInputLayoutCollege)
-        val inputCollege = findViewById<AutoCompleteTextView>(R.id.inputCollege)
-        val collegeRequirementsContainer = findViewById<View>(R.id.CollegeRequirements)
-        val reqCollege = findViewById<TextView>(R.id.reqCollege)
 
-        val colleges = listOf(
-            "College of Liberal Arts and Sciences (CLAS)",
-            "College of Human Kinetics (CHK)",
-            "College of Continuing, Advanced and Professional Studies (CCAPS)",
-        "College of Business and Financial Science (CBFS)",
-        "Institute of Arts and Design (IAD)",
-        "College of Innovative Teacher Education (CITE)",
-        "College of Computing and Information Sciences (CCIS)",
-        "Institute of Technical Education and Skills Training (ITEST)"
-        )
+        // 🚨 NEW GENDER DROPDOWN 🚨
+        layoutGender = findViewById(R.id.textInputLayoutGender)
+        inputGender = findViewById(R.id.inputGender)
+        val genderRequirementsContainer = findViewById<View>(R.id.GenderRequirements)
+        val reqGender = findViewById<TextView>(R.id.reqGender)
 
-        val collegeAdapter = ArrayAdapter(
+        val genderAdapter = ArrayAdapter(
             this,
-            R.layout.dropdown_menu_popup_item,
-            colleges
+            R.layout.dropdown_menu_item_custom,
+            genderLevels
         )
-        inputCollege.setAdapter(collegeAdapter)
+        inputGender.setAdapter(genderAdapter)
 
-        val layoutYear = findViewById<TextInputLayout>(R.id.textInputLayoutYear)
-        val inputYear = findViewById<AutoCompleteTextView>(R.id.inputYear)
+        // YEAR DROPDOWN (Now second dropdown)
+        layoutYear = findViewById(R.id.textInputLayoutYear)
+        inputYear = findViewById(R.id.inputYear)
         val yearRequirementsContainer = findViewById<View>(R.id.YearRequirements)
         val reqYear = findViewById<TextView>(R.id.reqYear)
 
-        val yearLevels = listOf(
-            "1st Year",
-        "2nd Year",
-        "3rd Year",
-        "4th Year"
-        )
-
         val yearAdapter = ArrayAdapter(
             this,
-            R.layout.dropdown_menu_popup_item,
+            R.layout.dropdown_menu_item_custom,
             yearLevels
         )
         inputYear.setAdapter(yearAdapter)
+
+        // COLLEGE DROPDOWN (Now third dropdown)
+        layoutCollege = findViewById(R.id.textInputLayoutCollege)
+        inputCollege = findViewById(R.id.inputCollege)
+        val collegeRequirementsContainer = findViewById<View>(R.id.CollegeRequirements)
+        val reqCollege = findViewById<TextView>(R.id.reqCollege)
+
+        val collegeAdapter = ArrayAdapter(
+            this,
+            R.layout.dropdown_menu_item_custom,
+            colleges
+        )
+        inputCollege.setAdapter(collegeAdapter)
 
         // ---------------------------------------------------------------------
         // 1.3 Button Initialization
         // ---------------------------------------------------------------------
         val btnConfirm = findViewById<Button>(R.id.btnConfirm)
-        btnConfirm.isEnabled = false // Initial State Setup [cite: 2]
+        btnConfirm.isEnabled = false
 
 
         // =====================================================================
-        // 🚨 2. VALIDATION HELPER FUNCTIONS BLOCK 🚨
-        // (Must be defined before they are used in listeners)
+        // 🚨 2. UPDATE BUTTON HELPER 🚨
         // =====================================================================
-
-        // Firstname validation check function
-        fun isFirstnameValid(name: String): Boolean {
-            return name.isNotEmpty() &&
-                    name.length >= MIN_NAME_LENGTH &&
-            name.length <= MAX_NAME_LENGTH &&
-                    VALID_NAME_PATTERN.matches(name)
-        }
-
-        // Lastname validation check function
-        fun isLastnameValid(name: String): Boolean {
-            return name.isNotEmpty() &&
-                    name.length >= MIN_NAME_LENGTH &&
-            name.length <= MAX_NAME_LENGTH &&
-                    VALID_NAME_PATTERN.matches(name)
-        }
-
-        // College validation check function
-        fun isCollegeValid(selection: String): Boolean {
-            return selection.isNotEmpty() && colleges.contains(selection)
-        }
-
-        // Year validation check function
-        fun isYearValid(selection: String): Boolean {
-            return selection.isNotEmpty() && yearLevels.contains(selection)
-        }
 
         // Helper function to update Confirm button state
         fun updateConfirmButtonState() {
@@ -159,18 +255,20 @@ class RegisterActivity2 : AppCompatActivity() {
             val studentID = inputStudentID.text.toString().trim()
             val firstname = inputFirstname.text.toString().trim()
             val lastname = inputLastname.text.toString().trim()
-            val collegeSelection = inputCollege.text.toString().trim()
+            val genderSelection = inputGender.text.toString().trim() // 🚨 NEW
             val yearSelection = inputYear.text.toString().trim()
+            val collegeSelection = inputCollege.text.toString().trim()
 
             // 2. Check validity
             val isIDValid = VALID_ID_PATTERN.matches(studentID)
             val isFirstnameValid = isFirstnameValid(firstname)
             val isLastnameValid = isLastnameValid(lastname)
-            val isCollegeValid = isCollegeValid(collegeSelection)
+            val isGenderValid = isGenderValid(genderSelection) // 🚨 NEW
             val isYearValid = isYearValid(yearSelection)
+            val isCollegeValid = isCollegeValid(collegeSelection)
 
-            // 3. Combine all valid checks
-            val allFieldsValid = isIDValid && isFirstnameValid && isLastnameValid && isCollegeValid && isYearValid
+            // 3. Combine all valid checks (UPDATED)
+            val allFieldsValid = isIDValid && isFirstnameValid && isLastnameValid && isGenderValid && isYearValid && isCollegeValid
 
             // 4. Set the button state
             btnConfirm.isEnabled = allFieldsValid
@@ -178,11 +276,11 @@ class RegisterActivity2 : AppCompatActivity() {
 
 
         // =====================================================================
-        // 🚨 3. VALIDATION LISTENERS BLOCK 🚨
+        // 🚨 3. VALIDATION LISTENERS BLOCK (CLEANED UP STATE HANDLING) 🚨
         // =====================================================================
 
         // ---------------------------------------------------------------------
-        // 🔹 STUDENT ID VALIDATION LISTENERS 
+        // 🔹 STUDENT ID VALIDATION LISTENERS (UNCHANGED)
         // ---------------------------------------------------------------------
         studentIDRequirementsContainer.visibility = View.GONE
 
@@ -190,38 +288,40 @@ class RegisterActivity2 : AppCompatActivity() {
             val studentID = inputStudentID.text.toString().trim()
             val isValid = VALID_ID_PATTERN.matches(studentID)
 
+            clearValidationState(layoutStudentID)
+
             if (hasFocus) {
                 studentIDRequirementsContainer.visibility = View.VISIBLE
                 if (isValid) {
                     reqStudentID.setTextColor(COLOR_SUCCESS_GREEN)
-                    reqStudentID.text = "Valid Student ID"
                     layoutStudentID.boxStrokeColor = COLOR_SUCCESS_GREEN
                 } else {
                     reqStudentID.setTextColor(COLOR_HINT_GRAY)
-                    reqStudentID.text = "Valid ID: K12345678"
                     layoutStudentID.boxStrokeColor = COLOR_PRIMARY_BLUE
                 }
             } else {
                 if (studentID.isEmpty()) {
                     studentIDRequirementsContainer.visibility = View.VISIBLE
                     reqStudentID.setTextColor(COLOR_ERROR_RED)
-                    reqStudentID.text = "Field is required"
-                    layoutStudentID.boxStrokeColor = COLOR_ERROR_RED
+                    reqStudentID.text = "• Field is required"
+                    layoutStudentID.error = " " // Show red border
                 } else if (isValid) {
                     studentIDRequirementsContainer.visibility = View.GONE
                     layoutStudentID.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutStudentID.isActivated = true
                 } else {
                     studentIDRequirementsContainer.visibility = View.VISIBLE
-                    layoutStudentID.boxStrokeColor = COLOR_ERROR_RED
+                    layoutStudentID.error = " " // Show red border
                 }
             }
-            // Update button state on blur/focus change
             updateConfirmButtonState()
         }
 
         inputStudentID.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                clearValidationState(layoutStudentID)
+            }
 
             override fun afterTextChanged(s: Editable?) {
                 var text = s.toString().trim()
@@ -232,68 +332,45 @@ class RegisterActivity2 : AppCompatActivity() {
                     inputStudentID.setText(text.uppercase())
                     inputStudentID.setSelection(inputStudentID.text?.length ?: 0)
                     inputStudentID.addTextChangedListener(this)
-                    return
+                    text = inputStudentID.text.toString().trim()
                 }
+
+                clearValidationState(layoutStudentID)
 
                 // 2. 🔹 Validation Logic
                 when {
-                    // 🚫 ID is too long
-                    text.length > 9 -> {
+                    // 🚫 ID is too long OR ID is invalid format
+                    text.length > 9 || (text.isNotEmpty() && !VALID_ID_PATTERN.matches(text) && text.length == 9) -> {
                         reqStudentID.setTextColor(COLOR_ERROR_RED)
-                        reqStudentID.text = "Invalid Student ID (too long)"
+                        reqStudentID.text = "• Invalid Student ID (Format: K12345678)"
                         layoutStudentID.boxStrokeColor = COLOR_ERROR_RED
+                        studentIDRequirementsContainer.visibility = View.VISIBLE
                     }
 
                     // ✅ ID is complete AND matches the pattern
                     VALID_ID_PATTERN.matches(text) -> {
                         reqStudentID.setTextColor(COLOR_SUCCESS_GREEN)
-                        reqStudentID.text = "Valid Student ID"
+                        reqStudentID.text = "✓ Valid Student ID"
                         layoutStudentID.boxStrokeColor = COLOR_SUCCESS_GREEN
                         studentIDRequirementsContainer.visibility = View.VISIBLE
+                        if (inputStudentID.isFocused) layoutStudentID.isActivated = true
                     }
 
-                    // ❌ ID has started but does not follow the pattern
-                    text.isNotEmpty() && !text.matches(Regex("^[A-Z]?[0-9]{0,8}\$")) -> {
-                        val letterCount = text.count { it.isLetter() }
-                        val digitCount = text.count { it.isDigit() }
-
-                        if (letterCount > 1 || (letterCount == 1 && !text.first().isLetter()) || digitCount > 8) {
-                            reqStudentID.setTextColor(COLOR_ERROR_RED)
-                            reqStudentID.text = "Invalid Student ID (Format: 1 Letter, 8 Digits)"
-                            layoutStudentID.boxStrokeColor = COLOR_ERROR_RED
-                            studentIDRequirementsContainer.visibility = View.VISIBLE
-                        } else {
-                            reqStudentID.setTextColor(COLOR_HINT_GRAY)
-                            reqStudentID.text = "Valid ID: K12345678"
-                            layoutStudentID.boxStrokeColor = COLOR_PRIMARY_BLUE
-                            studentIDRequirementsContainer.visibility = View.VISIBLE
-                        }
-                    }
-
-                    // 🩶 Still typing, following the pattern (less than 9)
-                    text.isNotEmpty() && text.length < 9 -> {
-                        reqStudentID.setTextColor(COLOR_HINT_GRAY)
-                        reqStudentID.text = "Valid ID: K12345678"
-                        layoutStudentID.boxStrokeColor = COLOR_PRIMARY_BLUE
-                        studentIDRequirementsContainer.visibility = View.VISIBLE
-                    }
-
-                    // Fallback for empty/other scenarios while focused
+                    // 🩶 Still typing, following the pattern (or empty)
                     else -> {
                         reqStudentID.setTextColor(COLOR_HINT_GRAY)
-                        reqStudentID.text = "Valid ID: K12345678"
+                        reqStudentID.text = "• Valid ID: K12345678"
                         layoutStudentID.boxStrokeColor = COLOR_PRIMARY_BLUE
                         studentIDRequirementsContainer.visibility = View.VISIBLE
                     }
                 }
-                // Update button state after any change
                 updateConfirmButtonState()
             }
         })
 
 
         // ---------------------------------------------------------------------
-        // 🔹 FIRSTNAME VALIDATION LISTENERS
+        // 🔹 FIRSTNAME VALIDATION LISTENERS (UNCHANGED)
         // ---------------------------------------------------------------------
         firstnameRequirementsContainer.visibility = View.GONE
 
@@ -301,99 +378,101 @@ class RegisterActivity2 : AppCompatActivity() {
             val firstname = inputFirstname.text.toString().trim()
             val isValid = isFirstnameValid(firstname)
 
+            clearValidationState(layoutFirstname)
+
             if (hasFocus) {
                 firstnameRequirementsContainer.visibility = View.VISIBLE
                 if (isValid) {
-                    reqFirstname.setTextColor(COLOR_SUCCESS_GREEN)
-                    reqFirstname.text = "Valid Firstname"
-                    layoutFirstname.boxStrokeColor = COLOR_SUCCESS_GREEN // SET GREEN
+                    //reqFirstname.setTextColor(COLOR_SUCCESS_GREEN)
+                    //layoutFirstname.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutFirstname.boxStrokeColor = COLOR_PRIMARY_BLUE
                 } else {
                     reqFirstname.setTextColor(COLOR_HINT_GRAY)
-                    reqFirstname.text = "Name must be 2-${MAX_NAME_LENGTH} letters, spaces, hyphens ('-') or apostrophes (')."
-                    layoutFirstname.boxStrokeColor = COLOR_PRIMARY_BLUE // SET BLUE
+                    layoutFirstname.boxStrokeColor = COLOR_PRIMARY_BLUE
                 }
             } else {
                 if (firstname.isEmpty()) {
                     firstnameRequirementsContainer.visibility = View.VISIBLE
                     reqFirstname.setTextColor(COLOR_ERROR_RED)
-                    reqFirstname.text = "Field is required"
-                    layoutFirstname.boxStrokeColor = COLOR_ERROR_RED
+                    reqFirstname.text = "• Field is required"
+                    layoutFirstname.error = " "
                 } else if (isValid) {
                     firstnameRequirementsContainer.visibility = View.GONE
                     layoutFirstname.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutFirstname.isActivated = true
                 } else {
                     firstnameRequirementsContainer.visibility = View.VISIBLE
-                    layoutFirstname.boxStrokeColor = COLOR_ERROR_RED
+                    layoutFirstname.error = " "
                 }
             }
-            // Update button state on blur/focus change
             updateConfirmButtonState()
         }
 
         inputFirstname.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                clearValidationState(layoutFirstname)
+            }
 
             override fun afterTextChanged(s: Editable?) {
                 var text = s.toString()
 
                 // 1. 🔠 Auto capitalize first letter of each word
-                val capitalizedText = text.lowercase().split(' ').joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
+                val capitalizedText = text.lowercase().split(' ').joinToString(" ") {
+                    it.replaceFirstChar { char -> if (char.isLetter()) char.uppercase() else char.toString() }
+                }
 
                 if (text != capitalizedText) {
                     inputFirstname.removeTextChangedListener(this)
                     inputFirstname.setText(capitalizedText)
                     inputFirstname.setSelection(capitalizedText.length)
                     inputFirstname.addTextChangedListener(this)
-                    return
+                    text = inputFirstname.text.toString()
                 }
+
+                clearValidationState(layoutFirstname)
 
                 // 2. 🔹 Validation Logic
                 when {
-                    // 🚫 Too short
-                    text.length < MIN_NAME_LENGTH -> {
-                        reqFirstname.setTextColor(COLOR_ERROR_RED)
-                        reqFirstname.text = "Firstname must be at least ${MIN_NAME_LENGTH} characters."
-                        layoutFirstname.boxStrokeColor = COLOR_ERROR_RED
-                    }
-
-                    // 🚫 Too long
-                    text.length > MAX_NAME_LENGTH -> {
-                        reqFirstname.setTextColor(COLOR_ERROR_RED)
-                        reqFirstname.text = "Firstname must be no more than ${MAX_NAME_LENGTH} characters."
-                        layoutFirstname.boxStrokeColor = COLOR_ERROR_RED
-                    }
-
                     // 🚫 Invalid characters
-                    !VALID_NAME_PATTERN.matches(text) -> {
+                    !VALID_NAME_PATTERN.matches(text) && text.isNotEmpty() -> {
                         reqFirstname.setTextColor(COLOR_ERROR_RED)
-                        reqFirstname.text = "Only letters, spaces, hyphens, and apostrophes are allowed."
+                        reqFirstname.text = "• Firstname cannot contain numbers or symbols."
                         layoutFirstname.boxStrokeColor = COLOR_ERROR_RED
+                    }
+
+                    // 🚫 Too short
+                    text.length > 0 && text.length < MIN_NAME_LENGTH -> {
+                        //reqFirstname.setTextColor(COLOR_ERROR_RED)
+                        //reqFirstname.text = "• Firstname must be at least ${MIN_NAME_LENGTH} characters."
+                        //layoutFirstname.boxStrokeColor = COLOR_ERROR_RED
+                        layoutFirstname.boxStrokeColor = COLOR_PRIMARY_BLUE
                     }
 
                     // ✅ All good
                     isFirstnameValid(text) -> {
-                        reqFirstname.setTextColor(COLOR_SUCCESS_GREEN)
-                        reqFirstname.text = "Valid Firstname"
-                        layoutFirstname.boxStrokeColor = COLOR_SUCCESS_GREEN
-                        firstnameRequirementsContainer.visibility = View.VISIBLE
+                        //reqFirstname.setTextColor(COLOR_SUCCESS_GREEN)
+                        //reqFirstname.text = "✓ Valid Firstname"
+                        //layoutFirstname.boxStrokeColor = COLOR_SUCCESS_GREEN
+                        //if (inputFirstname.isFocused) layoutFirstname.isActivated = true
+                        //firstnameRequirementsContainer.visibility = View.VISIBLE
+                        layoutFirstname.boxStrokeColor = COLOR_PRIMARY_BLUE
                     }
 
                     // 🩶 Default typing state
                     else -> {
                         reqFirstname.setTextColor(COLOR_HINT_GRAY)
-                        reqFirstname.text = "Name must be 2-${MAX_NAME_LENGTH} letters, spaces, hyphens ('-') or apostrophes (')."
+                        reqFirstname.text = "• Field is required."
                         layoutFirstname.boxStrokeColor = COLOR_PRIMARY_BLUE
                         firstnameRequirementsContainer.visibility = View.VISIBLE
                     }
                 }
-                // Update button state after any change
                 updateConfirmButtonState()
             }
         })
 
         // ---------------------------------------------------------------------
-        // 🔹 LASTNAME VALIDATION LISTENERS
+        // 🔹 LASTNAME VALIDATION LISTENERS (UNCHANGED)
         // ---------------------------------------------------------------------
         lastnameRequirementsContainer.visibility = View.GONE
 
@@ -401,164 +480,175 @@ class RegisterActivity2 : AppCompatActivity() {
             val lastname = inputLastname.text.toString().trim()
             val isValid = isLastnameValid(lastname)
 
+            clearValidationState(layoutLastname)
+
             if (hasFocus) {
                 lastnameRequirementsContainer.visibility = View.VISIBLE
                 if (isValid) {
-                    reqLastname.setTextColor(COLOR_SUCCESS_GREEN)
-                    reqLastname.text = "Valid Lastname"
+                    //reqLastname.setTextColor(COLOR_SUCCESS_GREEN)
+                    //layoutLastname.boxStrokeColor = COLOR_SUCCESS_GREEN
                     layoutLastname.boxStrokeColor = COLOR_PRIMARY_BLUE
                 } else {
                     reqLastname.setTextColor(COLOR_HINT_GRAY)
-                    reqLastname.text = "Name must be 2-${MAX_NAME_LENGTH} letters, spaces, hyphens ('-') or apostrophes (')."
                     layoutLastname.boxStrokeColor = COLOR_PRIMARY_BLUE
                 }
             } else {
                 if (lastname.isEmpty()) {
                     lastnameRequirementsContainer.visibility = View.VISIBLE
                     reqLastname.setTextColor(COLOR_ERROR_RED)
-                    reqLastname.text = "Field is required"
-                    layoutLastname.boxStrokeColor = COLOR_ERROR_RED
+                    reqLastname.text = "• Field is required"
+                    layoutLastname.error = " "
                 } else if (isValid) {
                     lastnameRequirementsContainer.visibility = View.GONE
                     layoutLastname.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutLastname.isActivated = true
                 } else {
                     lastnameRequirementsContainer.visibility = View.VISIBLE
-                    layoutLastname.boxStrokeColor = COLOR_ERROR_RED
+                    layoutLastname.error = " "
                 }
             }
-            // Update button state on blur/focus change
             updateConfirmButtonState()
         }
 
         inputLastname.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                clearValidationState(layoutLastname)
+            }
 
             override fun afterTextChanged(s: Editable?) {
                 var text = s.toString()
 
                 // 1. 🔠 Auto capitalize first letter of each word
-                val capitalizedText = text.lowercase().split(' ').joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
+                val capitalizedText = text.lowercase().split(' ').joinToString(" ") {
+                    it.replaceFirstChar { char -> if (char.isLetter()) char.uppercase() else char.toString() }
+                }
 
                 if (text != capitalizedText) {
                     inputLastname.removeTextChangedListener(this)
                     inputLastname.setText(capitalizedText)
                     inputLastname.setSelection(capitalizedText.length)
                     inputLastname.addTextChangedListener(this)
-                    return
+                    text = inputLastname.text.toString()
                 }
+
+                clearValidationState(layoutLastname)
 
                 // 2. 🔹 Validation Logic
                 when {
-                    // 🚫 Too short
-                    text.length < MIN_NAME_LENGTH -> {
-                        reqLastname.setTextColor(COLOR_ERROR_RED)
-                        reqLastname.text = "Lastname must be at least ${MIN_NAME_LENGTH} characters."
-                        layoutLastname.boxStrokeColor = COLOR_ERROR_RED
-                    }
-
-                    // 🚫 Too long
-                    text.length > MAX_NAME_LENGTH -> {
-                        reqLastname.setTextColor(COLOR_ERROR_RED)
-                        reqLastname.text = "Lastname must be no more than ${MAX_NAME_LENGTH} characters."
-                        layoutLastname.boxStrokeColor = COLOR_ERROR_RED
-                    }
-
                     // 🚫 Invalid characters
-                    !VALID_NAME_PATTERN.matches(text) -> {
+                    !VALID_NAME_PATTERN.matches(text) && text.isNotEmpty() -> {
                         reqLastname.setTextColor(COLOR_ERROR_RED)
-                        reqLastname.text = "Only letters, spaces, hyphens, and apostrophes are allowed."
+                        reqLastname.text = "• Lastname cannot contain numbers or symbols."
                         layoutLastname.boxStrokeColor = COLOR_ERROR_RED
+                    }
+
+                    // 🚫 Too short
+                    text.length > 0 && text.length < MIN_NAME_LENGTH -> {
+                        //reqLastname.setTextColor(COLOR_ERROR_RED)
+                        //reqLastname.text = "• Lastname must be at least ${MIN_NAME_LENGTH} characters."
+                        //layoutLastname.boxStrokeColor = COLOR_ERROR_RED
+                        layoutLastname.boxStrokeColor = COLOR_PRIMARY_BLUE
                     }
 
                     // ✅ All good
                     isLastnameValid(text) -> {
-                        reqLastname.setTextColor(COLOR_SUCCESS_GREEN)
-                        reqLastname.text = "Valid Lastname"
-                        layoutLastname.boxStrokeColor = COLOR_SUCCESS_GREEN
-                        lastnameRequirementsContainer.visibility = View.VISIBLE
+                        //reqLastname.setTextColor(COLOR_SUCCESS_GREEN)
+                        //reqLastname.text = "✓ Valid Lastname"
+                        //layoutLastname.boxStrokeColor = COLOR_SUCCESS_GREEN
+                        //if (inputLastname.isFocused) layoutLastname.isActivated = true
+                        //lastnameRequirementsContainer.visibility = View.VISIBLE
+                        layoutLastname.boxStrokeColor = COLOR_PRIMARY_BLUE
                     }
 
                     // 🩶 Default typing state
                     else -> {
                         reqLastname.setTextColor(COLOR_HINT_GRAY)
-                        reqLastname.text = "Name must be 2-${MAX_NAME_LENGTH} letters, spaces, hyphens ('-') or apostrophes (')."
+                        reqLastname.text = "• Field is required."
                         layoutLastname.boxStrokeColor = COLOR_PRIMARY_BLUE
                         lastnameRequirementsContainer.visibility = View.VISIBLE
                     }
                 }
-                // Update button state after any change
                 updateConfirmButtonState()
             }
         })
 
+
         // ---------------------------------------------------------------------
-        // 🔹 COLLEGE DROPDOWN VALIDATION LISTENERS
+        // 🔹 GENDER DROPDOWN VALIDATION LISTENERS (NEW FIELD)
         // ---------------------------------------------------------------------
-        collegeRequirementsContainer.visibility = View.GONE
-        inputCollege.setOnFocusChangeListener { _, hasFocus ->
-            val collegeSelection = inputCollege.text.toString().trim()
-            val isValid = isCollegeValid(collegeSelection)
+        genderRequirementsContainer.visibility = View.GONE
+        inputGender.setOnFocusChangeListener { _, hasFocus ->
+            val genderSelection = inputGender.text.toString().trim()
+            val isValid = isGenderValid(genderSelection)
+
+            clearValidationState(layoutGender)
 
             if (hasFocus) {
-                collegeRequirementsContainer.visibility = View.VISIBLE
-                layoutCollege.boxStrokeColor = COLOR_PRIMARY_BLUE
+                genderRequirementsContainer.visibility = View.VISIBLE
+                layoutGender.boxStrokeColor = COLOR_PRIMARY_BLUE
 
                 if (isValid) {
-                    reqCollege.setTextColor(COLOR_SUCCESS_GREEN)
-                    reqCollege.text = "College selected"
+                    //reqGender.setTextColor(COLOR_SUCCESS_GREEN)
+                    //reqGender.text = "✓ Gender selected"
                 } else {
-                    reqCollege.setTextColor(COLOR_HINT_GRAY)
-                    reqCollege.text = "Select a college from the list"
+                    reqGender.setTextColor(COLOR_HINT_GRAY)
+                    reqGender.text = "• Select your gender from the list"
                 }
             } else {
-                if (collegeSelection.isEmpty()) {
-                    collegeRequirementsContainer.visibility = View.VISIBLE
-                    reqCollege.setTextColor(COLOR_ERROR_RED)
-                    reqCollege.text = "Field is required"
-                    layoutCollege.boxStrokeColor = COLOR_ERROR_RED
+                if (genderSelection.isEmpty()) {
+                    genderRequirementsContainer.visibility = View.VISIBLE
+                    reqGender.setTextColor(COLOR_ERROR_RED)
+                    reqGender.text = "• Field is required"
+                    layoutGender.error = " "
                 } else if (isValid) {
-                    collegeRequirementsContainer.visibility = View.GONE
-                    layoutCollege.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    genderRequirementsContainer.visibility = View.GONE
+                    layoutGender.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutGender.isActivated = true
                 } else {
-                    collegeRequirementsContainer.visibility = View.VISIBLE
-                    layoutCollege.boxStrokeColor = COLOR_ERROR_RED
+                    genderRequirementsContainer.visibility = View.VISIBLE
+                    layoutGender.error = " "
                 }
             }
-            // Update button state on blur/focus change
             updateConfirmButtonState()
         }
 
-        inputCollege.addTextChangedListener(object : TextWatcher {
+        inputGender.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                clearValidationState(layoutGender)
+            }
 
             override fun afterTextChanged(s: Editable?) {
                 val text = s.toString().trim()
 
+                clearValidationState(layoutGender)
+
                 if (text.isEmpty()) {
-                    reqCollege.setTextColor(COLOR_HINT_GRAY)
-                    reqCollege.text = "Select a college from the list"
-                    layoutCollege.boxStrokeColor = COLOR_PRIMARY_BLUE
-                    collegeRequirementsContainer.visibility = View.VISIBLE
-                } else if (colleges.contains(text)) {
-                    reqCollege.setTextColor(COLOR_SUCCESS_GREEN)
-                    reqCollege.text = "College selected"
-                    layoutCollege.boxStrokeColor = COLOR_SUCCESS_GREEN
-                    collegeRequirementsContainer.visibility = View.VISIBLE
+                    reqGender.setTextColor(COLOR_HINT_GRAY)
+                    reqGender.text = "• Select your gender from the list"
+                    layoutGender.boxStrokeColor = COLOR_PRIMARY_BLUE
+                    genderRequirementsContainer.visibility = View.VISIBLE
+                } else if (genderLevels.contains(text)) {
+                    //reqGender.setTextColor(COLOR_SUCCESS_GREEN)
+                    //reqGender.text = "✓ Gender selected"
+                    //layoutGender.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutGender.boxStrokeColor = COLOR_PRIMARY_BLUE
+                    if (inputGender.isFocused) layoutGender.isActivated = true
+                    genderRequirementsContainer.visibility = View.VISIBLE
                 } else {
-                    reqCollege.setTextColor(COLOR_ERROR_RED)
-                    reqCollege.text = "Invalid selection. Please choose from the options."
-                    layoutCollege.boxStrokeColor = COLOR_ERROR_RED
-                    collegeRequirementsContainer.visibility = View.VISIBLE
+                    reqGender.setTextColor(COLOR_ERROR_RED)
+                    reqGender.text = "• Invalid selection. Please choose from the options."
+                    layoutGender.boxStrokeColor = COLOR_ERROR_RED
+                    genderRequirementsContainer.visibility = View.VISIBLE
                 }
-                // Update button state after any change
                 updateConfirmButtonState()
             }
         })
 
+
         // ---------------------------------------------------------------------
-        // 🔹 YEAR DROPDOWN VALIDATION LISTENERS
+        // 🔹 YEAR DROPDOWN VALIDATION LISTENERS (REORDERED)
         // ---------------------------------------------------------------------
         yearRequirementsContainer.visibility = View.GONE
 
@@ -566,59 +656,138 @@ class RegisterActivity2 : AppCompatActivity() {
             val yearSelection = inputYear.text.toString().trim()
             val isValid = isYearValid(yearSelection)
 
+            clearValidationState(layoutYear)
+
             if (hasFocus) {
                 yearRequirementsContainer.visibility = View.VISIBLE
                 layoutYear.boxStrokeColor = COLOR_PRIMARY_BLUE
 
                 if (isValid) {
-                    reqYear.setTextColor(COLOR_SUCCESS_GREEN)
-                    reqYear.text = "Year level selected"
+                    //reqYear.setTextColor(COLOR_SUCCESS_GREEN)
+                    //reqYear.text = "✓ Year level selected"
                 } else {
                     reqYear.setTextColor(COLOR_HINT_GRAY)
-                    reqYear.text = "Select a year level from the options"
+                    reqYear.text = "• Select a year level from the options"
                 }
             } else {
                 if (yearSelection.isEmpty()) {
                     yearRequirementsContainer.visibility = View.VISIBLE
                     reqYear.setTextColor(COLOR_ERROR_RED)
-                    reqYear.text = "Field is required"
-                    layoutYear.boxStrokeColor = COLOR_ERROR_RED
+                    reqYear.text = "• Field is required"
+                    layoutYear.error = " "
                 } else if (isValid) {
                     yearRequirementsContainer.visibility = View.GONE
                     layoutYear.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutYear.isActivated = true
                 } else {
                     yearRequirementsContainer.visibility = View.VISIBLE
-                    layoutYear.boxStrokeColor = COLOR_ERROR_RED
+                    layoutYear.error = " "
                 }
             }
-            // Update button state on blur/focus change
             updateConfirmButtonState()
         }
 
         inputYear.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                clearValidationState(layoutYear)
+            }
 
             override fun afterTextChanged(s: Editable?) {
                 val text = s.toString().trim()
 
+                clearValidationState(layoutYear)
+
                 if (text.isEmpty()) {
                     reqYear.setTextColor(COLOR_HINT_GRAY)
-                    reqYear.text = "Select a year level from the options"
+                    reqYear.text = "• Select a year level from the options"
                     layoutYear.boxStrokeColor = COLOR_PRIMARY_BLUE
                     yearRequirementsContainer.visibility = View.VISIBLE
                 } else if (yearLevels.contains(text)) {
-                    reqYear.setTextColor(COLOR_SUCCESS_GREEN)
-                    reqYear.text = "Year level selected"
-                    layoutYear.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    //reqYear.setTextColor(COLOR_SUCCESS_GREEN)
+                    //reqYear.text = "✓ Year level selected"
+                    //layoutYear.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutYear.boxStrokeColor = COLOR_PRIMARY_BLUE
+                    if (inputYear.isFocused) layoutYear.isActivated = true
                     yearRequirementsContainer.visibility = View.VISIBLE
                 } else {
                     reqYear.setTextColor(COLOR_ERROR_RED)
-                    reqYear.text = "Invalid selection. Please choose from the options."
+                    reqYear.text = "• Invalid selection. Please choose from the options."
                     layoutYear.boxStrokeColor = COLOR_ERROR_RED
                     yearRequirementsContainer.visibility = View.VISIBLE
                 }
-                // Update button state after any change
+                updateConfirmButtonState()
+            }
+        })
+
+        // ---------------------------------------------------------------------
+        // 🔹 COLLEGE DROPDOWN VALIDATION LISTENERS (REORDERED)
+        // ---------------------------------------------------------------------
+        collegeRequirementsContainer.visibility = View.GONE
+        inputCollege.setOnFocusChangeListener { _, hasFocus ->
+            val collegeSelection = inputCollege.text.toString().trim()
+            val isValid = isCollegeValid(collegeSelection)
+
+            clearValidationState(layoutCollege)
+
+            if (hasFocus) {
+                collegeRequirementsContainer.visibility = View.VISIBLE
+                layoutCollege.boxStrokeColor = COLOR_PRIMARY_BLUE
+
+                if (isValid) {
+                    //reqCollege.setTextColor(COLOR_SUCCESS_GREEN)
+                    //reqCollege.text = "✓ College selected"
+                } else {
+                    reqCollege.setTextColor(COLOR_HINT_GRAY)
+                    reqCollege.text = "• Select a college from the list"
+                }
+            } else {
+                if (collegeSelection.isEmpty()) {
+                    collegeRequirementsContainer.visibility = View.VISIBLE
+                    reqCollege.setTextColor(COLOR_ERROR_RED)
+                    reqCollege.text = "• Field is required"
+                    layoutCollege.error = " "
+                } else if (isValid) {
+                    collegeRequirementsContainer.visibility = View.GONE
+                    layoutCollege.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutCollege.isActivated = true
+                } else {
+                    collegeRequirementsContainer.visibility = View.VISIBLE
+                    layoutCollege.error = " "
+                }
+            }
+            updateConfirmButtonState()
+        }
+
+        inputCollege.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                clearValidationState(layoutCollege)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val text = s.toString().trim()
+
+                clearValidationState(layoutCollege)
+
+                if (text.isEmpty()) {
+                    reqCollege.setTextColor(COLOR_HINT_GRAY)
+                    reqCollege.text = "• Select a college from the list"
+                    layoutCollege.boxStrokeColor = COLOR_PRIMARY_BLUE
+                    collegeRequirementsContainer.visibility = View.VISIBLE
+                } else if (colleges.contains(text)) {
+                    //reqCollege.setTextColor(COLOR_SUCCESS_GREEN)
+                    //reqCollege.text = "✓ College selected"
+                    //layoutCollege.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutCollege.boxStrokeColor = COLOR_PRIMARY_BLUE
+                    if (inputCollege.isFocused) layoutCollege.isActivated = true
+                    collegeRequirementsContainer.visibility = View.VISIBLE
+                } else {
+                    reqCollege.setTextColor(COLOR_ERROR_RED)
+                    reqCollege.text = "• Invalid selection. Please choose from the options."
+                    layoutCollege.boxStrokeColor = COLOR_ERROR_RED
+                    collegeRequirementsContainer.visibility = View.VISIBLE
+                }
                 updateConfirmButtonState()
             }
         })
@@ -626,36 +795,53 @@ class RegisterActivity2 : AppCompatActivity() {
         // ---------------------------------------------------------------------
         // 🔹 BUTTON CLICK LISTENER (Final step)
         // ---------------------------------------------------------------------
-        /**
-         * Displays a custom AlertDialog upon successful registration, guiding the user to login.
-         */
-         fun showRegistrationSuccessDialog() {
-            // 1. Show the Toast message
-            Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show()
-
-            // 2. Display the custom AlertDialog
-            AlertDialog.Builder(this)
-                .setTitle("Registration Successful")
-                .setMessage("Your account has been created. Please Log In to continue.")
-                .setPositiveButton("Log In") { dialog, which ->
-                    // 3. Navigate to Login.kt upon clicking the button
-                    val intent = Intent(this, Login::class.java)
-                    // Clear the back stack so the user cannot press back to registration
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish() // Finish the current registration activity
-                }
-                .setCancelable(false) // Prevent dismissal
-                .show()
-        }
 
         btnConfirm.setOnClickListener {
-            // ⚠️ Placeholder for actual registration logic (e.g., Firebase call) ⚠️
+            hideKeyboardAndClearFocus()
 
-            // Assuming registration was successful, show the dialog
-            showRegistrationSuccessDialog()
+            val studentID = inputStudentID.text.toString().trim()
 
-            // You can add an 'else' here if you need to handle registration failure later
+            // ⚠️ SIMULATION: Check if the ID matches the registered one ⚠️
+            if (studentID.equals(REGISTERED_STUDENT_ID_SIMULATION, ignoreCase = true)) {
+                showStudentIDErrorDialog()
+            } else {
+                // ✅ SUCCESS: Proceed to the final registration step
+                Toast.makeText(this, "Details Verified. Proceeding...", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, RegisterActivity3::class.java)
+                startActivity(intent)
+            }
         }
+    } // End of onCreate
+
+    // =========================================================================
+    // 8. DISPATCH TOUCH EVENT (CLICK OUTSIDE TO UNFOCUS/HIDE KEYBOARD)
+    // =========================================================================
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is TextInputEditText || v is AutoCompleteTextView) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    hideKeyboardAndClearFocus()
+
+                    // Manually trigger the blur logic for all fields on click outside
+                    //inputStudentID.clearFocus()
+                    //inputFirstname.clearFocus()
+                    //inputLastname.clearFocus()
+                    //inputCollege.clearFocus()
+                    //inputYear.clearFocus()
+                    clearValidationState(layoutStudentID)
+                    clearValidationState(layoutFirstname)
+                    clearValidationState(layoutLastname)
+                    clearValidationState(layoutGender) // 🚨 NEW
+                    clearValidationState(layoutCollege)
+                    clearValidationState(layoutYear)
+
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }

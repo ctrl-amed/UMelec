@@ -1,24 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Pressed state (Click/Tap) - Changes color to gold/yellow when clicked -->
+    <!-- Pressed state -->
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <corners android:radius="16dp" />
-            <solid android:color="#FCBE6A" />
+
+            <!-- Replaced <solid> with <gradient> for the enabled state -->
+            <gradient
+                android:startColor="#F5A304"
+                android:endColor="#8F5F02"
+                android:angle="270" />
+            <!-- angle="270" means the gradient goes from top (startColor) to bottom (endColor) -->
+
         </shape>
     </item>
 
-    <!-- Enabled state (Default Blue) -->
+    <!-- Enabled state -->
     <item android:state_enabled="true">
-        <shape android:shape="rectangle">
-            <corners android:radius="16dp" />
-            <solid android:color="#FAFCFE" />
-            <stroke android:width="2dp" android:color="#FCBE6A" />
-        </shape>
+        <layer-list>
+            <!-- Gradient border -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="16dp" />
+                    <gradient
+                        android:startColor="#F5A304"
+                        android:endColor="#8F5F02"
+                        android:angle="270" />
+                </shape>
+            </item>
+
+            <!-- Inner solid background -->
+            <item android:left="2dp" android:top="2dp"
+                android:right="2dp" android:bottom="2dp">
+                <shape android:shape="rectangle">
+                    <corners android:radius="14dp" />
+                    <solid android:color="#FAFCFE" />
+                </shape>
+            </item>
+        </layer-list>
     </item>
 
-    <!-- Disabled state (Gray) -->
+    <!-- Disabled state -->
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
             <corners android:radius="16dp" />

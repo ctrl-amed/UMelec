@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Pressed state (Click/Tap) - Changes color to gold/yellow when clicked -->
+    <!-- Pressed state (Click/Tap) - Changes color to gold/yellow when clicked
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <corners android:radius="16dp" />
             <solid android:color="#FCBE6A" />
         </shape>
-    </item>
+    </item>-->
 
-    <!-- Enabled state (Default Blue) -->
+    <!-- Enabled state (Gradient Blue) - MODIFIED -->
     <item android:state_enabled="true">
         <shape android:shape="rectangle">
             <corners android:radius="16dp" />
-            <solid android:color="#0039A6" />
+
+            <!-- Replaced <solid> with <gradient> for the enabled state -->
+            <gradient
+                android:startColor="#0098E0"
+                android:endColor="#00537A"
+                android:angle="270" />
+            <!-- angle="270" means the gradient goes from top (startColor) to bottom (endColor) -->
+
         </shape>
     </item>
 
@@ -21,7 +28,7 @@
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
             <corners android:radius="16dp" />
-            <solid android:color="#9E9E9E" />
+            <solid android:color="#5C5C77" />
         </shape>
     </item>
 

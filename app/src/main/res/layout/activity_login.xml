@@ -7,21 +7,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
-    tools:context=".RegisterActivity">
+    android:background="@drawable/gradient_background"
+    tools:context=".LoginActivity">
     <!-- 🔹 Back Arrow (now outside the white container) -->
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/HeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_arrow_back"
-        app:tint="#FFFFFF"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:contentDescription="back_button_content_description" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_white_background"
+            android:contentDescription="back_button_content_description"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#0098E0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:stateListAnimator="@animator/button_press_animator"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <!-- 🔹 White Rounded Container for Registration -->
@@ -29,7 +42,7 @@
         android:id="@+id/registerContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="120dp"
         android:background="@drawable/rounded_white_bg"
         android:gravity="center_horizontal"
         android:orientation="vertical"
@@ -49,8 +62,8 @@
             android:layout_marginBottom="24dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="Login"
-            android:textColor="#0E0E2C"
-            android:textSize="25sp"
+            android:textColor="#313131"
+            android:textSize="32sp"
             android:textStyle="bold" />
 
         <!-- EMAIL -->
@@ -59,36 +72,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            style="@style/Widget.App.TextInputLayout.Validation"
             app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="25dp"
-            app:boxCornerRadiusTopEnd="25dp"
-            app:boxCornerRadiusBottomStart="25dp"
-            app:boxCornerRadiusBottomEnd="25dp"
-            app:boxStrokeColor="#0039A6"
-            app:hintTextColor="#8C8CA1"
+            android:hint="Email"
+            app:placeholderText="Enter Umak Email"
             app:startIconDrawable="@drawable/email_icon"
-            app:startIconTint="#8C8CA1">
+            app:startIconTint="#8C8CA1"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter UMak Email"
                 android:inputType="textEmailAddress"
                 android:paddingStart="50dp"
                 android:textColor="#000000"
-                android:textColorHint="#8C8CA1"
                 android:fontFamily="@font/poppins_regular" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
+
+
+
+    <LinearLayout
             android:id="@+id/EmailRequirements"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="10dp">
 
+            android:layout_marginBottom="10dp">
             <TextView
                 android:id="@+id/reqEmail"
                 android:layout_width="wrap_content"
@@ -107,30 +119,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            style="@style/Widget.App.TextInputLayout.Validation"
             app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="25dp"
-            app:boxCornerRadiusTopEnd="25dp"
-            app:boxCornerRadiusBottomStart="25dp"
-            app:boxCornerRadiusBottomEnd="25dp"
-            app:boxStrokeColor="#0039A6"
-            app:hintTextColor="#8C8CA1"
+            android:hint="Password"
+            app:placeholderText="Enter Password"
             app:startIconDrawable="@drawable/lock_icon"
             app:startIconTint="#8C8CA1"
             app:endIconMode="password_toggle"
-            app:endIconTint="#8C8CA1">
+            app:endIconTint="#8C8CA1"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter Password"
                 android:inputType="textPassword"
                 android:paddingStart="50dp"
                 android:textColor="#000000"
-                android:textColorHint="#8C8CA1"
-                android:fontFamily="@font/poppins_regular" />
+                android:fontFamily="@font/poppins_regular"
+                />
         </com.google.android.material.textfield.TextInputLayout>
-
         <!-- Password requirements -->
         <LinearLayout
             android:id="@+id/PasswordRequirements"
@@ -143,10 +151,11 @@
                 android:id="@+id/reqPassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Field is required"
+                android:text=""
                 android:textColor="#8C8CA1"
                 android:textSize="14sp"
-                android:fontFamily="@font/poppins_regular" />
+                android:fontFamily="@font/poppins_regular"
+                />
         </LinearLayout>
 
         <!-- FORGOT PASSWORD -->
@@ -162,12 +171,13 @@
                 android:id="@+id/ForgotPassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Forgot Password?"
-                android:textColor="#318CE7"
+                android:text="@string/forgot_password_link"
+                android:textColor="#00537A"
                 android:textSize="16sp"
                 android:fontFamily="@font/poppins_bold"
                 android:clickable="true"
                 android:focusable="true"
+                android:stateListAnimator="@animator/button_press_animator"
                 />
         </LinearLayout>
 
@@ -201,25 +211,32 @@
                 android:id="@+id/RegisterButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Register"
-                android:textColor="#FCBE6A"
+                android:text="@string/register_link"
+                android:textColor="#00537A"
                 android:textSize="14sp"
                 android:fontFamily="@font/poppins_bold"
                 android:clickable="true"
                 android:focusable="true"
+                android:stateListAnimator="@animator/button_press_animator"
                 />
+
         </LinearLayout>
 
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnLogin"
             android:layout_width="300dp"
             android:layout_height="55dp"
-            android:background="@drawable/blue_rounded_button"
-            android:text="Login"
-            android:textColor="#FFFFFF"
+            android:text="Log in"
+            android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:backgroundTint="@null" />
+            android:background="@drawable/blue_rounded_button"
+            android:textAllCaps="false"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_marginTop="12dp"
+
+
+            />
 
 
     </LinearLayout>

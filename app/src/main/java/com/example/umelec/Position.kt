@@ -129,7 +129,7 @@ class Position : AppCompatActivity() {
                 candidateId = "JANE_D",
                 name = "Jane Doe",
                 position = positionName,
-                courseInfo = "III - BCSAD",
+                courseInfo = "III - CCIS",
                 previewText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
                 profilePictureResource = profileResId
             ),
@@ -137,7 +137,7 @@ class Position : AppCompatActivity() {
                 candidateId = "JOHN_S",
                 name = "John Smith",
                 position = positionName,
-                courseInfo = "IV - BSIT",
+                courseInfo = "IV - CCIS",
                 previewText = "Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...",
                 profilePictureResource = profileResId
             ),
@@ -145,7 +145,7 @@ class Position : AppCompatActivity() {
                 candidateId = "SARAH_L",
                 name = "Sarah Lee",
                 position = positionName,
-                courseInfo = "II - BSBA",
+                courseInfo = "II - CCIS",
                 previewText = "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...",
                 profilePictureResource = profileResId
             ),
@@ -153,7 +153,7 @@ class Position : AppCompatActivity() {
                 candidateId = "MARK_T",
                 name = "Mark Tan",
                 position = positionName,
-                courseInfo = "I - BSED",
+                courseInfo = "I - CCIS",
                 previewText = "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
                 profilePictureResource = profileResId
             )

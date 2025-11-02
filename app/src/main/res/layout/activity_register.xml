@@ -5,24 +5,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="@drawable/gradient_background"
     tools:context=".RegisterActivity">
 
-    <!-- 🔹 Back Arrow (now outside the white container) -->
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/HeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_arrow_back"
-        app:tint="#FFFFFF"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:contentDescription="back_button_content_description" />
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_white_background"
+            android:contentDescription="back_button_content_description"
+            android:src="@drawable/ic_arrow_back"
+            android:stateListAnimator="@animator/button_press_animator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#0098E0" />
+        <TextView
+            android:id="@+id/setupTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_semi_bold"
+            android:text="Set Up Account"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/btnBack"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btnBack"
+            android:layout_marginTop="30dp"/>
+        <View
+            android:id="@+id/progressBarBackground"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/progress_bar_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnBack" />
+        <View
+            android:id="@+id/progressBarFill"
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:background="@drawable/progress_bar_fill_gradient"
+            app:layout_constraintBottom_toBottomOf="@id/progressBarBackground"
+            app:layout_constraintStart_toStartOf="@id/progressBarBackground"
+            app:layout_constraintTop_toTopOf="@id/progressBarBackground"
+            app:layout_constraintWidth_percent="0.333" />
+        <TextView
+            android:id="@+id/stepCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Step 1 of 3"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressBarBackground" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- 🔹 White Rounded Container for Registration -->
+
     <LinearLayout
         android:id="@+id/registerContainer"
         android:layout_width="match_parent"
@@ -34,45 +85,40 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="120dp"
         android:gravity="center_horizontal">
 
-        <!-- Your registration form content goes here -->
         <TextView
             android:id="@+id/registerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Registration"
-            android:textSize="30sp"
+            android:textSize="32sp"
             android:textStyle="bold"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#0E0E2C"
+            android:textColor="#313131"
             android:layout_marginBottom="24dp" />
 
-        <!-- EMAIL -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            style="@style/Widget.App.TextInputLayout.Validation"
             app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="25dp"
-            app:boxCornerRadiusTopEnd="25dp"
-            app:boxCornerRadiusBottomStart="25dp"
-            app:boxCornerRadiusBottomEnd="25dp"
-            app:boxStrokeColor="#0039A6"
-            app:hintTextColor="#8C8CA1"
+            android:hint="Email"
+            app:placeholderText="Enter UMak Email"
             app:startIconDrawable="@drawable/email_icon"
-            app:startIconTint="#8C8CA1">
+            app:startIconTint="#8C8CA1"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter UMak Email"
                 android:inputType="textEmailAddress"
                 android:paddingStart="50dp"
                 android:textColor="#000000"
-                android:textColorHint="#8C8CA1"
                 android:fontFamily="@font/poppins_regular" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,7 +129,6 @@
             android:orientation="vertical"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="10dp">
-
             <TextView
                 android:id="@+id/reqEmail"
                 android:layout_width="wrap_content"
@@ -92,47 +137,55 @@
                 android:textColor="#8C8CA1"
                 android:textSize="14sp"
                 android:fontFamily="@font/poppins_regular"/>
-
         </LinearLayout>
-
-        <!-- PASSWORD -->
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            style="@style/Widget.App.TextInputLayout.Validation"
             app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="25dp"
-            app:boxCornerRadiusTopEnd="25dp"
-            app:boxCornerRadiusBottomStart="25dp"
-            app:boxCornerRadiusBottomEnd="25dp"
-            app:boxStrokeColor="#0039A6"
-            app:hintTextColor="#8C8CA1"
+            android:hint="Password"
+            app:placeholderText="Enter Password"
             app:startIconDrawable="@drawable/lock_icon"
             app:startIconTint="#8C8CA1"
             app:endIconMode="password_toggle"
-            app:endIconTint="#8C8CA1">
+            app:endIconTint="#8C8CA1"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter Password"
                 android:inputType="textPassword"
                 android:paddingStart="50dp"
                 android:textColor="#000000"
-                android:textColorHint="#8C8CA1"
                 android:fontFamily="@font/poppins_regular" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password requirements -->
+        <LinearLayout
+            android:id="@+id/fieldRequirements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/reqField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Field is Required"
+                android:textColor="#8C8CA1"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/passwordRequirements"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="5dp"
+
             android:layout_marginBottom="10dp">
 
             <TextView
@@ -143,7 +196,6 @@
                 android:textColor="#8C8CA1"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="14sp" />
-
             <TextView
                 android:id="@+id/reqMixedcase"
                 android:layout_width="wrap_content"
@@ -152,7 +204,6 @@
                 android:textColor="#8C8CA1"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="14sp" />
-
             <TextView
                 android:id="@+id/reqSpecial"
                 android:layout_width="wrap_content"
@@ -161,7 +212,6 @@
                 android:textColor="#8C8CA1"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="14sp" />
-
             <TextView
                 android:id="@+id/reqNumber"
                 android:layout_width="wrap_content"
@@ -170,68 +220,53 @@
                 android:textColor="#8C8CA1"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="14sp" />
-
         </LinearLayout>
-
-        <!-- CONFIRMPASSWORD -->
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            style="@style/Widget.App.TextInputLayout.Validation"
             app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="25dp"
-            app:boxCornerRadiusTopEnd="25dp"
-            app:boxCornerRadiusBottomStart="25dp"
-            app:boxCornerRadiusBottomEnd="25dp"
-            app:boxStrokeColor="#0039A6"
-            app:hintTextColor="#8C8CA1"
+            android:hint="Confirm Password"
+            app:placeholderText="Confirm Password"
             app:startIconDrawable="@drawable/lock_icon"
             app:startIconTint="#8C8CA1"
             app:endIconMode="password_toggle"
-            app:endIconTint="#8C8CA1">
+            app:endIconTint="#8C8CA1"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputConfirmPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Confirm Password"
                 android:inputType="textPassword"
                 android:paddingStart="50dp"
                 android:textColor="#000000"
-                android:textColorHint="#8C8CA1"
                 android:fontFamily="@font/poppins_regular" />
         </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-        android:id="@+id/ConfirmpasswordRequirements"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="5dp">
-
-        <TextView
-            android:id="@+id/reqMatch"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ConfirmpasswordRequirements"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="• Passwords must match"
-            android:textColor="#8C8CA1"
-            android:textSize="14sp"
-            android:fontFamily="@font/poppins_regular"/>
+            android:orientation="vertical"
+            android:layout_marginTop="5dp">
+            <TextView
+                android:id="@+id/reqMatch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Passwords must match"
+                android:textColor="#8C8CA1"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
 
-    </LinearLayout>
-
-
-
-
-        <!-- Spacer View: This will push the button to the bottom -->
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-
         <LinearLayout
             android:id="@+id/LoginLayout"
             android:layout_width="match_parent"
@@ -239,7 +274,6 @@
             android:orientation="horizontal"
             android:layout_marginBottom="5dp"
             android:gravity="center_horizontal">
-
             <TextView
                 android:id="@+id/LoginText"
                 android:layout_width="wrap_content"
@@ -249,20 +283,18 @@
                 android:textSize="14sp"
                 android:fontFamily="@font/poppins_regular"
                 />
-
             <TextView
                 android:id="@+id/LoginButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Log In"
-                android:textColor="#FCBE6A"
+                android:text="@string/login_link"
+                android:textColor="#00537A"
                 android:textSize="14sp"
                 android:fontFamily="@font/poppins_bold"
                 android:clickable="true"
                 android:focusable="true"
                 />
         </LinearLayout>
-
         <Button
             android:id="@+id/btnNext"
             android:layout_width="300dp"
@@ -271,12 +303,7 @@
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:background="@drawable/blue_rounded_button"
-            app:backgroundTint="@null" />
-
-
+            app:backgroundTint="@null"
+            android:stateListAnimator="@animator/button_press_animator"/>
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-

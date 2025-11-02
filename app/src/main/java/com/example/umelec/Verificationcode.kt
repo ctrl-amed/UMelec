@@ -11,11 +11,21 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import android.app.AlertDialog // For the success/failure dialogs
+import android.app.AlertDialog
 import android.widget.ImageButton
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
+import android.view.MotionEvent
+import android.graphics.Rect
+// 💡 REQUIRED IMPORTS FOR CUSTOM DIALOGS AND TIMER
+import android.view.LayoutInflater
+import android.view.Gravity
+import android.graphics.drawable.ColorDrawable
+import android.os.Handler
+import android.os.Looper
+
 
 class Verificationcode : AppCompatActivity() {
 
@@ -23,10 +33,10 @@ class Verificationcode : AppCompatActivity() {
     private val COLOR_PRIMARY_BLUE = Color.parseColor("#0039A6")
     private val COLOR_ERROR_RED = Color.parseColor("#D32F2F")
     private val COLOR_SUCCESS_GREEN = Color.parseColor("#4CAF50")
-    private val COLOR_HINT_GRAY = Color.parseColor("#8C8CA1")
 
     // Define Views globally within the class for easier access in helper functions
     private lateinit var otpInputs: List<TextInputEditText>
+    private lateinit var otpLayouts: List<TextInputLayout>
     private lateinit var btnSendVerification: Button
     private lateinit var textOTPtimer: TextView
     private lateinit var countDownTimer: CountDownTimer
@@ -34,12 +44,40 @@ class Verificationcode : AppCompatActivity() {
     // 🚨 SIMULATED CORRECT OTP (Replace with logic that checks against a sent code)
     private val CORRECT_OTP = "123456"
     private val TIMER_DURATION_SECONDS = 60L
+    private val RESEND_DIALOG_DURATION_MS = 2000L // 💡 Duration for the auto-dismiss resend dialog
+
+    // =========================================================================
+    // 💡 VALIDATION STATE HELPERS
+    // =========================================================================
+
+    private fun clearValidationState(layout: TextInputLayout) {
+        layout.error = null
+        layout.boxStrokeColor = COLOR_PRIMARY_BLUE
+    }
+
+    private fun showValidState(layout: TextInputLayout) {
+        layout.error = null
+        // Reverting to primary blue as requested by your commented out line/logic.
+        layout.boxStrokeColor = COLOR_PRIMARY_BLUE
+    }
+
+    private fun showValidationError(layout: TextInputLayout) {
+        layout.boxStrokeColor = COLOR_ERROR_RED
+    }
+
+    // 💡 KEYBOARD AND FOCUS HELPER
+    private fun hideKeyboardAndClearFocus() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        currentFocus?.clearFocus()
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_verificationcode) // Assuming your layout is activity_verification_code
+        setContentView(R.layout.activity_verificationcode)
 
-        val btnBack = findViewById<ImageButton>(R.id.btnBack) // Assuming a back button ID
+        val btnBack = findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener {
             finish()
         }
@@ -58,11 +96,25 @@ class Verificationcode : AppCompatActivity() {
             findViewById(R.id.input6)
         )
 
+        // 💡 Initialize OTP Layout Fields
+        otpLayouts = listOf(
+            findViewById(R.id.textInputLayout1),
+            findViewById(R.id.textInputLayout2),
+            findViewById(R.id.textInputLayout3),
+            findViewById(R.id.textInputLayout4),
+            findViewById(R.id.textInputLayout5),
+            findViewById(R.id.textInputLayout6)
+        )
+
         btnSendVerification = findViewById(R.id.btnSendVerification)
         textOTPtimer = findViewById(R.id.textOTPtimer)
 
         // Set initial button state to disabled
         btnSendVerification.isEnabled = false
+
+        // Apply initial state to all fields
+        otpLayouts.forEach { clearValidationState(it) }
+
 
         // =====================================================================
         // 🚨 2. OTP INPUT AUTOMATION AND VALIDATION 🚨
@@ -92,7 +144,7 @@ class Verificationcode : AppCompatActivity() {
     }
 
     // ---------------------------------------------------------------------
-    // 🔹 HELPER FUNCTIONS 🔹
+    // 🔹 CORE LOGIC HELPERS 🔹
     // ---------------------------------------------------------------------
 
     private fun checkAllFieldsFilled(): Boolean {
@@ -105,6 +157,8 @@ class Verificationcode : AppCompatActivity() {
         if (enteredCode == CORRECT_OTP) {
             showVerificationSuccessDialog()
         } else {
+            // 🚨 Set all fields to error state on failure (Red border)
+            otpLayouts.forEach { showValidationError(it) }
             showVerificationFailureDialog()
         }
     }
@@ -114,92 +168,174 @@ class Verificationcode : AppCompatActivity() {
     }
 
     private fun clearOtpFields() {
-        otpInputs.forEach { it.setText("") }
+        otpInputs.forEachIndexed { index, input ->
+            input.setText("")
+            clearValidationState(otpLayouts[index]) // Clear validation state when clearing fields
+        }
         otpInputs.first().requestFocus()
     }
 
-    // ---------------------------------------------------------------------
-    // 🔹 DIALOG AND TOASTS 🔹
-    // ---------------------------------------------------------------------
+    // =========================================================================
+    // 🚨 5. CUSTOM DIALOG IMPLEMENTATIONS 🚨
+    // =========================================================================
 
+    /**
+     * 1. Success Dialog (imitate custom_toast_success)
+     */
     private fun showVerificationSuccessDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Code Verified Successfully")
-            .setMessage("You can now reset your password.")
-            .setPositiveButton("Confirm") { dialog, which ->
-                // Proceed to Resetpassword.kt
-                val intent = Intent(this, Resetpassword::class.java) // Assuming class name is Resetpassword
-                startActivity(intent)
-                finish() // Close current activity
-            }
-            .setCancelable(false) // User must click confirm
-            .show()
+        val layoutInflater = LayoutInflater.from(this)
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Code Verified"
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Proceed to reset password."
+
+        val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
+        btnAction.text = "Continue"
+        btnAction.setOnClickListener {
+            dialog.dismiss()
+
+            // Proceed to Resetpassword.kt
+            val intent = Intent(this, Resetpassword::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        dialog.show()
     }
 
-    private fun showVerificationFailureDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Verification Failed")
-            .setMessage("Invalid OTP code entered.")
-            .setPositiveButton("OK") { dialog, which ->
-                // Go back to the activity and reset the invalid OTP
-                clearOtpFields()
-            }
-            .setCancelable(false)
-            .show()
-    }
-
+    /**
+     * 2. Resend Success Dialog (imitate custom_toast_success, with "Ok" button)
+     */
     private fun showResendSuccessDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Resend Successful")
-            .setMessage("OTP code resent successfully.")
-            .setPositiveButton("OK") { dialog, which ->
-                // Goes back to the activity and restarts the timer
-                startResendTimer()
-            }
-            .setCancelable(false)
-            .show()
+        val layoutInflater = LayoutInflater.from(this)
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Code sent!"
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Check your UMak email inbox."
+
+        val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
+        btnAction.text = "Ok"
+        btnAction.setOnClickListener {
+            dialog.dismiss()
+            startResendTimer() // Restart timer after the user acknowledges the resend
+        }
+
+        dialog.show()
     }
+
+    /**
+     * 3. Failure Dialog (imitate custom_toast_error)
+     */
+    private fun showVerificationFailureDialog() {
+        val layoutInflater = LayoutInflater.from(this)
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_error, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Code error"
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Incorrect Code."
+
+        dialogView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
+            dialog.dismiss()
+            // 💡 Reset the red border and clear fields
+            clearOtpFields()
+        }
+
+        // 💡 Trigger Red border via standard Material Error property (visual flag)
+        otpLayouts.forEach { it.error = " " }
+
+        dialog.show()
+    }
+
 
     // ---------------------------------------------------------------------
     // 🔹 OTP LISTENERS (Auto-Focus and Delete) 🔹
     // ---------------------------------------------------------------------
-
     private fun setupOtpListeners() {
         otpInputs.forEachIndexed { index, input ->
+            val layout = otpLayouts[index]
 
-            // Limit input to 1 character
+            input.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    clearValidationState(layout)
+                } else {
+                    if (input.text.isNullOrEmpty()) {
+                        showValidationError(layout)
+                    } else {
+                        showValidState(layout)
+                    }
+                }
+            }
+
             input.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                private var currentTextLength = 0
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    currentTextLength = s?.length ?: 0
+                }
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
                 override fun afterTextChanged(s: Editable?) {
-                    updateButtonState() // Update button state after any change
+                    updateButtonState()
 
-                    val text = s.toString()
-                    if (text.length == 1 && index < otpInputs.size - 1) {
-                        // Automatically move focus to the next field
-                        otpInputs[index + 1].requestFocus()
+                    val newText = s.toString()
+
+                    // Check if a character was ADDED (newText.length > currentTextLength)
+                    // and if that new character is a digit (because inputType="number" still allows the event)
+                    if (newText.length == 1 && currentTextLength == 0) {
+
+                        // 💡 NEW LOGIC: Only move focus if the character is confirmed to be a digit.
+                        // Since inputType="number" is set, this check should cover it, but checking
+                        // the actual content length is the most reliable way to handle the shift.
+                        if (newText.first().isDigit()) {
+                            showValidState(layout)
+                            if (index < otpInputs.size - 1) {
+                                // Automatically move focus to the next field
+                                otpInputs[index + 1].requestFocus()
+                            }
+                        }
+                    } else if (newText.isEmpty()) {
+                        // Reset when character is deleted
+                        clearValidationState(layout)
                     }
-                    if (text.length > 1) {
-                        // Keep only the first character
-                        input.setText(text.substring(0, 1))
+
+                    // Failsafe for copy-paste or unexpected multiple input (keep only the first char)
+                    if (newText.length > 1) {
+                        input.setText(newText.substring(0, 1))
                         input.setSelection(1)
                     }
                 }
             })
 
-            // Handle backspace key press to move focus back
-            input.setOnKeyListener { v, keyCode, event ->
+            input.setOnKeyListener { _, keyCode, event ->
                 if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
-                    // Check if the current field is empty AND it's not the first field
                     if (input.text.isNullOrEmpty() && index > 0) {
-                        // Move focus to the previous field
                         otpInputs[index - 1].requestFocus()
-                        // Ensure the cursor is at the end of the previous field
                         otpInputs[index - 1].setSelection(otpInputs[index - 1].text?.length ?: 0)
-                        return@setOnKeyListener true // Consume the backspace event
+                        return@setOnKeyListener true
                     } else if (input.text?.isNotEmpty() == true) {
-                        // If there is text, let the default behavior (deleting one char) happen.
                         return@setOnKeyListener false
                     }
                 }
@@ -211,11 +347,16 @@ class Verificationcode : AppCompatActivity() {
     // ---------------------------------------------------------------------
     // 🔹 TIMER LOGIC 🔹
     // ---------------------------------------------------------------------
-
+    // (This section remains unchanged from your previous code)
     private fun startResendTimer() {
-        // Set to Gray, not clickable, and start showing time
-        textOTPtimer.setTextColor(COLOR_HINT_GRAY)
+        otpLayouts.forEach { clearValidationState(it) }
+
+        textOTPtimer.setTextColor(Color.parseColor("#8C8CA1"))
         textOTPtimer.isClickable = false
+
+        if (::countDownTimer.isInitialized) {
+            countDownTimer.cancel()
+        }
 
         countDownTimer = object : CountDownTimer(TIMER_DURATION_SECONDS * 1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -224,8 +365,7 @@ class Verificationcode : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                // Set to Blue, clickable, and show "Resend code" text
-                textOTPtimer.setTextColor(Color.parseColor("#318CE7")) // Use the blue color from XML
+                textOTPtimer.setTextColor(Color.parseColor("#318CE7"))
                 textOTPtimer.text = "Resend code"
                 textOTPtimer.isClickable = true
             }
@@ -237,5 +377,31 @@ class Verificationcode : AppCompatActivity() {
         if (::countDownTimer.isInitialized) {
             countDownTimer.cancel()
         }
+    }
+
+    // =========================================================================
+    // 💡 DISPATCH TOUCH EVENT (CLICK OUTSIDE TO UNFOCUS/HIDE KEYBOARD)
+    // =========================================================================
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is TextInputEditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    hideKeyboardAndClearFocus()
+
+                    otpLayouts.forEachIndexed { index, layout ->
+                        if (otpInputs[index].text.isNullOrEmpty()) {
+                            showValidationError(layout)
+                        } else {
+                            showValidState(layout)
+                        }
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }

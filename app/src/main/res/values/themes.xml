@@ -1,14 +1,70 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.UMelec" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="android:windowSplashScreenBackground">#0039A6</item>
-        <item name="colorControlActivated">#0039A6</item> <!-- Outline color when focused -->
-        <item name="colorOnSurface">#8C8CA1</item>        <!-- Label color -->
-        <item name="colorOutline">#D3D3D3</item>          <!-- Default outline -->
 
+    <style name="Base.Theme.UMelec" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorControlActivated">#0039A6</item>
+        <item name="colorOnSurface">#8C8CA1</item>
+        <item name="colorOutline">#D3D3D3</item>
+
+        <item name="autoCompleteTextViewStyle">@style/Widget.Material3.AutoCompleteTextView.OutlinedBox</item>
     </style>
 
     <style name="Theme.UMelec" parent="Base.Theme.UMelec" />
+
+    <style name="Theme.UMelec.NoSplash" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+
+        <item name="colorControlActivated">#0039A6</item>
+    </style>
+
+    <style name="Widget.App.TextInputLayout.Validation"
+        parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/text_field_states</item>
+        <item name="hintTextColor">@color/text_field_states</item>
+        <item name="android:textColorHint">@color/input_default_gray</item>
+
+        <item name="boxCornerRadiusTopStart">25dp</item>
+        <item name="boxCornerRadiusTopEnd">25dp</item>
+        <item name="boxCornerRadiusBottomStart">25dp</item>
+        <item name="boxCornerRadiusBottomEnd">25dp</item>
+    </style>
+
+    <style name="Widget.App.TextInputLayout.Validation.ExposedDropdown"
+        parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+        <item name="boxStrokeColor">@color/text_field_states</item>
+        <item name="hintTextColor">@color/text_field_states</item>
+        <item name="android:textColorHint">@color/input_default_gray</item>
+
+        <item name="boxCornerRadiusTopStart">25dp</item>
+        <item name="boxCornerRadiusTopEnd">25dp</item>
+        <item name="boxCornerRadiusBottomStart">25dp</item>
+        <item name="boxCornerRadiusBottomEnd">25dp</item>
+    </style>
+
+    <style name="Widget.App.ListView.Dropdown" parent="android:Widget.ListView.DropDown">
+        <item name="android:background">@drawable/dropdown_pop_up_background</item>
+
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:dividerHeight">0dp</item>
+    </style>
+
+    <style name="ThemeOverlay.App.DropdownMenu" parent="ThemeOverlay.Material3.AutoCompleteTextView">
+        <item name="android:dropDownListViewStyle">@style/Widget.App.ListView.Dropdown</item>
+    </style>
+
+    <style name="Widget.App.TextInputLayout.OTP"
+        parent="Widget.App.TextInputLayout.Validation">
+
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+    </style>
+
 </resources>

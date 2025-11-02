@@ -12,6 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".RegisterActivity3"
+            android:exported="false" />
+        <!-- APPLYING THE NEW THEME HERE -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.UMelec.NoSplash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> <!-- All other activities remain the same -->
+        <activity
             android:name=".OfficialResults"
             android:exported="false" />
         <activity
@@ -79,13 +93,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="true"></activity>
     </application>
 
 </manifest>

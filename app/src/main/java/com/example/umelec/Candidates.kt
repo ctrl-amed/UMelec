@@ -7,14 +7,13 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 
-// NOTE: Ensure the 'NotificationItem' data class is defined in a separate,
-// shared file (like SharedData.kt) in this package to avoid 'Redeclaration' error.
+// NOTE: We assume NotificationItem, NotificationType, and NotificationManager
+// are available in the com.example.umelec package.
 
 // --- DATA STRUCTURE FOR POSITIONS ---
 // This is the model you would map your backend/database data to.
@@ -22,18 +21,17 @@ data class PositionItem(val positionName: String)
 
 class Candidates : AppCompatActivity() {
 
-    // A list to hold your notification data (Simulated data)
-    private val notifications = mutableListOf(
-        NotificationItem("New message from John Doe", false),
-        NotificationItem("Your post was liked by 5 people", true),
-        NotificationItem("System update available", false)
-    )
+    // 1. New: Declare the reusable NotificationManager
+    private lateinit var notificationManager: NotificationManager
 
-    private var isNotificationDropdownVisible = false
+    // NOTE: Removed old local 'notifications' list and 'isNotificationDropdownVisible'
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_candidates)
+
+        // 2. New: Initialize the NotificationManager
+        notificationManager = NotificationManager(this)
 
         // Initialize header UI components and set up listeners
         setupUI()
@@ -75,9 +73,6 @@ class Candidates : AppCompatActivity() {
         }
     }
 
-    /**
-     * Programmatically creates a single position button (the equivalent of btnPosition).
-     */
     /**
      * Programmatically creates a single position button (the equivalent of btnPosition).
      */
@@ -153,8 +148,8 @@ class Candidates : AppCompatActivity() {
         val profileIcon: ImageView = findViewById(R.id.profileIcon)
         val notificationIcon: ImageView = findViewById(R.id.notificationIcon)
 
-        // 🆕 Find the Compare button
-        //val compareButton: Button = findViewById(R.id.btnCompare)
+        // The commented-out code below refers to XML IDs not present in the provided snippet
+        // val compareButton: Button = findViewById(R.id.btnCompare)
 
 
         // --- Profile Icon Click Listener ---
@@ -163,21 +158,22 @@ class Candidates : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // --- Notification Icon Click Listener (Toggle Dropdown) ---
+        // 3. New: Notification Icon Click Listener (Toggle Dropdown)
+        // Uses the centralized NotificationManager
         notificationIcon.setOnClickListener {
-            toggleNotificationDropdown(notificationIcon)
+            notificationManager.toggleNotificationDropdown(it as ImageView)
         }
 
         // --- Compare Button Click Listener ---
-        //compareButton.setOnClickListener {
-            // Apply the color change animation and navigate to Comparison.kt
-            //animateAndNavigate(
-                //view = it,
-               // originalBgResource = R.drawable.blue_rounded_button,
-                //targetActivity = Comparison::class.java
-
-           // )
-        //}
+        // if (compareButton != null) {
+        //     compareButton.setOnClickListener {
+        //         animateAndNavigate(
+        //             view = it,
+        //             originalBgResource = R.drawable.blue_rounded_button,
+        //             targetActivity = Comparison::class.java
+        //         )
+        //     }
+        // }
     }
 
 
@@ -187,8 +183,8 @@ class Candidates : AppCompatActivity() {
      */
     private fun animateAndNavigate(view: View, originalBgResource: Int, targetActivity: Class<*>,
         // ⭐️ NEW: Optional Intent Extra parameters
-        extraKey: String? = null,
-        extraValue: String? = null) {
+                                   extraKey: String? = null,
+                                   extraValue: String? = null) {
         // 1. Get the original background (assuming it's a GradientDrawable with corners)
         val originalBackground = view.background
 
@@ -209,8 +205,8 @@ class Candidates : AppCompatActivity() {
 
         // 4. Delay navigation and restore original color
         Handler(Looper.getMainLooper()).postDelayed({
-            // Restore the original background drawable
-            view.background = originalBackground
+            // Restore the original background drawable by reloading from resources
+            view.background = ResourcesCompat.getDrawable(resources, originalBgResource, null)
 
             // Navigate to the target activity
             val intent = Intent(this, targetActivity)
@@ -223,7 +219,7 @@ class Candidates : AppCompatActivity() {
     }
 
     // ----------------------------------------------------------------------
-    // --- FOOTER AND NOTIFICATION LOGIC (from previous turn) ---
+    // --- FOOTER LOGIC ---
     // ----------------------------------------------------------------------
 
     /**
@@ -251,79 +247,8 @@ class Candidates : AppCompatActivity() {
         navFaq.setOnClickListener { navigateTo(Faq::class.java) }
     }
 
-    /**
-     * Toggles the visibility of the notification dropdown menu.
-     */
-    private fun toggleNotificationDropdown(anchorView: ImageView) {
-        if (isNotificationDropdownVisible) {
-            anchorView.setColorFilter(Color.parseColor("#FAFCFE"))
-            isNotificationDropdownVisible = false
-        } else {
-            showNotificationDropdown(anchorView)
-            isNotificationDropdownVisible = true
-        }
-    }
-
-    /**
-     * Creates and displays the custom notification dropdown menu.
-     */
-    private fun showNotificationDropdown(anchorView: ImageView) {
-        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupView = inflater.inflate(R.layout.notification_dropdown, null)
-
-        val width = LinearLayout.LayoutParams.WRAP_CONTENT
-        val height = LinearLayout.LayoutParams.WRAP_CONTENT
-        val focusable = true
-        val popupWindow = PopupWindow(popupView, width, height, focusable)
-
-        popupWindow.setOnDismissListener {
-            anchorView.setColorFilter(Color.parseColor("#FAFCFE"))
-            isNotificationDropdownVisible = false
-        }
-        anchorView.setColorFilter(Color.parseColor("#FCBE6A"))
-
-        val notificationContainer: LinearLayout = popupView.findViewById(R.id.notificationListContainer)
-        val noNotificationText: TextView = popupView.findViewById(R.id.noNotificationTextView)
-
-        notificationContainer.removeAllViews()
-
-        if (notifications.isEmpty()) {
-            noNotificationText.visibility = View.VISIBLE
-        } else {
-            noNotificationText.visibility = View.GONE
-            notifications.take(3).forEach { item ->
-                val tv = TextView(this).apply {
-                    id = View.generateViewId()
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply { setMargins(0, 8, 0, 8) }
-                    text = item.title
-                    textSize = 16f
-                    setTextColor(Color.parseColor(if (item.isRead) "#333333" else "#FCBE6A"))
-                    setOnClickListener {
-                        val intent = Intent(this@Candidates, Notification::class.java)
-                        intent.putExtra("NOTIFICATION_TITLE", item.title)
-                        startActivity(intent)
-                        popupWindow.dismiss()
-                    }
-                }
-                notificationContainer.addView(tv)
-            }
-        }
-
-        val closeButton: ImageView = popupView.findViewById(R.id.closeDropdownButton)
-        closeButton.setOnClickListener { popupWindow.dismiss() }
-
-        val viewAllButton: TextView = popupView.findViewById(R.id.viewAllButton)
-        viewAllButton.setOnClickListener {
-            val intent = Intent(this, Notification::class.java)
-            startActivity(intent)
-            popupWindow.dismiss()
-        }
-
-        popupWindow.showAsDropDown(anchorView, -300, 0)
-    }
+    // NOTE: The old local notification methods (toggleNotificationDropdown and showNotificationDropdown)
+    // have been successfully removed as their functionality is now handled by the imported NotificationManager.
 
     // Utility extension function to convert DP to pixels
     private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()

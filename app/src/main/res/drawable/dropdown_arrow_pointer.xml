@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple shape that mimics an arrow by being composed of a rotated and offset square -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:toDegrees="45"
+            android:pivotX="-40%"
+            android:pivotY="80%">
+            <shape
+                android:shape="rectangle">
+                <!-- This color should match the outline and background of the main dropdown -->
+                <solid android:color="#FAFCFE" />
+                <stroke android:width="2dp" android:color="#4A4A68" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

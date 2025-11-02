@@ -3,15 +3,11 @@ package com.example.umelec
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import androidx.core.content.res.ResourcesCompat
-
-
 
 // ⭐️ Data class for the leading candidate carousel content
 data class LeadingCandidate(
@@ -26,12 +22,10 @@ enum class ResultCardState { ONGOING, NO_ELECTION, ENDED }
 
 class Results : AppCompatActivity() {
 
-    private val notifications = mutableListOf(
-        NotificationItem("New message from John Doe", false),
-        NotificationItem("Your post was liked by 5 people", true),
-        NotificationItem("System update available", false)
-    )
-    private var isNotificationDropdownVisible = false
+    // 1. 💡 NEW: Declare the reusable NotificationManager
+    private lateinit var notificationManager: NotificationManager
+
+    // NOTE: Removed old local 'notifications' list and 'isNotificationDropdownVisible'
 
     // ⭐️ Simulated data for leading candidates
     private val leadingCandidates = listOf(
@@ -64,6 +58,9 @@ class Results : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_results)
+
+        // 2. 💡 NEW: Initialize the NotificationManager
+        notificationManager = NotificationManager(this)
 
         setupHeaderIcons()
         setupFooterNavigation()
@@ -250,7 +247,7 @@ class Results : AppCompatActivity() {
     }
 
     // ----------------------------------------------------------------------
-    // --- EXISTING LOGIC (HEADER, FOOTER, NOTIFICATIONS) ---
+    // --- EXISTING LOGIC (HEADER, FOOTER) ---
     // ----------------------------------------------------------------------
 
     /**
@@ -265,9 +262,11 @@ class Results : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // 3. 💡 NEW: Notification Icon Click Listener (Uses the utility class)
         notificationIcon?.setOnClickListener {
             if (it is ImageView) {
-                toggleNotificationDropdown(it)
+                // Call the reusable NotificationManager to toggle the dropdown
+                notificationManager.toggleNotificationDropdown(it)
             }
         }
     }
@@ -297,82 +296,9 @@ class Results : AppCompatActivity() {
         navFaq?.setOnClickListener { navigateTo(Faq::class.java) }
     }
 
-    /**
-     * Toggles the visibility of the notification dropdown menu.
-     */
-    private fun toggleNotificationDropdown(anchorView: ImageView) {
-        if (isNotificationDropdownVisible) {
-            anchorView.setColorFilter(Color.parseColor("#FAFCFE"))
-            isNotificationDropdownVisible = false
-        } else {
-            showNotificationDropdown(anchorView)
-            isNotificationDropdownVisible = true
-        }
-    }
+    // NOTE: The old local notification methods (toggleNotificationDropdown and showNotificationDropdown)
+    // have been successfully removed as their functionality is now handled by the imported NotificationManager.
 
-    /**
-     * Creates and displays the custom notification dropdown menu.
-     */
-    private fun showNotificationDropdown(anchorView: ImageView) {
-        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupView = inflater.inflate(R.layout.notification_dropdown, null)
-
-        val width = LinearLayout.LayoutParams.WRAP_CONTENT
-        val height = LinearLayout.LayoutParams.WRAP_CONTENT
-        val focusable = true
-        val popupWindow = PopupWindow(popupView, width, height, focusable)
-
-        popupWindow.setOnDismissListener {
-            anchorView.setColorFilter(Color.parseColor("#FAFCFE"))
-            isNotificationDropdownVisible = false
-        }
-        anchorView.setColorFilter(Color.parseColor("#FCBE6A"))
-
-        val notificationContainer: LinearLayout? = popupView.findViewById(R.id.notificationListContainer)
-        val noNotificationText: TextView? = popupView.findViewById(R.id.noNotificationTextView)
-
-        notificationContainer?.removeAllViews()
-
-        if (notifications.isEmpty()) {
-            noNotificationText?.visibility = View.VISIBLE
-        } else {
-            noNotificationText?.visibility = View.GONE
-            notifications.take(3).forEach { item ->
-                val tv = TextView(this).apply {
-                    id = View.generateViewId()
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply { setMargins(0, 8.toPx(), 0, 8.toPx()) }
-                    text = item.title
-                    textSize = 16f
-                    setTextColor(Color.parseColor(if (item.isRead) "#333333" else "#FCBE6A"))
-                    setOnClickListener {
-                        val intent = Intent(this@Results, Notification::class.java)
-                        intent.putExtra("NOTIFICATION_TITLE", item.title)
-                        startActivity(intent)
-                        popupWindow.dismiss()
-                    }
-                }
-                notificationContainer?.addView(tv)
-            }
-        }
-
-        val closeButton: ImageView? = popupView.findViewById(R.id.closeDropdownButton)
-        closeButton?.setOnClickListener { popupWindow.dismiss() }
-
-        val viewAllButton: TextView? = popupView.findViewById(R.id.viewAllButton)
-        viewAllButton?.setOnClickListener {
-            val intent = Intent(this, Notification::class.java)
-            startActivity(intent)
-            popupWindow.dismiss()
-        }
-
-        popupWindow.showAsDropDown(anchorView, -300, 0)
-    }
-
-    /**
-     * Utility extension function to convert DP to pixels, needed by notification logic.
-     */
-    private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()
+    // NOTE: The toPx extension function is no longer needed in Results.kt
+    // because the removed notification methods were the only ones using it.
 }

@@ -69,7 +69,7 @@ class Platform : AppCompatActivity() {
                 candidateId = "JANE_D",
                 name = "Jane Doe",
                 position = "Marketing Director",
-                courseInfo = "III - BCSAD",
+                courseInfo = "III - CCIS",
                 profilePictureResource = R.drawable.profile,
                 credentials = "Graduated with honors. Former Editor-in-Chief of the student paper and team lead for two successful university events.",
                 advocacy = "My platform focuses on modernizing student services through digitalization and creating a more inclusive community by funding new cultural organizations."
@@ -78,7 +78,7 @@ class Platform : AppCompatActivity() {
                 candidateId = "JOHN_S",
                 name = "John Smith",
                 position = "Marketing Director",
-                courseInfo = "IV - BSIT",
+                courseInfo = "IV - CCIS",
                 profilePictureResource = R.drawable.profile,
                 credentials = "Lead programmer for the university's attendance system. Holds multiple certifications in project management and database administration.",
                 advocacy = "I advocate for better student technological infrastructure, including faster campus Wi-Fi and subsidized cloud storage for all students."

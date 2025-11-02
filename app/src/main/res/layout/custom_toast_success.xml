@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/success_toast_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/toast_background_base"
+    android:maxWidth="400dp"
+    android:layout_marginHorizontal="30dp"
+    >
+
+    <View
+        android:id="@+id/color_strip"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        android:background="@drawable/strip_red_rounded_left"
+        android:backgroundTint="#27A688"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <LinearLayout
+        android:id="@+id/content_layout"
+        android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingStart="30dp"
+    android:paddingEnd="16dp"
+    android:layout_marginTop="15dp"
+    android:layout_marginBottom="15dp"
+    android:gravity="center_vertical"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@id/color_strip">
+
+    <ImageView
+        android:id="@+id/icon_success"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@drawable/ic_toast_check"
+        app:tint="#27A688"
+        android:contentDescription="Success Icon"
+        android:layout_marginEnd="12dp"
+        android:layout_gravity="center_vertical"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/toast_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Success!"
+            android:textColor="#0E0E2C"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_regular" />
+
+        <TextView
+            android:id="@+id/toast_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your request was completed."
+            android:textColor="#333333"
+            android:textSize="12sp"
+            android:fontFamily="@font/poppins_regular" />
+    </LinearLayout>
+</LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_action"
+        android:layout_width="wrap_content"
+    android:layout_height="40dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="15dp"
+    android:text="View Details"
+    android:textColor="@android:color/white"
+    android:textSize="14sp"
+    android:background="@drawable/blue_rounded_button"
+    android:textAllCaps="false"
+    android:fontFamily="@font/poppins_bold"
+    android:paddingHorizontal="30dp"
+    app:layout_constraintTop_toBottomOf="@id/content_layout"
+    app:layout_constraintStart_toEndOf="@id/color_strip"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+        android:stateListAnimator="@animator/button_press_animator"
+    />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>

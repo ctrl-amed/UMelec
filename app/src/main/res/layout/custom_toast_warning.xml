@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/warning_toast_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/toast_background_base"
+    android:maxWidth="400dp"
+    android:layout_marginHorizontal="30dp"
+    >
+
+    <View
+        android:id="@+id/color_strip"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        android:background="@drawable/strip_red_rounded_left"
+        android:backgroundTint="#F29D38"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <LinearLayout
+        android:id="@+id/content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="30dp"
+        android:paddingEnd="16dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/color_strip">
+
+        <ImageView
+            android:id="@+id/icon_warning"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_toast_warning"
+            app:tint="#F29D38"
+            android:contentDescription="Warning Icon"
+            android:layout_marginEnd="12dp"
+            android:layout_gravity="center_vertical"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/toast_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Action Required"
+                android:textColor="#0E0E2C"
+                android:textSize="16sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <TextView
+                android:id="@+id/toast_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This will override unsaved changes."
+                android:textColor="#333333"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/content_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_action_primary"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:text="Cancel"
+            android:textColor="#0E0E2C"
+            android:textSize="14sp"
+            android:background="@drawable/yellow_rounded_button"
+            android:textAllCaps="false"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_marginEnd="8dp"
+            android:stateListAnimator="@animator/button_press_animator"
+            />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_action_secondary"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:text="Proceed"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:background="@drawable/blue_rounded_button"
+            android:textAllCaps="false"
+            android:fontFamily="@font/poppins_bold"
+            android:stateListAnimator="@animator/button_press_animator"
+            />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

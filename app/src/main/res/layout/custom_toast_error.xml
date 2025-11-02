@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/error_toast_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/toast_background_base"
+    android:maxWidth="400dp"
+    android:layout_marginHorizontal="30dp"
+    >
+
+    <View
+        android:id="@+id/color_strip"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        android:background="@drawable/strip_red_rounded_left"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+         />
+
+    <ImageButton
+    android:id="@+id/btn_close"
+    android:layout_width="34dp"
+    android:layout_height="34dp"
+    android:background="@android:color/transparent"
+    android:src="@drawable/ic_close"
+    android:scaleType="fitCenter"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    android:contentDescription="Close notification"
+    android:padding="2dp"
+    app:tint="#8C8CA1"
+        android:stateListAnimator="@animator/button_press_animator"/>
+
+    <LinearLayout
+        android:id="@+id/content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="30dp"
+        android:paddingEnd="16dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/color_strip"
+        app:layout_constraintEnd_toStartOf="@id/btn_close">
+
+        <ImageView
+            android:id="@+id/icon_error"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_toast_error"
+            app:tint="#D32F2F"
+            android:contentDescription="Error Icon"
+            android:layout_marginEnd="12dp"
+            android:layout_gravity="center_vertical"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/toast_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Error Occurred"
+                android:textColor="#0E0E2C"
+                android:textSize="16sp"
+                android:fontFamily="@font/poppins_regular" />
+
+            <TextView
+                android:id="@+id/toast_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Please check your connection."
+                android:textColor="#333333"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

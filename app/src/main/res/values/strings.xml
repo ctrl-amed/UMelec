@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">UMelec</string>
+    <string name="forgot_password_link"><u>Forgot Password?</u></string>
+    <string name="register_link"><u>Register</u></string>
+    <string name="login_link"><u>Log In</u></string>
+    <string name="terms_link"><u>Review COSEL Terms and Conditions</u></string>
+    <string name="condition_link">I certify that all information is true and correct, and I agree to the UMelec Terms &amp; Conditions.<font color="#D33131">*</font> </string>
 </resources>

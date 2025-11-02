@@ -9,23 +9,31 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog // Import for AlertDialog
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+// IMPORTS for Keyboard, Focus, and Custom Dialog
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
+import android.view.MotionEvent
+import android.graphics.Rect
+// 💡 REQUIRED IMPORTS for custom dialog (Added these)
+import android.view.Gravity
+import android.graphics.drawable.ColorDrawable
+import android.view.LayoutInflater
 
-// NOTE: Assuming you have a LoginActivity.kt file
-class LoginActivity : AppCompatActivity() {
-    // Empty class declaration for compilation in this context
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // You would normally set your login layout here
-        // setContentView(R.layout.activity_login)
-    }
-}
+
+// NOTE: The unnecessary 'LoginActivity' placeholder class has been removed.
+// We assume your login Activity is correctly named 'Login' and is in 'Login.kt'
 
 class Resetpassword : AppCompatActivity() {
+
+    // 🚨 Define Color Constants, matching RegisterActivity.kt
+    private val COLOR_PRIMARY_BLUE = Color.parseColor("#0039A6")
+    private val COLOR_ERROR_RED = Color.parseColor("#D32F2F")
+    private val COLOR_SUCCESS_GREEN = Color.parseColor("#31D0AA")
+    private val COLOR_HINT_GRAY = Color.parseColor("#8C8CA1")
 
     val specialChars = "!@#$%^&*-+=()_`~[]{}|\\:;\"'<,>.?/"
 
@@ -40,6 +48,7 @@ class Resetpassword : AppCompatActivity() {
     private lateinit var reqMixedcase: TextView
     private lateinit var reqSpecial: TextView
     private lateinit var reqNumber: TextView
+    private lateinit var reqField: TextView
 
     // Confirm Password Fields
     private lateinit var layoutConfirmPassword: TextInputLayout
@@ -49,12 +58,67 @@ class Resetpassword : AppCompatActivity() {
 
     private var allPasswordValidationsPassed = false
 
+    // =========================================================================
+    // 1. HELPER FUNCTIONS
+    // =========================================================================
+
+    // 🚨 HELPER: Reusable Logic to Clear Errors
+    private fun clearValidationState(layout: TextInputLayout) {
+        layout.error = null // Clear red border/error text
+        layout.isActivated = false // Clear green border
+    }
+
+    // 🚨 HELPER: Hides the keyboard and clears focus
+    private fun hideKeyboardAndClearFocus() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        currentFocus?.clearFocus()
+    }
+
+    /**
+     * Custom dialog for successful password reset (Imitates showLoginSuccessDialog).
+     */
+    private fun showResetSuccessDialog() {
+        val layoutInflater = LayoutInflater.from(this)
+        // NOTE: Assumes you have R.layout.custom_toast_success available
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        // Set custom text as requested
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Password Reset Successful!"
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "You can now log in."
+
+        val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
+        btnAction.text = "Continue to Login" // Set button text
+
+        btnAction.setOnClickListener {
+            dialog.dismiss()
+
+            // Navigate to Login.kt
+            val intent = Intent(this, Login::class.java)
+            // Clear the back stack
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish() // Finish ResetPassword activity
+        }
+
+        dialog.show()
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_resetpassword)
 
         // =====================================================================
-        // 1. VIEW INITIALIZATION (FIND VIEW BY ID)
+        // 2. VIEW INITIALIZATION (FIND VIEW BY ID)
         // =====================================================================
 
         // Buttons
@@ -64,9 +128,11 @@ class Resetpassword : AppCompatActivity() {
         // New Password Fields
         layoutNewPassword = findViewById(R.id.textInputLayoutPassword)
         inputNewPassword = findViewById(R.id.inputPassword)
+        val fieldRequirementsContainer = findViewById<View>(R.id.fieldRequirements)
         passwordRequirements = findViewById(R.id.passwordRequirements)
 
         // Password Requirement Texts
+        reqField = findViewById(R.id.reqField)
         reqLength = findViewById(R.id.reqLength)
         reqMixedcase = findViewById(R.id.reqMixedcase)
         reqSpecial = findViewById(R.id.reqSpecial)
@@ -79,225 +145,263 @@ class Resetpassword : AppCompatActivity() {
         reqMatch = findViewById(R.id.reqMatch)
 
         // =====================================================================
-        // 2. INITIAL STATE & LISTENERS
+        // 3. INITIAL STATE & LISTENERS
         // =====================================================================
 
         btnConfirm.isEnabled = false
+        // Hide containers
+        fieldRequirementsContainer.visibility = View.GONE
         passwordRequirements.visibility = View.GONE
         confirmPasswordRequirements.visibility = View.GONE
 
+        // Reset all states
+        clearValidationState(layoutNewPassword)
+        clearValidationState(layoutConfirmPassword)
+
+
         btnBack.setOnClickListener { finish() }
 
-        // NEW FIX: Replace direct navigation with Toast and AlertDialog
+        // 🚨 REVISED: Use the custom success dialog
         btnConfirm.setOnClickListener {
-
-
-            // 2. Display an AlertDialog for user guidance
-            AlertDialog.Builder(this)
-                .setTitle("Success")
-                .setMessage("Password reset successful. Please login again with your new password.")
-                .setPositiveButton("OK") { dialog, which ->
-                    // 3. Navigate to LoginActivity upon clicking OK
-                    val intent = Intent(this, Login::class.java)
-                    // Clear the back stack so the user cannot press back to reset password screen
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                }
-                .setCancelable(false) // Prevent dialog dismissal by outside touch/back button
-                .show()
+            hideKeyboardAndClearFocus()
+            showResetSuccessDialog()
         }
 
-        // Set up the TextWatchers and Focus Listeners (rest of the file remains the same)
+        // Set up the TextWatchers and Focus Listeners
         inputNewPassword.addTextChangedListener(passwordWatcher)
         inputConfirmPassword.addTextChangedListener(confirmPasswordWatcher)
         inputNewPassword.setOnFocusChangeListener(passwordFocusListener)
         inputConfirmPassword.setOnFocusChangeListener(confirmPasswordFocusListener)
+
+        // 💡 Click listeners to clear errors on tap
+        inputNewPassword.setOnClickListener { clearValidationState(layoutNewPassword) }
+        inputConfirmPassword.setOnClickListener { clearValidationState(layoutConfirmPassword) }
     }
 
     // =========================================================================
-    // 3. HELPER FUNCTIONS AND LISTENERS (UNCHANGED VALIDATION LOGIC)
+    // 4. CORE LOGIC & LISTENERS (ADOPTED FROM RegisterActivity.kt)
     // =========================================================================
 
     /**
      * Updates the state of the 'Confirm' button based on all validations.
      */
     private fun updateSaveButtonState() {
-        val newPassword = inputNewPassword.text.toString()
+        val password = inputNewPassword.text.toString()
         val confirmPassword = inputConfirmPassword.text.toString()
 
-        // Check if the new password meets all complex requirements
-        val isPasswordValid = newPassword.length >= 8 &&
-                newPassword.any { it.isUpperCase() } &&
-                newPassword.any { it.isLowerCase() } &&
-                newPassword.any { it.isDigit() } &&
-                newPassword.any { it in specialChars }
-
-        // Check if confirm password matches the new valid password
-        val isConfirmMatch = isPasswordValid && (newPassword == confirmPassword) && confirmPassword.isNotEmpty()
+        val isConfirmMatch = allPasswordValidationsPassed && (password == confirmPassword) && confirmPassword.isNotEmpty()
 
         btnConfirm.isEnabled = isConfirmMatch
     }
 
-    /**
-     * Live validation logic for the New Password field.
-     */
+
+    // ---------------------------------------------------------------------
+    // 🔹 New Password Focus Listener
+    // ---------------------------------------------------------------------
+    private val passwordFocusListener = View.OnFocusChangeListener { _, hasFocus ->
+        val password = inputNewPassword.text.toString()
+        val fieldRequirementsContainer = findViewById<View>(R.id.fieldRequirements)
+
+        if (hasFocus) {
+            // --- WHEN FOCUSED (Typing) ---
+            clearValidationState(layoutNewPassword)
+
+            if (password.isEmpty()) {
+                // State 1a: Empty field, focus gained: Show BOTH containers (Hint state)
+                fieldRequirementsContainer.visibility = View.VISIBLE
+                passwordRequirements.visibility = View.VISIBLE
+                reqField.setTextColor(COLOR_HINT_GRAY)
+                reqField.text = "• Field is required"
+            } else {
+                // State 2a: Filled field, focus gained: Show ONLY detailed requirements
+                fieldRequirementsContainer.visibility = View.GONE
+                passwordRequirements.visibility = View.VISIBLE
+            }
+
+        } else {
+            // --- WHEN UN-FOCUSED (BLUR) ---
+            if (password.isEmpty()) {
+                // State 1b: Empty field, focus lost: Show ONLY "Field is required" error
+                fieldRequirementsContainer.visibility = View.VISIBLE
+                passwordRequirements.visibility = View.GONE
+
+                reqField.setTextColor(COLOR_ERROR_RED)
+                reqField.text = "• Field is required"
+                layoutNewPassword.error = " " // Show Red border
+                layoutNewPassword.isActivated = false
+            } else {
+                // State 2b: Filled field, focus lost: Show final validation status
+                fieldRequirementsContainer.visibility = View.GONE
+
+                if (allPasswordValidationsPassed) {
+                    passwordRequirements.visibility = View.GONE // Hide on success
+                    layoutNewPassword.error = null
+                    layoutNewPassword.isActivated = true
+                } else {
+                    passwordRequirements.visibility = View.VISIBLE // Keep showing errors
+                    layoutNewPassword.error = " " // Show Red border
+                    layoutNewPassword.isActivated = false
+                }
+            }
+        }
+        updateSaveButtonState()
+    }
+
+    // ---------------------------------------------------------------------
+    // 🔹 New Password Text Watcher
+    // ---------------------------------------------------------------------
     private val passwordWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             val password = inputNewPassword.text.toString()
+            val fieldRequirementsContainer = findViewById<View>(R.id.fieldRequirements)
 
-            var isLengthValid = false
-            var isMixedcaseValid = false
-            var isSpecialValid = false
-            var isNumberValid = false
-
-            // Check 1: Length (>= 8 characters)
-            if (password.length >= 8) {
-                reqLength.setTextColor(Color.parseColor("#4CAF50"))
-                reqLength.text = "✓ Must be at least 8 characters"
-                isLengthValid = true
-            } else {
-                reqLength.setTextColor(Color.parseColor("#D32F2F"))
-                reqLength.text = "• Must be at least 8 characters"
+            // Hide generic 'field required' hint once typing starts
+            if (password.isNotEmpty() && inputNewPassword.isFocused) {
+                fieldRequirementsContainer.visibility = View.GONE
+                passwordRequirements.visibility = View.VISIBLE
             }
 
-            // Check 2: Mixed Case (Uppercase AND Lowercase)
+            // Detailed validation logic
+            var isLengthValid = password.length >= 8
+            reqLength.setTextColor(if (isLengthValid) COLOR_SUCCESS_GREEN else COLOR_ERROR_RED)
+            reqLength.text = if (isLengthValid) "✓ Must be at least 8 characters" else "• Must be at least 8 characters"
+
             val hasUpper = password.any { it.isUpperCase() }
             val hasLower = password.any { it.isLowerCase() }
-            if (hasUpper && hasLower) {
-                reqMixedcase.setTextColor(Color.parseColor("#4CAF50"))
-                reqMixedcase.text = "✓ Mixed case"
-                isMixedcaseValid = true
-            } else {
-                reqMixedcase.setTextColor(Color.parseColor("#D32F2F"))
-                reqMixedcase.text = "• Mixed case"
-            }
+            var isMixedcaseValid = hasUpper && hasLower
+            reqMixedcase.setTextColor(if (isMixedcaseValid) COLOR_SUCCESS_GREEN else COLOR_ERROR_RED)
+            reqMixedcase.text = if (isMixedcaseValid) "✓ Mixed case" else "• Mixed case"
 
-            // Check 3: Special character
-            if (password.any { it in specialChars }) {
-                reqSpecial.setTextColor(Color.parseColor("#4CAF50"))
-                reqSpecial.text = "✓ Must contain a special character"
-                isSpecialValid = true
-            } else {
-                reqSpecial.setTextColor(Color.parseColor("#D32F2F"))
-                reqSpecial.text = "• Must contain a special character"
-            }
+            var isSpecialValid = password.any { it in specialChars }
+            reqSpecial.setTextColor(if (isSpecialValid) COLOR_SUCCESS_GREEN else COLOR_ERROR_RED)
+            reqSpecial.text = if (isSpecialValid) "✓ Must contain a special character" else "• Must contain a special character"
 
-            // Check 4: Number
-            if (password.any { it.isDigit() }) {
-                reqNumber.setTextColor(Color.parseColor("#4CAF50"))
-                reqNumber.text = "✓ Must contain a number"
-                isNumberValid = true
-            } else {
-                reqNumber.setTextColor(Color.parseColor("#D32F2F"))
-                reqNumber.text = "• Must contain a number"
-            }
+            var isNumberValid = password.any { it.isDigit() }
+            reqNumber.setTextColor(if (isNumberValid) COLOR_SUCCESS_GREEN else COLOR_ERROR_RED)
+            reqNumber.text = if (isNumberValid) "✓ Must contain a number" else "• Must contain a number"
 
             allPasswordValidationsPassed = isLengthValid && isMixedcaseValid && isSpecialValid && isNumberValid
 
-            // Update border color based on validation status
+            clearValidationState(layoutNewPassword)
+
+            // Apply green/red border state while focused
             if (inputNewPassword.isFocused) {
-                layoutNewPassword.boxStrokeColor = if (allPasswordValidationsPassed) {
-                    Color.parseColor("#4CAF50")
-                } else {
-                    Color.parseColor("#D32F2F")
+                if (allPasswordValidationsPassed) {
+                    layoutNewPassword.isActivated = true
                 }
-            } else if (password.isEmpty()) {
-                layoutNewPassword.boxStrokeColor = Color.parseColor("#9E9E9E")
-            } else if (allPasswordValidationsPassed) {
-                layoutNewPassword.boxStrokeColor = Color.parseColor("#4CAF50")
-            } else {
-                layoutNewPassword.boxStrokeColor = Color.parseColor("#D32F2F")
+                else {
+                    layoutNewPassword.error = " " // Triggers red border
+                }
             }
 
-            // Also trigger update on confirm password validation since the match condition depends on the new password
             confirmPasswordWatcher.afterTextChanged(inputConfirmPassword.text)
             updateSaveButtonState()
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            clearValidationState(layoutNewPassword)
+        }
     }
 
-    /**
-     * Live validation logic for the Confirm Password field.
-     */
+
+    // ---------------------------------------------------------------------
+    // 🔹 Confirm Password Focus Listener
+    // ---------------------------------------------------------------------
+    private val confirmPasswordFocusListener = View.OnFocusChangeListener { _, hasFocus ->
+        val password = inputNewPassword.text.toString()
+        val confirmPassword = inputConfirmPassword.text.toString()
+        val isMatch = password == confirmPassword && confirmPassword.isNotEmpty()
+
+        if (hasFocus) {
+            confirmPasswordRequirements.visibility = View.VISIBLE
+            clearValidationState(layoutConfirmPassword)
+            // Use the hint color for the initial state
+            reqMatch.setTextColor(COLOR_HINT_GRAY)
+            reqMatch.text = "• Passwords must match"
+        } else {
+            when {
+                confirmPassword.isEmpty() -> {
+                    confirmPasswordRequirements.visibility = View.VISIBLE
+                    reqMatch.setTextColor(COLOR_ERROR_RED)
+                    reqMatch.text = "• Field is required"
+                    layoutConfirmPassword.error = " "
+                    layoutConfirmPassword.isActivated = false
+                }
+                isMatch -> {
+                    confirmPasswordRequirements.visibility = View.GONE
+                    layoutConfirmPassword.error = null
+                    layoutConfirmPassword.isActivated = true
+                }
+                else -> {
+                    confirmPasswordRequirements.visibility = View.VISIBLE
+                    reqMatch.setTextColor(COLOR_ERROR_RED)
+                    reqMatch.text = "• Passwords must match"
+                    layoutConfirmPassword.error = " "
+                    layoutConfirmPassword.isActivated = false
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // 🔹 Confirm Password Text Watcher
+    // ---------------------------------------------------------------------
     private val confirmPasswordWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
-            val newPassword = inputNewPassword.text.toString()
+            val password = inputNewPassword.text.toString()
             val confirmPassword = inputConfirmPassword.text.toString()
+            val isMatch = password == confirmPassword && confirmPassword.isNotEmpty()
 
-            val passwordsMatch = newPassword == confirmPassword
-            val areBothNonEmpty = newPassword.isNotEmpty() && confirmPassword.isNotEmpty()
+            clearValidationState(layoutConfirmPassword)
 
-            if (!areBothNonEmpty) {
+            if (confirmPassword.isEmpty()) {
+                reqMatch.visibility = View.GONE
+                layoutConfirmPassword.isActivated = false
+            } else if (isMatch) {
                 reqMatch.visibility = View.VISIBLE
-                reqMatch.setTextColor(Color.parseColor("#8C8CA1"))
-                reqMatch.text = "• Passwords must match"
-                layoutConfirmPassword.boxStrokeColor = Color.parseColor("#9E9E9E")
-            } else if (passwordsMatch) {
-                reqMatch.visibility = View.VISIBLE
-                reqMatch.setTextColor(Color.parseColor("#4CAF50"))
+                reqMatch.setTextColor(COLOR_SUCCESS_GREEN)
                 reqMatch.text = "✓ Passwords match"
-                layoutConfirmPassword.boxStrokeColor = Color.parseColor("#4CAF50")
+                layoutConfirmPassword.isActivated = true
             } else {
                 reqMatch.visibility = View.VISIBLE
-                reqMatch.setTextColor(Color.parseColor("#D32F2F"))
+                reqMatch.setTextColor(COLOR_ERROR_RED)
                 reqMatch.text = "• Passwords must match"
-                layoutConfirmPassword.boxStrokeColor = Color.parseColor("#D32F2F")
+                layoutConfirmPassword.error = " "
+                layoutConfirmPassword.isActivated = false
             }
 
             updateSaveButtonState()
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-    }
-
-    /**
-     * Focus listener for the New Password field (shows/hides requirements).
-     */
-    private val passwordFocusListener = View.OnFocusChangeListener { _, hasFocus ->
-        val password = inputNewPassword.text.toString()
-        if (hasFocus) {
-            passwordRequirements.visibility = View.VISIBLE
-        } else {
-            if (password.isEmpty() || allPasswordValidationsPassed) {
-                passwordRequirements.visibility = View.GONE
-            }
-            // Re-apply box color based on validation when focus leaves
-            layoutNewPassword.boxStrokeColor = if (password.isEmpty()) {
-                Color.parseColor("#9E9E9E")
-            } else if (allPasswordValidationsPassed) {
-                Color.parseColor("#4CAF50")
-            } else {
-                Color.parseColor("#D32F2F")
-            }
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            clearValidationState(layoutConfirmPassword)
         }
     }
 
-    /**
-     * Focus listener for the Confirm Password field (shows/hides match requirement).
-     */
-    private val confirmPasswordFocusListener = View.OnFocusChangeListener { _, hasFocus ->
-        if (hasFocus) {
-            confirmPasswordRequirements.visibility = View.VISIBLE
-        } else {
-            val confirmPassword = inputConfirmPassword.text.toString()
-            val newPassword = inputNewPassword.text.toString()
-            val passwordsMatch = newPassword == confirmPassword
+    // =========================================================================
+    // 5. DISPATCH TOUCH EVENT (CLICK OUTSIDE TO UNFOCUS/HIDE KEYBOARD)
+    // =========================================================================
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is TextInputEditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
 
-            if (confirmPassword.isEmpty() || passwordsMatch) {
-                confirmPasswordRequirements.visibility = View.GONE
-            }
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    hideKeyboardAndClearFocus()
 
-            // Re-apply box color based on match when focus leaves
-            layoutConfirmPassword.boxStrokeColor = if (confirmPassword.isEmpty()) {
-                Color.parseColor("#9E9E9E")
-            } else if (passwordsMatch) {
-                Color.parseColor("#4CAF50")
-            } else {
-                Color.parseColor("#D32F2F")
+                    // Manually trigger the blur logic by clearing focus on the fields
+                    inputNewPassword.clearFocus()
+                    inputConfirmPassword.clearFocus()
+                    // Added blur state update to match your RegisterActivity.kt logic
+                    clearValidationState(layoutNewPassword)
+                    clearValidationState(layoutConfirmPassword)
+                }
             }
         }
+        return super.dispatchTouchEvent(ev)
     }
 }

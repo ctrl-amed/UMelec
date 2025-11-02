@@ -3,12 +3,11 @@ package com.example.umelec
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton // Needed for the Vote Now button
-import androidx.constraintlayout.widget.ConstraintLayout // Required for the ConstraintLayout ID
+import androidx.appcompat.widget.AppCompatButton
+import androidx.constraintlayout.widget.ConstraintLayout
 
 
 // Define the possible states for the election card UI
@@ -21,9 +20,6 @@ enum class ElectionState {
 
 // Data class to easily handle election details for the ONGOING phase
 data class ElectionDetails(val title: String, val period: String, val status: String)
-
-
-
 
 // Data class to represent a single candidate's information
 data class Candidate(
@@ -43,23 +39,22 @@ data class ResultCandidate(
 // The main activity for the Homepage screen
 class Homepage : AppCompatActivity() {
 
-    // A list to hold your notification data. In a real app, this would come from a backend.
-    private val notifications = mutableListOf(
-        NotificationItem("New message from John Doe", false),
-        NotificationItem("Your post was liked by 5 people", true),
-        NotificationItem("System update available", false)
-    )
+    // 1. 💡 NEW: Declare the reusable NotificationManager
+    private lateinit var notificationManager: NotificationManager
 
-    // The current state of the notification dropdown
-    private var isNotificationDropdownVisible = false
+    // NOTE: Removed old local 'notifications' list and 'isNotificationDropdownVisible'
 
     // Shared width variable for candidate and result preview items
     private var candidateItemWidth = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         // Set the content view to the layout defined in res/layout/activity_homepage.xml
         setContentView(R.layout.activity_homepage)
+
+        // 2. 💡 NEW: Initialize the NotificationManager
+        notificationManager = NotificationManager(this)
 
         // Initialize UI components and set up listeners
         setupUI()
@@ -67,6 +62,7 @@ class Homepage : AppCompatActivity() {
         // --- NEW ELECTION INITIALIZATION ---
         // Determine the current election status from the backend/database
         val currentElectionState = determineElectionState()
+
         // Update the UI based on the state
         updateElectionUI(currentElectionState)
         // -----------------------------------
@@ -99,11 +95,10 @@ class Homepage : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // --- Notification Icon Click Listener (Toggle Dropdown) ---
-
-        // The notification icon toggles the visibility of the notification dropdown.
+        // 3. 💡 NEW: Notification Icon Click Listener (Integrate NotificationManager)
         notificationIcon.setOnClickListener {
-            toggleNotificationDropdown(notificationIcon)
+            // Call the reusable manager to handle the dropdown logic
+            notificationManager.toggleNotificationDropdown(it as ImageView)
         }
     }
 
@@ -133,6 +128,7 @@ class Homepage : AppCompatActivity() {
         noElectionText.visibility = View.GONE
         upcomingLayout.visibility = View.GONE
         electionEndedText.visibility = View.GONE
+
         voteNowButton.isEnabled = false // Disable by default
         voteNowButton.alpha = 0.5f // Optional: Dim the button when disabled
     }
@@ -169,6 +165,7 @@ class Homepage : AppCompatActivity() {
         // Reset all views before setting the state-specific ones
         resetElectionViews(ongoingLayout, textNoElection, upcomingLayout, textElectionEnded, btnVoteNow)
         candidatesContainer.visibility = View.GONE
+
         textNoCandidates.visibility = View.GONE
         textCandidatesEnded.visibility = View.GONE
         btnViewAll.isEnabled = false
@@ -197,6 +194,7 @@ class Homepage : AppCompatActivity() {
                 // PHASE 1: ONGOING (Election Info Card)
                 ongoingLayout.visibility = View.VISIBLE
                 btnVoteNow.isEnabled = true
+
                 btnVoteNow.alpha = 1.0f // Restore full opacity
 
 
@@ -216,6 +214,7 @@ class Homepage : AppCompatActivity() {
 
                 // PHASE 1 & 3: ONGOING and UPCOMING (Candidate Preview Card)
                 candidatesContainer.visibility = View.VISIBLE
+
                 // textCandidatesEnded and textNoCandidates are already hidden by reset
 
                 btnViewAll.isEnabled = true
@@ -235,12 +234,13 @@ class Homepage : AppCompatActivity() {
                 // --- RESULT CARD LOGIC (PHASE 1: ONGOING) ---
                 textLiveTallies.visibility = View.VISIBLE
                 liveTallyLayout.visibility = View.VISIBLE
+
                 btnViewLiveTally.isEnabled = true
                 btnViewLiveTally.alpha = 1.0f
 
                 btnViewLiveTally.setOnClickListener {
                     // Assuming Livetally.kt is Livetally Activity
-                    val intent = Intent(this, Livetally::class.java)
+                    val intent = Intent(this, Results::class.java)
                     startActivity(intent)
                 }
             }
@@ -267,6 +267,7 @@ class Homepage : AppCompatActivity() {
                 upcomingDateValue.text = upcomingDate
                 // btnVoteNow remains disabled
 
+
                 // PHASE 1 & 3: ONGOING and UPCOMING (Candidate Preview Card)
                 candidatesContainer.visibility = View.VISIBLE
                 // textCandidatesEnded and textNoCandidates are already hidden by reset
@@ -291,11 +292,13 @@ class Homepage : AppCompatActivity() {
                 // btnResults is disabled by default
             }
             ElectionState.ENDED -> {
+
                 // PHASE 4: ENDED (Election Info Card)
                 // Show the "Voting opens on" layout as a container, then the "Election has ended" text
                 upcomingLayout.visibility = View.VISIBLE
                 textElectionEnded.visibility = View.VISIBLE
                 // btnVoteNow remains disabled
+
 
                 // PHASE 4: ENDED (Candidate Preview Card)
                 textCandidatesEnded.visibility = View.VISIBLE
@@ -359,6 +362,7 @@ class Homepage : AppCompatActivity() {
         constraintLayout.post {
             // Calculate the width for one candidate item (e.g., half the screen minus padding for arrows)
             val viewWidth = constraintLayout.width
+
             val arrowWidth = findViewById<ImageButton>(R.id.btnPrevCandidate).width +
                     findViewById<ImageButton>(R.id.btnNextCandidate).width +
                     (resources.getDimensionPixelSize(R.dimen.candidate_padding) * 2) // Add padding for safety
@@ -383,7 +387,6 @@ class Homepage : AppCompatActivity() {
     private fun createCandidateItemView(candidate: Candidate): View {
         // You must replace this with your actual candidate item XML if you have one.
         // For now, we recreate the structure from the XML dynamically.
-
         val context = this
 
         // Root LinearLayout for the candidate item
@@ -392,6 +395,7 @@ class Homepage : AppCompatActivity() {
                 candidateItemWidth.coerceAtLeast(200), // Ensures minimum width if calculations fail initially
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
+
             orientation = LinearLayout.VERTICAL
             gravity = android.view.Gravity.CENTER_HORIZONTAL
             setPadding(8.toPx(), 8.toPx(), 8.toPx(), 8.toPx()) // Convert DP to pixels
@@ -400,6 +404,7 @@ class Homepage : AppCompatActivity() {
         // ImageView for the photo
         val photoView = ImageView(context).apply {
             layoutParams = LinearLayout.LayoutParams(80.toPx(), 80.toPx())
+
             setImageResource(candidate.photoResource)
             contentDescription = "Candidate Photo"
             scaleType = ImageView.ScaleType.CENTER_CROP
@@ -419,7 +424,8 @@ class Homepage : AppCompatActivity() {
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(Color.parseColor("#333333"))
-            // Note: setting custom font programmatically is complex; relies on XML definition
+            // Note: setting custom font programmatically is complex;
+            // relies on XML definition
         }
         itemLayout.addView(nameView)
 
@@ -432,7 +438,8 @@ class Homepage : AppCompatActivity() {
             text = candidate.position
             textSize = 14f
             setTextColor(Color.parseColor("#333333"))
-            // Note: setting custom font programmatically is complex; relies on XML definition
+            // Note: setting custom font programmatically is complex;
+            // relies on XML definition
         }
         itemLayout.addView(positionView)
 
@@ -451,6 +458,7 @@ class Homepage : AppCompatActivity() {
         btnPrev.setOnClickListener {
             scrollView.smoothScrollBy(-candidateItemWidth, 0)
         }
+
 
         // Next button logic: scroll right by the width of one candidate item
         btnNext.setOnClickListener {
@@ -528,6 +536,7 @@ class Homepage : AppCompatActivity() {
         // ImageView for the photo
         val photoView = ImageView(context).apply {
             layoutParams = LinearLayout.LayoutParams(80.toPx(), 80.toPx())
+
             setImageResource(result.photoResource)
             contentDescription = "Candidate Photo"
             scaleType = ImageView.ScaleType.CENTER_CROP
@@ -544,6 +553,7 @@ class Homepage : AppCompatActivity() {
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(Color.parseColor("#333333"))
+
         }
         itemLayout.addView(nameView)
 
@@ -588,6 +598,7 @@ class Homepage : AppCompatActivity() {
             scrollView.smoothScrollBy(-candidateItemWidth, 0)
         }
 
+
         // Next button logic: scroll right by the width of one candidate item
         btnNext.setOnClickListener {
             scrollView.smoothScrollBy(candidateItemWidth, 0)
@@ -615,6 +626,7 @@ class Homepage : AppCompatActivity() {
             if (activityClass != this::class.java) {
                 val intent = Intent(this, activityClass)
                 startActivity(intent)
+
                 // Optional: Add finish() if you don't want the user to return here via back button
                 // finish()
             }
@@ -655,105 +667,6 @@ class Homepage : AppCompatActivity() {
 
 // --- FOOTER NAVIGATION LOGIC END ---
 
-    /**
-     * Toggles the visibility of the notification dropdown menu.
-     * @param anchorView The view (the notification icon) to anchor the dropdown to.
-     */
-    private fun toggleNotificationDropdown(anchorView: ImageView) {
-        if (isNotificationDropdownVisible) {
-            // If visible, hide it (handled by the PopupWindow's dismiss on outside click,
-            // but we'll use a local state to manage the icon color)
-            // The logic below will handle creating/showing, so we just reset the icon color here
-            anchorView.setColorFilter(Color.parseColor("#FAFCFE"))
-            isNotificationDropdownVisible = false
-        } else {
-            // If hidden, show it
-            showNotificationDropdown(anchorView)
-            isNotificationDropdownVisible = true
-        }
-    }
-
-    /**
-     * Creates and displays the custom notification dropdown menu.
-     * @param anchorView The view (the notification icon) to anchor the dropdown to.
-     */
-    private fun showNotificationDropdown(anchorView: ImageView) {
-        // 1. Inflate the custom layout for the dropdown
-        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupView = inflater.inflate(R.layout.notification_dropdown, null) // Assuming you'll create notification_dropdown.xml
-
-        // 2. Create the PopupWindow
-        val width = LinearLayout.LayoutParams.WRAP_CONTENT
-        val height = LinearLayout.LayoutParams.WRAP_CONTENT
-        val focusable = true // Allows the popup to be dismissed by clicking outside
-        val popupWindow = PopupWindow(popupView, width, height, focusable)
-
-        // Set an onDismissListener to reset the notification icon color when the popup closes
-        popupWindow.setOnDismissListener {
-            anchorView.setColorFilter(Color.parseColor("#FAFCFE"))
-            isNotificationDropdownVisible = false
-        }
-
-        // 3. Set the icon color to the clicked state (#FCBE6A)
-        anchorView.setColorFilter(Color.parseColor("#FCBE6A"))
-
-        // 4. Populate the dropdown content
-        val notificationContainer: LinearLayout = popupView.findViewById(R.id.notificationListContainer)
-        val noNotificationText: TextView = popupView.findViewById(R.id.noNotificationTextView)
-
-        notificationContainer.removeAllViews() // Clear any existing views
-
-        if (notifications.isEmpty()) {
-            // Show "No notification here" if the list is empty
-            noNotificationText.visibility = View.VISIBLE
-        } else {
-            noNotificationText.visibility = View.GONE
-            // Dynamically add Notification Title TextViews
-            notifications.take(3).forEach { item -> // Limit to show a few, then "View all"
-                val tv = TextView(this).apply {
-                    id = View.generateViewId() // Assign a unique ID programmatically
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        // Apply margin for spacing
-                        setMargins(0, 8, 0, 8)
-                    }
-                    text = item.title
-                    textSize = 16f
-                    // Set color based on read status (FCBE6A if unread, or a default darker color)
-                    setTextColor(Color.parseColor(if (item.isRead) "#333333" else "#FCBE6A"))
-                    // Set up click listener for each notification title
-                    setOnClickListener {
-                        // **IMPORTANT:** You would update the notification's read status in the backend here.
-                        // For now, we'll just navigate to the NotificationActivity.
-                        val intent = Intent(this@Homepage, Notification::class.java)
-                        intent.putExtra("NOTIFICATION_TITLE", item.title) // Pass data if needed
-                        startActivity(intent)
-                        popupWindow.dismiss() // Close the dropdown after clicking
-                    }
-                }
-                notificationContainer.addView(tv)
-            }
-        }
-
-        // 5. Set up the close (X) button
-        val closeButton: ImageView = popupView.findViewById(R.id.closeDropdownButton)
-        closeButton.setOnClickListener {
-            popupWindow.dismiss()
-        }
-
-        // 6. Set up the "View all" button
-        val viewAllButton: TextView = popupView.findViewById(R.id.viewAllButton)
-        viewAllButton.setOnClickListener {
-            val intent = Intent(this, Notification::class.java)
-            startActivity(intent)
-            popupWindow.dismiss()
-        }
-
-        // 7. Show the popup window
-        // showAsDropDown positions the popup relative to the anchor view
-        // Adding a negative x-offset can align it more to the right, near the icon
-        popupWindow.showAsDropDown(anchorView, -300, 0)
-    }
+    // NOTE: The local notification logic (toggleNotificationDropdown and showNotificationDropdown)
+    // has been removed and replaced by the single call to notificationManager.toggleNotificationDropdown(it as ImageView)
 }
