@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast // ⭐️ Added for other Firebase errors
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -21,6 +22,12 @@ import android.graphics.Rect
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.graphics.drawable.ColorDrawable
+
+// ⭐️ --- ADDED FIREBASE IMPORTS --- ⭐️
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+// ⭐️----------------------------------- ⭐️
+
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -56,6 +63,10 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var reqMixedcase: TextView
     private lateinit var reqSpecial: TextView
     private lateinit var reqNumber: TextView
+
+    // ⭐️ --- ADDED FIREBASE AUTH INSTANCE --- ⭐️
+    private lateinit var auth: FirebaseAuth
+    // ⭐️--------------------------------------- ⭐️
 
     // 🚨 HELPER: Reusable Logic to Clear Errors
     private fun clearValidationState(layout: TextInputLayout) {
@@ -121,6 +132,10 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+
+        // ⭐️ --- INITIALIZE FIREBASE AUTH --- ⭐️
+        auth = FirebaseAuth.getInstance()
+        // ⭐️----------------------------------- ⭐️
 
         // =====================================================================
         // 2. VIEW INITIALIZATION (FIND VIEW BY ID)
@@ -189,17 +204,49 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(Intent(this, Login::class.java))
         }
 
+        // ⭐️ --- (FIXED) btnNext OnClickListener --- ⭐️
         btnNext.setOnClickListener {
+            // This UI helper call was already here
             hideKeyboardAndClearFocus()
-            val email = inputEmail.text.toString().trim()
-            val REGISTERED_EMAIL_SIMULATION = "test@umak.edu.ph"
 
-            if (email.equals(REGISTERED_EMAIL_SIMULATION, ignoreCase = true)) {
-                showEmailAlreadyRegisteredDialog()
-            } else {
-                val intent = Intent(this, RegisterActivity2::class.java)
-                startActivity(intent)
-            }
+            // Get the data needed for the backend
+            val email = inputEmail.text.toString().trim()
+            val password = inputPassword.text.toString()
+
+            // --- REMOVED SIMULATION BLOCK ---
+
+            // --- REAL FIREBASE IMPLEMENTATION ---
+            // This 'sends the data' (email/pass) to Firebase Authentication
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // SUCCESS CASE: User is created and auto-logged in.
+                        val user = auth.currentUser
+                        if (user != null) {
+                            val intent = Intent(this, RegisterActivity2::class.java)
+                            intent.putExtra("AUTH_UID", user.uid)
+                            intent.putExtra("email", user.email)
+                            startActivity(intent)
+                            finish() // optional: prevent going back to reg1
+                        } else {
+                            Toast.makeText(this, "User session missing. Please try again.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+
+                     else {
+                        // FAILURE CASE:
+                        if (task.exception is FirebaseAuthUserCollisionException) {
+                            // This is the specific error for "email already in use"
+                            // We call your existing, custom dialog function
+                            showEmailAlreadyRegisteredDialog()
+                        } else {
+                            // Handle other errors (e.g., weak password, network issue)
+                            Toast.makeText(baseContext, "Registration failed: ${task.exception?.message}",
+                                Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            // --- END OF FIREBASE IMPLEMENTATION ---
         }
 
         // 💡 Click listeners to clear errors on tap

@@ -23,11 +23,17 @@ import android.view.Gravity
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 
-
-// NOTE: The unnecessary 'LoginActivity' placeholder class has been removed.
-// We assume your login Activity is correctly named 'Login' and is in 'Login.kt'
+// ⭐️ --- BACKEND IMPORTS (You just added these) --- ⭐️
+import com.google.firebase.functions.FirebaseFunctions
+import android.widget.Toast // You'll need this for errors
+// ⭐️------------------------------------------------- ⭐️
 
 class Resetpassword : AppCompatActivity() {
+
+    // ⭐️ --- BACKEND PROPERTIES --- ⭐️
+    private lateinit var functions: FirebaseFunctions
+    private var userEmail: String? = null // To store the email
+    // ⭐️----------------------------- ⭐️
 
     // 🚨 Define Color Constants, matching RegisterActivity.kt
     private val COLOR_PRIMARY_BLUE = Color.parseColor("#0039A6")
@@ -117,6 +123,13 @@ class Resetpassword : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_resetpassword)
 
+        // ⭐️ --- INITIALIZE FIREBASE & GET EMAIL --- ⭐️
+        functions = FirebaseFunctions.getInstance()
+        // This is the key we used in the previous files
+        val emailKey = "com.example.umelec.EMAIL_ADDRESS"
+        userEmail = intent.getStringExtra(emailKey)
+        // ⭐️---------------------------------------- ⭐️
+
         // =====================================================================
         // 2. VIEW INITIALIZATION (FIND VIEW BY ID)
         // =====================================================================
@@ -161,10 +174,38 @@ class Resetpassword : AppCompatActivity() {
 
         btnBack.setOnClickListener { finish() }
 
-        // 🚨 REVISED: Use the custom success dialog
+        // ⭐️ --- (FIXED) btnConfirm OnClickListener --- ⭐️
         btnConfirm.setOnClickListener {
             hideKeyboardAndClearFocus()
-            showResetSuccessDialog()
+
+            // 1. Get the new password from the UI
+            val newPassword = inputNewPassword.text.toString()
+
+            // 2. Safety check for the email
+            if (userEmail == null) {
+                Toast.makeText(this, "Error: No user email found. Please restart.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            // 3. Create the data packet to send to the backend
+            val data = hashMapOf(
+                "email" to userEmail,
+                "newPassword" to newPassword
+            )
+
+            // 4. (AC Step 37) Call the Cloud Function
+            // This function MUST be deployed on your Firebase project
+            functions
+                .getHttpsCallable("resetPasswordWithCode")
+                .call(data)
+                .addOnSuccessListener {
+                    // 5. (AC Step 38) SUCCESS! Show your existing dialog
+                    showResetSuccessDialog()
+                }
+                .addOnFailureListener { e ->
+                    // 6. FAILURE! Show an error
+                    Toast.makeText(this, "Failed to reset password: ${e.message}", Toast.LENGTH_LONG).show()
+                }
         }
 
         // Set up the TextWatchers and Focus Listeners

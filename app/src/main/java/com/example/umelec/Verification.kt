@@ -46,8 +46,9 @@ class Verification : AppCompatActivity() {
             textEmail.text = "Email address not available"
         }
 
-        // =====================================================================
-        // 2. BTNENTERCODE SETUP (Always Enabled)
+// =====================================================================
+// =====================================================================
+        // 2. (FIXED) BTNENTERCODE SETUP (Now passes the email along)
         // =====================================================================
 
         // Initialize the button
@@ -55,8 +56,17 @@ class Verification : AppCompatActivity() {
 
         // Set the click listener to navigate to the next activity
         btnEnterCode.setOnClickListener {
+            // Retrieve the email that was passed to this activity
+            val userEmail = intent.getStringExtra(EXTRA_EMAIL_ADDRESS)
+
             // Navigate to VerificationCode.kt
-            val intent = Intent(this, Verificationcode::class.java)
+            val intent = Intent(this, Verificationcode::class.java).apply {
+                // ⭐️ --- BACKEND FIX --- ⭐️
+                // Pass the email to the NEXT screen so it knows
+                // which user is being verified.
+                putExtra(EXTRA_EMAIL_ADDRESS, userEmail)
+                // ⭐️----------------------- ⭐️
+            }
             startActivity(intent)
             // Note: You might want to finish() this activity here if the user shouldn't return
             // finish()

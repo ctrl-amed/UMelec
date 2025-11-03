@@ -8,6 +8,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 // Define the possible states for the election card UI
@@ -47,76 +49,74 @@ class Homepage : AppCompatActivity() {
     // Shared width variable for candidate and result preview items
     private var candidateItemWidth = 0
 
+    // Firebase
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        // Set the content view to the layout defined in res/layout/activity_homepage.xml
         setContentView(R.layout.activity_homepage)
 
         // 2. 💡 NEW: Initialize the NotificationManager
         notificationManager = NotificationManager(this)
 
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
         // Initialize UI components and set up listeners
         setupUI()
 
         // --- NEW ELECTION INITIALIZATION ---
-        // Determine the current election status from the backend/database
         val currentElectionState = determineElectionState()
-
-        // Update the UI based on the state
         updateElectionUI(currentElectionState)
         // -----------------------------------
 
         // --- NEW FOOTER NAVIGATION SETUP ---
-        setupFooterNavigation() // <--- ADD THIS LINE
+        setupFooterNavigation()
         // -----------------------------------
     }
 
     private fun setupUI() {
-        // Find the views defined in your XML layout
         val nameTextView: TextView = findViewById(R.id.NameTitle)
         val profileIcon: ImageView = findViewById(R.id.profileIcon)
         val notificationIcon: ImageView = findViewById(R.id.notificationIcon)
 
-        // --- Dynamic Greeting Implementation ---
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val uid = currentUser.uid
 
-        // **IMPORTANT:** This is where you would fetch the user's name
-        // from your backend or local database (e.g., using SharedPreferences).
-        // For demonstration, we'll use a hardcoded name.
-        val userName = "Alice" // Replace with actual backend call
-        nameTextView.text = userName
+            db.collection("students").document(uid).get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        val firstname = document.getString("firstname") ?: ""
+                        nameTextView.text = firstname
+                    } else {
+                        nameTextView.text = "Unknown"
+                    }
+                }
+                .addOnFailureListener {
+                    nameTextView.text = "Error"
+                }
+        } else {
+            nameTextView.text = "No user"
+        }
 
-        // --- Profile Icon Click Listener ---
 
-        // Make the profile icon clickable to navigate to the Profile screen.
         profileIcon.setOnClickListener {
-            // Create an Intent to start the ProfileActivity class (assuming it's named Profile.kt)
             val intent = Intent(this, Profile::class.java)
             startActivity(intent)
         }
 
-        // 3. 💡 NEW: Notification Icon Click Listener (Integrate NotificationManager)
         notificationIcon.setOnClickListener {
-            // Call the reusable manager to handle the dropdown logic
             notificationManager.toggleNotificationDropdown(it as ImageView)
         }
     }
 
-    // --- ELECTION LOGIC START ---
-
-    // Placeholder function to simulate fetching the election state and data
     private fun determineElectionState(): ElectionState {
-        // **IMPORTANT:** Replace this with your actual backend call logic.
-        // Use the desired state for testing:
         return ElectionState.ONGOING
-        // return ElectionState.NO_ELECTION
-        // return ElectionState.UPCOMING
-        // return ElectionState.ENDED
     }
 
-    /**
-     * Hides all election-related dynamic views and resets them.
-     */
     private fun resetElectionViews(
         ongoingLayout: LinearLayout,
         noElectionText: TextView,
@@ -129,30 +129,23 @@ class Homepage : AppCompatActivity() {
         upcomingLayout.visibility = View.GONE
         electionEndedText.visibility = View.GONE
 
-        voteNowButton.isEnabled = false // Disable by default
-        voteNowButton.alpha = 0.5f // Optional: Dim the button when disabled
+        voteNowButton.isEnabled = false
+        voteNowButton.alpha = 0.5f
     }
 
-    /**
-     * Updates the UI elements of the Election Information card based on the current state.
-     * This function is designed to make it easy to manage data from the backend.
-     */
     private fun updateElectionUI(state: ElectionState) {
-        // Find all necessary views
         val ongoingLayout: LinearLayout = findViewById(R.id.OngoingLayout)
         val upcomingLayout: LinearLayout = findViewById(R.id.UpcomingLayout)
         val textNoElection: TextView = findViewById(R.id.textNoElection)
         val textElectionEnded: TextView = findViewById(R.id.textElectionEnded)
         val btnVoteNow: AppCompatButton = findViewById(R.id.btnVoteNow)
 
-        // Candidate Preview Card Views
         val candidatesContainer: ConstraintLayout = findViewById(R.id.CandidateContainer)
         val textNoCandidates: TextView = findViewById(R.id.textNoCandidates)
         val textCandidatesEnded: TextView = findViewById(R.id.textCandidatesEnded)
         val btnViewAll: AppCompatButton = findViewById(R.id.btnViewAll)
         val candidateListContainer: LinearLayout = findViewById(R.id.candidateListContainer)
 
-        // Result Preview Card Views
         val resultsContainer: ConstraintLayout = findViewById(R.id.ResultsContainer)
         val textLiveTallies: TextView = findViewById(R.id.textLiveTallies)
         val textNoResult: TextView = findViewById(R.id.textNoResult)
@@ -162,7 +155,6 @@ class Homepage : AppCompatActivity() {
         val btnResults: AppCompatButton = findViewById(R.id.btnResults)
         val candidateListContainerResults: LinearLayout = findViewById(R.id.candidateListContainerResults)
 
-        // Reset all views before setting the state-specific ones
         resetElectionViews(ongoingLayout, textNoElection, upcomingLayout, textElectionEnded, btnVoteNow)
         candidatesContainer.visibility = View.GONE
 
@@ -180,142 +172,86 @@ class Homepage : AppCompatActivity() {
         btnResults.isEnabled = false
         btnResults.alpha = 0.5f
 
-
-        // Views for ONGOING election data (for easy backend integration)
         val electionTitleValue: TextView = findViewById(R.id.electionTitleValue)
         val votingPeriodValue: TextView = findViewById(R.id.votingPeriodValue)
         val statusValue: TextView = findViewById(R.id.statusValue)
-
-        // View for UPCOMING election date data
         val upcomingDateValue: TextView = findViewById(R.id.UpcomingDateValue)
 
         when (state) {
             ElectionState.ONGOING -> {
-                // PHASE 1: ONGOING (Election Info Card)
                 ongoingLayout.visibility = View.VISIBLE
                 btnVoteNow.isEnabled = true
+                btnVoteNow.alpha = 1.0f
 
-                btnVoteNow.alpha = 1.0f // Restore full opacity
-
-
-                // **Backend Integration Point (ONGOING)**
                 val electionData = fetchOngoingElectionData()
                 electionTitleValue.text = electionData.title
                 votingPeriodValue.text = electionData.period
                 statusValue.text = electionData.status
-                statusValue.setTextColor(Color.parseColor("#007F00")) // Green for Active
+                statusValue.setTextColor(Color.parseColor("#007F00"))
 
-                // Set click listener for Vote Now button
                 btnVoteNow.setOnClickListener {
-                    // Assuming Vote.kt is Vote Activity
                     val intent = Intent(this, Vote::class.java)
                     startActivity(intent)
                 }
 
-                // PHASE 1 & 3: ONGOING and UPCOMING (Candidate Preview Card)
                 candidatesContainer.visibility = View.VISIBLE
-
-                // textCandidatesEnded and textNoCandidates are already hidden by reset
-
                 btnViewAll.isEnabled = true
                 btnViewAll.alpha = 1.0f
-
-                // Populate and set up scrolling
                 populateCandidateList(candidateListContainer, candidates)
                 setupCandidateScrollControls()
 
-                // Set View All button click listener
                 btnViewAll.setOnClickListener {
-                    // Assuming Candidates.kt is Candidates Activity
                     val intent = Intent(this, Candidates::class.java)
                     startActivity(intent)
                 }
 
-                // --- RESULT CARD LOGIC (PHASE 1: ONGOING) ---
                 textLiveTallies.visibility = View.VISIBLE
                 liveTallyLayout.visibility = View.VISIBLE
-
                 btnViewLiveTally.isEnabled = true
                 btnViewLiveTally.alpha = 1.0f
 
                 btnViewLiveTally.setOnClickListener {
-                    // Assuming Livetally.kt is Livetally Activity
                     val intent = Intent(this, Results::class.java)
                     startActivity(intent)
                 }
             }
             ElectionState.NO_ELECTION -> {
-                // PHASE 2: NO ELECTION (Election Info Card)
                 textNoElection.visibility = View.VISIBLE
-                // btnVoteNow remains disabled
-
-                // PHASE 2: NO ELECTION (Candidate Preview Card)
                 textNoCandidates.visibility = View.VISIBLE
-                // btnViewAll remains disabled
-
-                // --- RESULT CARD LOGIC (PHASE 2: NO ELECTION) ---
                 textNoResult.visibility = View.VISIBLE
                 resultsLayout.visibility = View.VISIBLE
-                // btnResults is disabled by default
             }
             ElectionState.UPCOMING -> {
-                // PHASE 3: UPCOMING (Election Info Card)
                 upcomingLayout.visibility = View.VISIBLE
-
-                // **Backend Integration Point (UPCOMING)**
                 val upcomingDate = fetchUpcomingElectionDate()
                 upcomingDateValue.text = upcomingDate
-                // btnVoteNow remains disabled
 
-
-                // PHASE 1 & 3: ONGOING and UPCOMING (Candidate Preview Card)
                 candidatesContainer.visibility = View.VISIBLE
-                // textCandidatesEnded and textNoCandidates are already hidden by reset
-
                 btnViewAll.isEnabled = true
                 btnViewAll.alpha = 1.0f
-
-                // Populate and set up scrolling
                 populateCandidateList(candidateListContainer, candidates)
                 setupCandidateScrollControls()
 
-                // Set View All button click listener
                 btnViewAll.setOnClickListener {
-                    // Assuming Candidates.kt is Candidates Activity
                     val intent = Intent(this, Candidates::class.java)
                     startActivity(intent)
                 }
 
-                // --- RESULT CARD LOGIC (PHASE 3: UPCOMING) ---
                 textNoResult.visibility = View.VISIBLE
                 resultsLayout.visibility = View.VISIBLE
-                // btnResults is disabled by default
             }
             ElectionState.ENDED -> {
-
-                // PHASE 4: ENDED (Election Info Card)
-                // Show the "Voting opens on" layout as a container, then the "Election has ended" text
                 upcomingLayout.visibility = View.VISIBLE
                 textElectionEnded.visibility = View.VISIBLE
-                // btnVoteNow remains disabled
-
-
-                // PHASE 4: ENDED (Candidate Preview Card)
                 textCandidatesEnded.visibility = View.VISIBLE
-                // btnViewAll remains disabled
-
-                // --- RESULT CARD LOGIC (PHASE 4: ENDED) ---
                 resultsContainer.visibility = View.VISIBLE
                 resultsLayout.visibility = View.VISIBLE
                 btnResults.isEnabled = true
                 btnResults.alpha = 1.0f
-
-                // Populate and set up scrolling
                 populateResultList(candidateListContainerResults, results)
                 setupResultScrollControls()
 
                 btnResults.setOnClickListener {
-                    // Assuming Result.kt is Result Activity
                     val intent = Intent(this, Result::class.java)
                     startActivity(intent)
                 }
@@ -323,9 +259,7 @@ class Homepage : AppCompatActivity() {
         }
     }
 
-    // --- Backend Data Simulation (Replace with actual backend calls) ---
     private fun fetchOngoingElectionData(): ElectionDetails {
-        // **CODE IT FOR EASY BACKEND/DATABASE ACCESS**
         return ElectionDetails(
             title = "Student Council Leadership Election",
             period = "October 10 - 15, 2025",
@@ -334,46 +268,27 @@ class Homepage : AppCompatActivity() {
     }
 
     private fun fetchUpcomingElectionDate(): String {
-        // **CODE IT FOR EASY BACKEND/DATABASE ACCESS**
         return "November 20, 2025"
     }
 
-// --- ELECTION LOGIC END ---
-
-    // --- CANDIDATE PREVIEW LOGIC START ---
-
-    // The current candidate list (simulated data)
     private val candidates = listOf(
-        Candidate("John Doe", "President", R.drawable.profile), // Use a placeholder drawable ID
-        Candidate("Jane Smith", "VP", R.drawable.notification), // Use a placeholder drawable ID
+        Candidate("John Doe", "President", R.drawable.profile),
+        Candidate("Jane Smith", "VP", R.drawable.notification),
         Candidate("Bob Johnson", "Secretary", R.drawable.profile),
         Candidate("Alice Williams", "Treasurer", R.drawable.notification),
         Candidate("Chris Lee", "Auditor", R.drawable.profile)
     )
 
-    /**
-     * Dynamically populates the HorizontalScrollView with candidate items.
-     * @param container The LinearLayout inside the HorizontalScrollView.
-     * @param candidates The list of candidates to display.
-     */
     private fun populateCandidateList(container: LinearLayout, candidates: List<Candidate>) {
-        // 1. Get the width of the main container (CandidateContainer) to calculate candidate item width
         val constraintLayout: ConstraintLayout = findViewById(R.id.CandidateContainer)
         constraintLayout.post {
-            // Calculate the width for one candidate item (e.g., half the screen minus padding for arrows)
             val viewWidth = constraintLayout.width
-
             val arrowWidth = findViewById<ImageButton>(R.id.btnPrevCandidate).width +
                     findViewById<ImageButton>(R.id.btnNextCandidate).width +
-                    (resources.getDimensionPixelSize(R.dimen.candidate_padding) * 2) // Add padding for safety
+                    (resources.getDimensionPixelSize(R.dimen.candidate_padding) * 2)
 
-            // We want to show roughly two candidates at a time.
             candidateItemWidth = (viewWidth - arrowWidth) / 2
-
-            // 2. Clear any existing views
             container.removeAllViews()
-
-            // 3. Dynamically create and add a view for each candidate
             candidates.forEach { candidate ->
                 val candidateItemView = createCandidateItemView(candidate)
                 container.addView(candidateItemView)
@@ -381,38 +296,26 @@ class Homepage : AppCompatActivity() {
         }
     }
 
-    /**
-     * Creates a single candidate item view programmatically.
-     */
     private fun createCandidateItemView(candidate: Candidate): View {
-        // You must replace this with your actual candidate item XML if you have one.
-        // For now, we recreate the structure from the XML dynamically.
         val context = this
-
-        // Root LinearLayout for the candidate item
         val itemLayout = LinearLayout(context).apply {
             layoutParams = LinearLayout.LayoutParams(
-                candidateItemWidth.coerceAtLeast(200), // Ensures minimum width if calculations fail initially
+                candidateItemWidth.coerceAtLeast(200),
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-
             orientation = LinearLayout.VERTICAL
             gravity = android.view.Gravity.CENTER_HORIZONTAL
-            setPadding(8.toPx(), 8.toPx(), 8.toPx(), 8.toPx()) // Convert DP to pixels
+            setPadding(8.toPx(), 8.toPx(), 8.toPx(), 8.toPx())
         }
 
-        // ImageView for the photo
         val photoView = ImageView(context).apply {
             layoutParams = LinearLayout.LayoutParams(80.toPx(), 80.toPx())
-
             setImageResource(candidate.photoResource)
             contentDescription = "Candidate Photo"
             scaleType = ImageView.ScaleType.CENTER_CROP
-            // Note: You need to handle image loading (e.g., rounded corners/image loading library) here
         }
         itemLayout.addView(photoView)
 
-        // TextView for the Name
         val nameView = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -424,12 +327,9 @@ class Homepage : AppCompatActivity() {
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(Color.parseColor("#333333"))
-            // Note: setting custom font programmatically is complex;
-            // relies on XML definition
         }
         itemLayout.addView(nameView)
 
-        // TextView for the Position
         val positionView = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -438,61 +338,36 @@ class Homepage : AppCompatActivity() {
             text = candidate.position
             textSize = 14f
             setTextColor(Color.parseColor("#333333"))
-            // Note: setting custom font programmatically is complex;
-            // relies on XML definition
         }
         itemLayout.addView(positionView)
 
         return itemLayout
     }
 
-    /**
-     * Handles the click of the previous/next arrow buttons to scroll the candidate list.
-     */
     private fun setupCandidateScrollControls() {
         val scrollView: HorizontalScrollView = findViewById(R.id.candidateScrollView)
         val btnPrev: ImageButton = findViewById(R.id.btnPrevCandidate)
         val btnNext: ImageButton = findViewById(R.id.btnNextCandidate)
 
-        // Previous button logic: scroll left by the width of one candidate item
         btnPrev.setOnClickListener {
             scrollView.smoothScrollBy(-candidateItemWidth, 0)
         }
 
-
-        // Next button logic: scroll right by the width of one candidate item
         btnNext.setOnClickListener {
             scrollView.smoothScrollBy(candidateItemWidth, 0)
         }
-
-        // Initial check (hiding one button if list is short or at the start/end)
-        scrollView.post {
-            // You would typically monitor scroll position to hide/show buttons,
-            // but for a fixed step scroll, enabling both is often simpler for a preview.
-            // For now, we'll keep both visible unless the candidate list is very short.
-        }
     }
 
-    // Utility extension function to convert DP to pixels
     private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()
 
-// --- CANDIDATE PREVIEW LOGIC END ---
-
-    // --- RESULT PREVIEW LOGIC START ---
-
-    // The current result list (simulated data for ENDED phase)
     private val results = listOf(
-        ResultCandidate("Alice Johnson", "President", R.drawable.profile, 520), // Winner
+        ResultCandidate("Alice Johnson", "President", R.drawable.profile, 520),
         ResultCandidate("Mark Chen", "VP", R.drawable.notification, 480),
         ResultCandidate("Maria Garcia", "Secretary", R.drawable.profile, 600),
         ResultCandidate("David Lee", "Treasurer", R.drawable.notification, 350)
     )
 
-    /**
-     * Dynamically populates the HorizontalScrollView with result items.
-     */
     private fun populateResultList(container: LinearLayout, results: List<ResultCandidate>) {
-        // 1. Get the width of the main container to calculate result item width (re-post to ensure it's measured)
         val constraintLayout: ConstraintLayout = findViewById(R.id.ResultsContainer)
         constraintLayout.post {
             val viewWidth = constraintLayout.width
@@ -500,15 +375,11 @@ class Homepage : AppCompatActivity() {
                     findViewById<ImageButton>(R.id.btnNextCandidateResults).width +
                     (resources.getDimensionPixelSize(R.dimen.candidate_padding) * 2)
 
-            // Ensure candidateItemWidth is calculated (it should be set by the Candidate Preview card, but good to ensure)
             if (candidateItemWidth == 0) {
                 candidateItemWidth = (viewWidth - arrowWidth) / 2
             }
 
-            // 2. Clear any existing views
             container.removeAllViews()
-
-            // 3. Dynamically create and add a view for each result
             results.forEach { result ->
                 val resultItemView = createResultItemView(result)
                 container.addView(resultItemView)
@@ -516,13 +387,8 @@ class Homepage : AppCompatActivity() {
         }
     }
 
-    /**
-     * Creates a single result item view programmatically.
-     */
     private fun createResultItemView(result: ResultCandidate): View {
         val context = this
-
-        // Root LinearLayout for the result item (similar to candidate item)
         val itemLayout = LinearLayout(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 candidateItemWidth.coerceAtLeast(200),
@@ -533,17 +399,14 @@ class Homepage : AppCompatActivity() {
             setPadding(8.toPx(), 8.toPx(), 8.toPx(), 8.toPx())
         }
 
-        // ImageView for the photo
         val photoView = ImageView(context).apply {
             layoutParams = LinearLayout.LayoutParams(80.toPx(), 80.toPx())
-
             setImageResource(result.photoResource)
             contentDescription = "Candidate Photo"
             scaleType = ImageView.ScaleType.CENTER_CROP
         }
         itemLayout.addView(photoView)
 
-        // TextView for the Name
         val nameView = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -553,11 +416,9 @@ class Homepage : AppCompatActivity() {
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(Color.parseColor("#333333"))
-
         }
         itemLayout.addView(nameView)
 
-        // TextView for the Position
         val positionView = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -569,7 +430,6 @@ class Homepage : AppCompatActivity() {
         }
         itemLayout.addView(positionView)
 
-        // TextView for the Votes (NEW ELEMENT)
         val votesView = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -578,95 +438,45 @@ class Homepage : AppCompatActivity() {
             text = "${result.votes} Votes"
             textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(Color.parseColor("#0039A6")) // Blue color for emphasis
+            setTextColor(Color.parseColor("#0039A6"))
         }
         itemLayout.addView(votesView)
 
         return itemLayout
     }
 
-    /**
-     * Handles the click of the previous/next arrow buttons for the results list.
-     */
     private fun setupResultScrollControls() {
         val scrollView: HorizontalScrollView = findViewById(R.id.candidateScrollViewResults)
         val btnPrev: ImageButton = findViewById(R.id.btnPrevCandidateResults)
         val btnNext: ImageButton = findViewById(R.id.btnNextCandidateResults)
 
-        // Previous button logic: scroll left by the width of one candidate item
         btnPrev.setOnClickListener {
             scrollView.smoothScrollBy(-candidateItemWidth, 0)
         }
 
-
-        // Next button logic: scroll right by the width of one candidate item
         btnNext.setOnClickListener {
             scrollView.smoothScrollBy(candidateItemWidth, 0)
         }
     }
 
-// --- RESULT PREVIEW LOGIC END ---
-
-    // --- FOOTER NAVIGATION LOGIC START ---
-
-    /**
-     * Sets up click listeners for all elements in the footer navigation bar.
-     */
     private fun setupFooterNavigation() {
-        // Find all navigation items (LinearLayouts)
         val navHome: LinearLayout = findViewById(R.id.nav_home)
         val navVote: LinearLayout = findViewById(R.id.nav_vote)
         val navCandidates: LinearLayout = findViewById(R.id.nav_candidates)
         val navResults: LinearLayout = findViewById(R.id.nav_results)
         val navFaq: LinearLayout = findViewById(R.id.nav_faq)
 
-        // Helper function to navigate to a new Activity
         val navigateTo = { activityClass: Class<*> ->
-            // Only start the activity if it's not the current one (to prevent unnecessary restarts)
             if (activityClass != this::class.java) {
                 val intent = Intent(this, activityClass)
                 startActivity(intent)
-
-                // Optional: Add finish() if you don't want the user to return here via back button
-                // finish()
             }
         }
 
-        // Set Click Listeners
-
-        // Home (Current Activity - No action needed unless reloading is desired)
-        // We can keep this listener empty or make it re-initialize the current activity.
-        navHome.setOnClickListener {
-            // Since we are already on Homepage.kt, we typically do nothing or smooth scroll to top.
-        }
-
-        // Vote
-        navVote.setOnClickListener {
-            // Assuming Vote.kt is Vote Activity
-            navigateTo(Vote::class.java)
-        }
-
-        // Candidates
-        navCandidates.setOnClickListener {
-            // Assuming Candidates.kt is Candidates Activity
-            navigateTo(Candidates::class.java)
-        }
-
-        // Results
-        navResults.setOnClickListener {
-            // Assuming Results.kt is Results Activity
-            navigateTo(Results::class.java)
-        }
-
-        // FAQs
-        navFaq.setOnClickListener {
-            // Assuming Faq.kt is Faq Activity
-            navigateTo(Faq::class.java)
-        }
+        navHome.setOnClickListener { }
+        navVote.setOnClickListener { navigateTo(Vote::class.java) }
+        navCandidates.setOnClickListener { navigateTo(Candidates::class.java) }
+        navResults.setOnClickListener { navigateTo(Results::class.java) }
+        navFaq.setOnClickListener { navigateTo(Faq::class.java) }
     }
-
-// --- FOOTER NAVIGATION LOGIC END ---
-
-    // NOTE: The local notification logic (toggleNotificationDropdown and showNotificationDropdown)
-    // has been removed and replaced by the single call to notificationManager.toggleNotificationDropdown(it as ImageView)
 }

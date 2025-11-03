@@ -24,6 +24,8 @@ import android.graphics.Rect
 import android.view.Gravity
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater // <-- Essential for custom dialog
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 class RegisterActivity2 : AppCompatActivity() {
 
@@ -34,6 +36,9 @@ class RegisterActivity2 : AppCompatActivity() {
         val VALID_NAME_PATTERN = Regex("^[a-zA-Z\\s'-]+\$")
         val VALID_ID_PATTERN = Regex("^[A-Z][0-9]{8}\$")
     }
+
+    private var authUID: String? = null
+    private var email: String? = null
 
     // 🚨 Define Color Constants
     private val COLOR_PRIMARY_BLUE = Color.parseColor("#0039A6")
@@ -168,6 +173,12 @@ class RegisterActivity2 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register2)
 
+// Initialize Firestore
+        val firestore = FirebaseFirestore.getInstance()
+
+        // ⭐️ ADD THESE TWO LINES TO CATCH THE DATA ⭐️
+        authUID = intent.getStringExtra("AUTH_UID")
+        email = intent.getStringExtra("email")
 
         // 🔹 Back button
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
@@ -796,21 +807,60 @@ class RegisterActivity2 : AppCompatActivity() {
         // 🔹 BUTTON CLICK LISTENER (Final step)
         // ---------------------------------------------------------------------
 
+// ---------------------------------------------------------------------
+        // 🔹 BUTTON CLICK LISTENER (Final step)
+        // ---------------------------------------------------------------------
+
         btnConfirm.setOnClickListener {
             hideKeyboardAndClearFocus()
 
             val studentID = inputStudentID.text.toString().trim()
+            val firstname = inputFirstname.text.toString().trim()
+            val lastname = inputLastname.text.toString().trim()
+            val gender = inputGender.text.toString().trim()
+            val year = inputYear.text.toString().trim()
+            val college = inputCollege.text.toString().trim()
 
-            // ⚠️ SIMULATION: Check if the ID matches the registered one ⚠️
-            if (studentID.equals(REGISTERED_STUDENT_ID_SIMULATION, ignoreCase = true)) {
-                showStudentIDErrorDialog()
-            } else {
-                // ✅ SUCCESS: Proceed to the final registration step
-                Toast.makeText(this, "Details Verified. Proceeding...", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, RegisterActivity3::class.java)
-                startActivity(intent)
+            // ⭐️ 1. SAFETY CHECK (Check if authUID or email is missing)
+            if (authUID == null || email == null) {
+                Toast.makeText(this, "Critical error: Session data lost. Please restart registration.", Toast.LENGTH_LONG).show()
+                val loginIntent = Intent(this, Login::class.java)
+                loginIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(loginIntent)
+                return@setOnClickListener
             }
+
+            // ⭐️ 2. REAL FIRESTORE CHECK (Replaces your simulation)
+            firestore.collection("students")
+                .whereEqualTo("studentID", studentID) // Check the "studentID" field
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        // ❌ ID already exists! Show the error dialog.
+                        showStudentIDErrorDialog()
+                    } else {
+                        // ✅ ID is unique! Proceed to RegisterActivity3.
+                        val intent = Intent(this, RegisterActivity3::class.java)
+
+                        // ⭐️ 3. PASS ALL DATA (THE FIX) ⭐️
+                        intent.putExtra("AUTH_UID", authUID)
+                        intent.putExtra("email", email)
+                        intent.putExtra("studentID", studentID)
+                        intent.putExtra("firstname", firstname)
+                        intent.putExtra("lastname", lastname)
+                        intent.putExtra("gender", gender)
+                        intent.putExtra("year", year)
+                        intent.putExtra("college", college)
+
+                        startActivity(intent)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    // Handle Firestore query failure
+                    Toast.makeText(this, "Error checking Student ID: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
         }
+
     } // End of onCreate
 
     // =========================================================================

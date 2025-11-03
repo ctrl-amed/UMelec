@@ -25,6 +25,9 @@ import android.view.Gravity
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
+import com.google.firebase.firestore.FirebaseFirestore
+import android.widget.Toast
+import com.google.firebase.firestore.SetOptions
 
 
 class Verificationcode : AppCompatActivity() {
@@ -42,7 +45,13 @@ class Verificationcode : AppCompatActivity() {
     private lateinit var countDownTimer: CountDownTimer
 
     // 🚨 SIMULATED CORRECT OTP (Replace with logic that checks against a sent code)
-    private val CORRECT_OTP = "123456"
+// ⭐️ --- BACKEND PROPERTIES --- ⭐️
+    private var userEmail: String? = null
+    // ⭐️----------------------------- ⭐️
+
+    // 🚨 SIMULATED CORRECT OTP
+    private lateinit var firestore: FirebaseFirestore
+    private var generatedOTP: String = ""
     private val TIMER_DURATION_SECONDS = 60L
     private val RESEND_DIALOG_DURATION_MS = 2000L // 💡 Duration for the auto-dismiss resend dialog
 
@@ -76,6 +85,29 @@ class Verificationcode : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_verificationcode)
+
+        // ⭐️ --- BACKEND FIX: Get the email from the intent --- ⭐️
+        userEmail = intent.getStringExtra(Verification.EXTRA_EMAIL_ADDRESS)
+        // ⭐️----------------------------------------------------- ⭐️
+// Initialize Firestore
+        firestore = FirebaseFirestore.getInstance()
+
+// Generate random 6-digit OTP
+        generatedOTP = (100000..999999).random().toString()
+
+// Save OTP to Firestore under the user’s document
+        userEmail?.let { email ->
+            firestore.collection("students").document(email)
+                .set(mapOf("otp" to generatedOTP), SetOptions.merge())
+
+                .addOnSuccessListener {
+                    // Optional: Toast for testing
+                    Toast.makeText(this, "OTP sent: $generatedOTP", Toast.LENGTH_LONG).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to send OTP: ${it.message}", Toast.LENGTH_LONG).show()
+                }
+        }
 
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener {
@@ -154,13 +186,13 @@ class Verificationcode : AppCompatActivity() {
     private fun handleOtpConfirmation() {
         val enteredCode = otpInputs.joinToString("") { it.text.toString() }
 
-        if (enteredCode == CORRECT_OTP) {
+        if (enteredCode == generatedOTP) {
             showVerificationSuccessDialog()
         } else {
-            // 🚨 Set all fields to error state on failure (Red border)
             otpLayouts.forEach { showValidationError(it) }
             showVerificationFailureDialog()
         }
+
     }
 
     private fun updateButtonState() {
@@ -180,7 +212,7 @@ class Verificationcode : AppCompatActivity() {
     // =========================================================================
 
     /**
-     * 1. Success Dialog (imitate custom_toast_success)
+     * 1. (FIXED) Success Dialog (Passes email to the next step)
      */
     private fun showVerificationSuccessDialog() {
         val layoutInflater = LayoutInflater.from(this)
@@ -203,7 +235,13 @@ class Verificationcode : AppCompatActivity() {
             dialog.dismiss()
 
             // Proceed to Resetpassword.kt
-            val intent = Intent(this, Resetpassword::class.java)
+            val intent = Intent(this, Resetpassword::class.java).apply {
+                // ⭐️ --- BACKEND FIX --- ⭐️
+                // Pass the user's email so the next screen knows
+                // *which* user's password to reset.
+                putExtra(Verification.EXTRA_EMAIL_ADDRESS, userEmail)
+                // ⭐️----------------------- ⭐️
+            }
             startActivity(intent)
             finish()
         }

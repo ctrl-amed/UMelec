@@ -23,6 +23,9 @@ import android.view.inputmethod.InputMethodManager
 import android.view.MotionEvent
 import android.graphics.Rect
 
+// ⭐️ --- BACKEND IMPORTS --- ⭐️
+import com.google.firebase.firestore.FirebaseFirestore
+import android.widget.Toast // ⭐️ Added for database errors
 
 class Forgotpassword : AppCompatActivity() {
 
@@ -42,6 +45,9 @@ class Forgotpassword : AppCompatActivity() {
     private lateinit var emailRequirementsContainer: View
     private lateinit var reqEmail: TextView
     private lateinit var btnSendVerification: Button
+
+    // ⭐️ --- BACKEND DATABASE INSTANCE --- ⭐️
+    private lateinit var firestore: FirebaseFirestore
 
     // --- Validation Helper Functions ---
 
@@ -133,6 +139,10 @@ class Forgotpassword : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forgotpassword)
+
+        // ⭐️ --- INITIALIZE FIREBASE --- ⭐️
+        firestore = FirebaseFirestore.getInstance()
+        // ⭐️------------------------------ ⭐️
 
         // 🚨 Initialize lateinit properties inside onCreate 🚨
         layoutEmail = findViewById(R.id.textInputLayoutEmail)
@@ -230,27 +240,48 @@ class Forgotpassword : AppCompatActivity() {
             }
         })
 
-        // =====================================================================
-        // 6. SEND VERIFICATION BUTTON CLICK LISTENER
+// =====================================================================
+        // 6. (FIXED) SEND VERIFICATION BUTTON CLICK LISTENER
         // =====================================================================
 
         btnSendVerification.setOnClickListener {
             val email = inputEmail.text.toString().trim()
 
             if (isUmakEmail(email)) {
-                // 💡 MOCK SERVER CHECK: Since the button is enabled, we assume client-side validation passed.
-                // We'll use a mock condition to show the requested error dialog.
-                if (email.lowercase().contains("test")) { // Example mock error
-                    showEmailErrorDialog()
-                } else {
-                    // SUCCESS: Go to Verification activity and PASS the email
-                    val intent = Intent(this, Verification::class.java).apply {
-                        putExtra(EXTRA_EMAIL_ADDRESS, email)
+
+                // --- (FIXED) REAL BACKEND LOGIC ---
+
+                // 1. Hide the keyboard (your existing helper function)
+                hideKeyboardAndClearFocus()
+
+                // 2. (AC Step 20) Check if the email exists in your "students" collection
+                firestore.collection("students") // <-- ⭐️ FIXED to "students"
+                    .whereEqualTo("email", email) // Check for the email
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (querySnapshot.isEmpty) {
+                            // 3. (AC Step 21) Email does not exist. Call your error dialog.
+                            showEmailErrorDialog()
+                        } else {
+                            // 4. (AC Step 22) Email EXISTS.
+                            // We don't *actually* send an email, we just
+                            // proceed to the next step as if we did.
+
+                            // SUCCESS: Go to Verification activity and PASS the email
+                            val intent = Intent(this, Verification::class.java).apply {
+                                putExtra(EXTRA_EMAIL_ADDRESS, email)
+                            }
+                            startActivity(intent)
+                        }
                     }
-                    startActivity(intent)
-                }
+                    .addOnFailureListener { e ->
+                        // Handle the case where the query itself fails
+                        Toast.makeText(this, "Error checking email: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                // --- END OF FIXED LOGIC ---
+
             } else {
-                // Failsafe: Should not be hit if button is disabled correctly
+                // Failsafe: (Kept your original failsafe logic)
                 showValidationError(layoutEmail, emailRequirementsContainer, reqEmail, defaultEmailRequirementText)
             }
         }

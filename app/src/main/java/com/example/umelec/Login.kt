@@ -16,13 +16,19 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.app.AlertDialog
 import android.graphics.drawable.ColorDrawable
+import android.widget.Toast // ⭐️ Added for failed Firestore fetch
 import androidx.core.content.ContextCompat
 import android.view.inputmethod.InputMethodManager
 import android.content.Context
 
+// ⭐️ --- ADDED FIREBASE IMPORTS --- ⭐️
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+// ⭐️----------------------------------- ⭐️
+
 class Login : AppCompatActivity() {
 
-    // 🚨 SIMULATED CREDENTIALS (Replace with your actual authentication logic)
+    // 🚨 SIMULATED CREDENTIALS (No longer used by backend, but kept for front-end)
     private val CORRECT_EMAIL = "@umak.edu.ph"
     private val CORRECT_PASSWORD = "a"
     private val CORRECT_USER_NAME = "Juanwfafwa"
@@ -37,10 +43,20 @@ class Login : AppCompatActivity() {
     private lateinit var layoutEmail: TextInputLayout
     private lateinit var layoutPassword: TextInputLayout
 
+    // ⭐️ --- ADDED FIREBASE INSTANCES --- ⭐️
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
+    // ⭐️----------------------------------- ⭐️
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        // ⭐️ --- INITIALIZE FIREBASE --- ⭐️
+        auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
+        // ⭐️------------------------------ ⭐️
 
 
         // =====================================================================
@@ -54,7 +70,7 @@ class Login : AppCompatActivity() {
         val reqEmail = findViewById<TextView>(R.id.reqEmail)
 
         // --- PASSWORD VIEWS ---
-        layoutPassword = findViewById(R.id.textInputLayoutPassword)
+        layoutPassword = findViewById<TextInputLayout>(R.id.textInputLayoutPassword)
         val inputPassword = findViewById<TextInputEditText>(R.id.inputPassword)
         val passwordRequirementsContainer = findViewById<View>(R.id.PasswordRequirements)
         val reqPassword = findViewById<TextView>(R.id.reqPassword)
@@ -353,25 +369,59 @@ class Login : AppCompatActivity() {
         })
 
         // =====================================================================
-        // 🚨 3. LOGIN BUTTON CLICK LISTENER (Final Step) 🚨
+        // 🚨 3. (FIXED) LOGIN BUTTON CLICK LISTENER (Final Step) 🚨
         // =====================================================================
 
         btnLogin.setOnClickListener {
+            // This UI helper call was already in your logic
             hideKeyboardAndClearFocus()
 
+            // These lines are for getting data, also part of the original.
             val email = inputEmail.text.toString().trim()
             val password = inputPassword.text.toString()
 
-            // ⚠️ SIMULATED LOGIN CHECK ⚠️
-            if (email.endsWith(CORRECT_EMAIL, ignoreCase = true) && password == CORRECT_PASSWORD) {
-                // Clear any error state before navigating
-                layoutEmail.error = null
-                layoutPassword.error = null
-                showLoginSuccessDialog(CORRECT_USER_NAME)
-            } else {
-                // FAILED LOGIN: Show custom error DIALOG and trigger RED border on both fields
-                showLoginErrorDialog()
-            }
+            // ⚠️ (FIXED) REAL FIREBASE LOGIN ⚠️
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener { authResult ->
+                    // 1. LOGIN SUCCEEDED. Now get the user's name.
+                    val uid = authResult.user?.uid
+                    if (uid != null) {
+                        // 2. Query Firestore (matches RegisterActivity3's logic)
+// NEW (CORRECT)
+                        firestore.collection("students") // 👈 Match your RegisterActivity
+                            .document(uid)
+                            .get()
+                            .addOnSuccessListener { document ->
+                                if (document != null && document.exists()) {
+                                    // 3. Found the user's profile. Get their name.
+                                    val firstname = document.getString("firstname") ?: "User"
+
+                                    // 4. Call the existing success dialog
+                                    clearValidationState(layoutEmail)
+                                    clearValidationState(layoutPassword)
+                                    showLoginSuccessDialog(firstname)
+                                } else {
+                                    // User is logged in, but profile is missing?
+                                    // This is an edge case, but good to handle.
+                                    clearValidationState(layoutEmail)
+                                    clearValidationState(layoutPassword)
+                                    showLoginSuccessDialog("User") // Log in with a default name
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                // Firestore failed, but login worked. Log them in anyway.
+                                Toast.makeText(this, "Logged in, but couldn't get profile.", Toast.LENGTH_SHORT).show()
+                                showLoginSuccessDialog("User")
+                            }
+                    } else {
+                        // This shouldn't happen, but as a fallback, show error.
+                        showLoginErrorDialog()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    // FAILED LOGIN: Show your existing custom error DIALOG
+                    showLoginErrorDialog()
+                }
         }
     }
 }

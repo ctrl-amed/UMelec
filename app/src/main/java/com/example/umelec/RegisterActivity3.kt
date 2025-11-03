@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Base64
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageButton
@@ -18,52 +17,66 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import com.github.gcacace.signaturepad.views.SignaturePad
+import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayOutputStream
-
-// REMINDER: You MUST add the following dependency to your app/build.gradle file:
-// implementation 'com.github.gcacace:signature-pad:1.2.1'
+import com.google.firebase.auth.FirebaseAuth
 
 class RegisterActivity3 : AppCompatActivity() {
 
     // Views
     private lateinit var btnBack: ImageButton
-    private lateinit var signaturePad: SignaturePad // Updated to use the actual SignaturePad component
+    private lateinit var signaturePad: SignaturePad
     private lateinit var btnClearSignature: AppCompatButton
     private lateinit var tvReviewTnC: TextView
     private lateinit var cbAgree: CheckBox
     private lateinit var btnNext: Button
 
+    private lateinit var firestore: FirebaseFirestore
+
     // State
     private var isSignatureDrawn: Boolean = false
     private var isTermsAgreed: Boolean = false
 
-    // Assumed target class for successful registration
     private val LOGIN_ACTIVITY_CLASS = Login::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register3)
 
-        // 1. Initialize Views
+        // Initialize Firestore
+        firestore = FirebaseFirestore.getInstance()
+
+        // --- ⭐️ SECTION 1: GET ALL DATA FROM INTENT ⭐️ ---
+        // Retrieve previous registration data
+        val studentID = intent.getStringExtra("studentID") ?: ""
+        val firstname = intent.getStringExtra("firstname") ?: ""
+        val lastname = intent.getStringExtra("lastname") ?: ""
+        val gender = intent.getStringExtra("gender") ?: ""
+        val year = intent.getStringExtra("year") ?: ""
+        val college = intent.getStringExtra("college") ?: ""
+
+        // ⭐️ ADDED: Get the UID and email passed from RegisterActivity 1 & 2
+        val authUID = intent.getStringExtra("AUTH_UID")
+        val email = intent.getStringExtra("email")
+        // --- ⭐️ END SECTION 1 ⭐️ ---
+
+
+        // Initialize Views
         btnBack = findViewById(R.id.btnBack)
-        signaturePad = findViewById(R.id.signaturePad) // Initialized as SignaturePad
+        signaturePad = findViewById(R.id.signaturePad)
         btnClearSignature = findViewById(R.id.btnClearSignature)
         tvReviewTnC = findViewById(R.id.tvReviewTnC)
         cbAgree = findViewById(R.id.cbAgree)
         btnNext = findViewById(R.id.btnNext)
 
-        // 2. Setup Initial State
+        // Setup initial state
         updateNextButtonState()
         btnClearSignature.isEnabled = false
 
-
-        // 3. Set Listeners
-        btnBack.setOnClickListener {
-            finish() // Goes back to the previous activity (RegisterActivity2)
-        }
+        // Listeners
+        btnBack.setOnClickListener { finish() }
 
         tvReviewTnC.setOnClickListener {
-            // Shows a Toast as requested
             Toast.makeText(this, "TnC in working", Toast.LENGTH_SHORT).show()
         }
 
@@ -72,91 +85,92 @@ class RegisterActivity3 : AppCompatActivity() {
             updateNextButtonState()
         }
 
-        // 4. Working Signature Pad Logic
         signaturePad.setOnSignedListener(object : SignaturePad.OnSignedListener {
-            override fun onStartSigning() {
-                // Not needed for state tracking, but useful for UX hints
-            }
-
+            override fun onStartSigning() {}
             override fun onSigned() {
-                // Triggered when the user starts drawing and lifts their finger
                 isSignatureDrawn = true
                 btnClearSignature.isEnabled = true
                 updateNextButtonState()
             }
-
             override fun onClear() {
-                // Triggered when signaturePad.clear() is called
                 isSignatureDrawn = false
                 btnClearSignature.isEnabled = false
                 updateNextButtonState()
             }
         })
 
-        // 5. Clear Signature Button Logic
-        btnClearSignature.setOnClickListener {
-            signaturePad.clear() // Clears the canvas and triggers the onClear listener
-        }
+        btnClearSignature.setOnClickListener { signaturePad.clear() }
 
-        // 6. Next Button Logic (Data Processing)
+
+        // --- ⭐️ SECTION 2: THE FULLY CORRECTED BUTTON LOGIC ⭐️ ---
         btnNext.setOnClickListener {
             if (isSignatureDrawn && isTermsAgreed) {
-                // --- BACKEND/DATABASE GUIDANCE START ---
 
-                // 1. Capture the signature as a high-quality Bitmap
-                val signatureBitmap: Bitmap = signaturePad.getSignatureBitmap()
+                // --- 1. (THE FIX) VALIDATE THE PASSED UID ---
+                // We use the authUID passed from the intent, NOT auth.currentUser
+                if (authUID == null || email == null) {
+                    // Safety check: If UID or email is missing, the registration flow broke.
+                    Toast.makeText(this, "Error: Registration session lost. Please start over.", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this, LOGIN_ACTIVITY_CLASS)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                    return@setOnClickListener
+                }
 
-                // 2. Convert Bitmap to a suitable format for transfer (e.g., Base64 String)
+                // --- 2. CONVERT SIGNATURE (Your code was correct) ---
+                val signatureBitmap = signaturePad.getSignatureBitmap()
                 val byteArrayOutputStream = ByteArrayOutputStream()
-                // Use JPEG for smaller file size, quality 90 is a good balance
                 signatureBitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream)
-                val byteArray = byteArrayOutputStream.toByteArray()
-                val signatureBase64String: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+                val signatureBase64 = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT)
 
-                // 3. 🚨 FAKE DATA LOGGING for Backend Team 🚨
-                // At this point, you would send signatureBase64String along with
-                // all other registration data (ID, name, etc.) to your backend API.
-                println("--- FAKE DATABASE CALL ---")
-                println("Signature captured and converted to Base64 String.")
-                println("Payload for Backend:")
-                println("  - signature_data: ${signatureBase64String.substring(0, 50)}... [Base64 of JPEG image]")
-                println("  - agreement_status: $isTermsAgreed")
-                println("  - (Other user data from previous steps)")
+                // --- 3. PREPARE PAYLOAD (Using variables from onCreate) ---
+                val userData = hashMapOf(
+                    "studentID" to studentID,
+                    "firstname" to firstname,
+                    "lastname" to lastname,
+                    "gender" to gender,
+                    "year" to year,
+                    "college" to college,
+                    "email" to email, // <-- ⭐️ USE THE PASSED EMAIL
+                    "signature_data" to signatureBase64,
+                    "agreement_status" to isTermsAgreed,
+                    "registration_complete" to true,
+                    "registration_timestamp" to System.currentTimeMillis()
+                )
 
-                // 4. Proceed to success dialog after successful API response (simulated here)
-                // --- BACKEND/DATABASE GUIDANCE END ---
-
-                showRegistrationSuccessDialog()
+                // --- 4. (THE FIX) Save to Firestore using the PASSED AUTH UID ---
+                firestore.collection("students")
+                    .document(authUID) // <-- ⭐️ USE THE PASSED UID
+                    .set(userData)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Registration completed!", Toast.LENGTH_SHORT).show()
+                        showRegistrationSuccessDialog()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Failed to save registration: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
             }
         }
+        // --- ⭐️ END SECTION 2 ⭐️ ---
     }
 
-    /**
-     * Updates the enabled state of the Next button based on required conditions.
-     */
     private fun updateNextButtonState() {
-        // Button is enabled ONLY when a signature is drawn AND the terms are checked
         btnNext.isEnabled = isSignatureDrawn && isTermsAgreed
     }
 
-    /**
-     * Custom AlertDialog for Registration Success.
-     */
     private fun showRegistrationSuccessDialog() {
         val layoutInflater = LayoutInflater.from(this)
-        // Ensure you have R.layout.custom_toast_success in your resources
         val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
 
         val builder = AlertDialog.Builder(this)
         builder.setView(dialogView)
         val dialog = builder.create()
 
-        // Set dialog properties
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.window?.setGravity(Gravity.CENTER)
         dialog.setCanceledOnTouchOutside(false)
 
-        // Set custom title and value
         dialogView.findViewById<TextView>(R.id.toast_title).text = "Registration Success"
         dialogView.findViewById<TextView>(R.id.toast_value).text = "Your account has been created."
 
@@ -165,8 +179,6 @@ class RegisterActivity3 : AppCompatActivity() {
 
         btnAction.setOnClickListener {
             dialog.dismiss()
-
-            // Proceed to Login Activity
             val intent = Intent(this, LOGIN_ACTIVITY_CLASS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
