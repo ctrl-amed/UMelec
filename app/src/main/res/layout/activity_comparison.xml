@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="#FAFCFE"
     tools:context=".RegisterActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,31 +19,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="back_button_content_description"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF"
+        <FrameLayout
+            android:id="@+id/Back_Button_Wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="back_button_content_description"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="#00537A" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/NameTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Compare Candidates"
-            android:textSize="25sp"
+            android:text="Candidate \nComparison"
+            android:textSize="32sp"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#FAFCFE"
+            android:textColor="#313131"
+            android:gravity="center_horizontal"
+            android:maxLines="2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/Back_Button_Wrapper"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5" />
+            app:layout_constraintHorizontal_bias="0.5"
+            android:layout_marginStart="8dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -52,13 +60,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/rounded_white_bg"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="110dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/FooterLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
-        android:backgroundTint="#0039A6">
+        android:backgroundTint="#FAFCFE">
 
         <LinearLayout
             android:id="@+id/ComparisonContainer"
@@ -70,7 +78,7 @@
 
             <LinearLayout
                 android:id="@+id/Candidate1Container"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/rounded_gray_bg"
@@ -79,7 +87,8 @@
                 android:outlineProvider="bounds"
                 android:clipToPadding="false"
                 android:gravity="top"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:elevation="10dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -88,32 +97,39 @@
                     android:gravity="center_horizontal"
                     android:paddingTop="4dp">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/iv_profile_picture1"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:src="@android:drawable/sym_def_app_icon"
-                        android:scaleType="centerCrop"
-                        app:civ_border_width="2dp"
-                        app:civ_border_color="#CCCCCC" />
-
-                    <TextView
-                        android:id="@+id/tv_name1"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Jane Doe"
-                        android:textSize="20sp"
-                        android:textColor="#4A4A68"
-                        android:layout_marginTop="8dp"
-                        android:fontFamily="@font/montserrat_semi_bold"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/iv_profile_picture1"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:src="@android:drawable/sym_def_app_icon"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/tv_name1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Jane Doe"
+                            android:textSize="20sp"
+                            android:maxLines="2"
+                            android:textColor="#4A4A68"
+                            android:fontFamily="@font/montserrat_semi_bold"
+                            android:layout_marginLeft="20dp"/>
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/credentialsTitle1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Credentials:"
-                        android:textSize="15sp"
-                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/poppins_regular"
                         android:textColor="#4A4A68"
                         android:layout_marginBottom="5dp"
                         android:layout_gravity="left"/>
@@ -127,15 +143,16 @@
                         android:fontFamily="@font/poppins_regular"
                         android:textColor="#4A4A68"
                         android:layout_marginBottom="20dp"
-                        android:layout_gravity="left" />
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="20dp"/>
 
                     <TextView
                         android:id="@+id/advocacyTitle1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Advocacy:"
-                        android:textSize="15sp"
-                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:text="Platform:"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/poppins_regular"
                         android:textColor="#4A4A68"
                         android:layout_marginBottom="5dp"
                         android:layout_gravity="left"/>
@@ -148,7 +165,8 @@
                         android:textSize="15sp"
                         android:fontFamily="@font/poppins_regular"
                         android:textColor="#4A4A68"
-                        android:layout_gravity="left" />
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="20dp"/>
 
                 </LinearLayout>
 
@@ -156,7 +174,7 @@
 
             <LinearLayout
                 android:id="@+id/Candidate2Container"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/rounded_gray_bg"
@@ -174,24 +192,31 @@
                     android:orientation="vertical"
                     android:paddingTop="4dp">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/iv_profile_picture2"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:scaleType="centerCrop"
-                        android:src="@android:drawable/sym_def_app_icon"
-                        app:civ_border_color="#CCCCCC"
-                        app:civ_border_width="2dp" />
-
-                    <TextView
-                        android:id="@+id/tv_name2"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:fontFamily="@font/montserrat_semi_bold"
-                        android:text="Jane Doe"
-                        android:textColor="#4A4A68"
-                        android:textSize="20sp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/iv_profile_picture2"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:src="@android:drawable/sym_def_app_icon"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/tv_name2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Jane Doe"
+                            android:textSize="20sp"
+                            android:maxLines="2"
+                            android:textColor="#4A4A68"
+                            android:fontFamily="@font/montserrat_semi_bold"
+                            android:layout_marginLeft="20dp"/>
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/credentialsTitle2"
@@ -199,10 +224,10 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
                         android:layout_marginBottom="5dp"
-                        android:fontFamily="@font/montserrat_semi_bold"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="Credentials:"
                         android:textColor="#4A4A68"
-                        android:textSize="15sp" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/credentialsValue2"
@@ -213,7 +238,8 @@
                         android:fontFamily="@font/poppins_regular"
                         android:text="Lorem ipsum"
                         android:textColor="#4A4A68"
-                        android:textSize="15sp" />
+                        android:textSize="16sp"
+                        android:layout_marginLeft="20dp"/>
 
                     <TextView
                         android:id="@+id/advocacyTitle2"
@@ -221,10 +247,10 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
                         android:layout_marginBottom="5dp"
-                        android:fontFamily="@font/montserrat_semi_bold"
-                        android:text="Advocacy:"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="Platform:"
                         android:textColor="#4A4A68"
-                        android:textSize="15sp" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/advocacyValue2"
@@ -234,7 +260,8 @@
                         android:fontFamily="@font/poppins_regular"
                         android:text="Lorem ipsum"
                         android:textColor="#4A4A68"
-                        android:textSize="15sp" />
+                        android:textSize="16sp"
+                        android:layout_marginLeft="20dp"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -328,7 +355,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_candidates"
                 android:contentDescription="Candidates"
-                app:tint="#0039A6" />
+                app:tint="#0098E0" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -336,7 +363,7 @@
                 android:text=" Candidates "
                 android:textSize="12sp"
                 android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_text_bg"
+                android:background="@drawable/blue_rounded_button"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>

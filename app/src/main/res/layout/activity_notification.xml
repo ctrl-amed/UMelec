@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="#FAFCFE"
     tools:context=".Notification">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,7 +26,7 @@
             android:background="@android:color/transparent"
             android:contentDescription="back_button_content_description"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF"
+            app:tint="#0098E0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
@@ -36,9 +36,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Notification"
-            android:textSize="25sp"
+            android:textSize="32sp"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#FAFCFE"
+            android:textColor="#313131"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,6 @@
         android:background="@drawable/rounded_white_bg"
         android:layout_marginTop="100dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/FooterLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
@@ -66,182 +65,78 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="30dp"
-            android:gravity="center_horizontal">
+            android:paddingTop="20dp"
+            >
 
+
+            <!-- Container for the "New" TextView -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:fontFamily="@font/montserrat_semi_bold"
+                android:text="New"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#4A4A68" />
             <LinearLayout
+                android:id="@+id/newContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end"
-                android:layout_marginBottom="10dp">
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp"
+                >
 
                 <TextView
-                    android:id="@+id/number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="COUNTER TEST"
-                    android:textSize="15sp"
-                    android:textColor="#8C8CA1"
-                    android:fontFamily="@font/poppins_regular"/>
+                    android:text="New"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:fontFamily="@font/montserrat_semi_bold"
+                    android:layout_marginLeft="20dp"
+                    android:visibility="gone"/>
 
             </LinearLayout>
+
+            <!-- Container for the "Older" TextView -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:fontFamily="@font/montserrat_semi_bold"
+                android:text="Older"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#4A4A68" />
+            <LinearLayout
+                android:id="@+id/olderContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:fontFamily="@font/montserrat_semi_bold"
+                    android:text="Older"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:visibility="gone"/>
+
+
+            </LinearLayout>
+
 
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
 
-    <LinearLayout
-        android:id="@+id/FooterLayout"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:orientation="horizontal"
-        android:background="@drawable/footer"
-        android:gravity="center"
-        android:elevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:id="@+id/nav_home"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_home"
-                android:contentDescription="Home"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Home"
-                android:textSize="12sp"
-
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="#333333"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_vote"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_vote"
-                android:contentDescription="Vote"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Vote"
-                android:textSize="12sp"
-                android:textColor="#333333"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_candidates"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_candidates"
-                android:contentDescription="Candidates"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Candidates"
-                android:textSize="12sp"
-                android:textColor="#333333"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_results"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_results"
-                android:contentDescription="Results"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Results"
-                android:textSize="12sp"
-                android:textColor="#333333"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_faq"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_faq"
-                android:contentDescription="FAQs"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="  FAQs  "
-                android:textSize="12sp"
-                android:textColor="#333333"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

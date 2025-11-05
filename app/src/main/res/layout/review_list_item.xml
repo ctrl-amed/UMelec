@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ReviewlistContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="12dp"
+    android:paddingVertical="5dp">
+
+    <TextView
+        android:id="@+id/ReviewPositionTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Position Title:"
+        android:textSize="18sp"
+        android:textColor="#313131"
+        android:fontFamily="@font/poppins_regular" />
+
+    <TextView
+        android:id="@+id/ReviewCandidateName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Candidate Name"
+        android:textSize="18sp"
+        android:textColor="#313131"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="end"/>
+
+</LinearLayout>

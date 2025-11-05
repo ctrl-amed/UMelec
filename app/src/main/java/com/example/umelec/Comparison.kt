@@ -2,7 +2,6 @@ package com.example.umelec
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -56,7 +55,7 @@ class Comparison : AppCompatActivity() {
                 name = "Jane Doe",
                 position = "Marketing Director",
                 courseInfo = "III - BCSAD",
-                profilePictureResource = R.drawable.profile,
+                profilePictureResource = R.drawable.ic_profile,
                 credentials = "Graduated with honors. Former Editor-in-Chief of the student paper and team lead for two successful university events.",
                 advocacy = "My platform focuses on modernizing student services through digitalization and creating a more inclusive community by funding new cultural organizations."
             )
@@ -65,7 +64,7 @@ class Comparison : AppCompatActivity() {
                 name = "John Smith",
                 position = "Marketing Director",
                 courseInfo = "IV - BSIT",
-                profilePictureResource = R.drawable.profile,
+                profilePictureResource = R.drawable.ic_profile,
                 credentials = "Lead programmer for the university's attendance system. Holds multiple certifications in project management and database administration.",
                 advocacy = "I advocate for better student technological infrastructure, including faster campus Wi-Fi and subsidized cloud storage for all students."
             )
@@ -74,7 +73,7 @@ class Comparison : AppCompatActivity() {
                 name = "Sarah Lee",
                 position = "Treasurer",
                 courseInfo = "II - BSBA",
-                profilePictureResource = R.drawable.profile,
+                profilePictureResource = R.drawable.ic_profile,
                 credentials = "Top student in Accounting and Finance. Managed the budget for the university's largest annual fundraiser.",
                 advocacy = "Focused on maximizing transparency in student funds and introducing new, low-cost financial literacy workshops."
             )
@@ -83,7 +82,7 @@ class Comparison : AppCompatActivity() {
                 name = "Mark Tan",
                 position = "President",
                 courseInfo = "I - BSED",
-                profilePictureResource = R.drawable.profile,
+                profilePictureResource = R.drawable.ic_profile,
                 credentials = "Founder of the Peer Mentorship Program. Proven leadership skills across multiple community and academic organizations.",
                 advocacy = "My core platform is centered on student welfare, mental health support, and enhancing the feedback loop between students and administration."
             )
@@ -92,7 +91,7 @@ class Comparison : AppCompatActivity() {
                 name = "Error Loading Data",
                 position = "N/A",
                 courseInfo = "N/A",
-                profilePictureResource = R.drawable.profile, // Use a generic placeholder
+                profilePictureResource = R.drawable.ic_profile, // Use a generic placeholder
                 credentials = "Data not available.",
                 advocacy = "Data not available."
             )

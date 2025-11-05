@@ -12,9 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
-            android:name=".RegisterActivity3"
+            android:name=".Castvote2"
             android:exported="false" />
-        <!-- APPLYING THE NEW THEME HERE -->
+        <activity
+            android:name=".Castvote"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity3"
+            android:exported="false" /> <!-- APPLYING THE NEW THEME HERE -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -93,7 +98,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>

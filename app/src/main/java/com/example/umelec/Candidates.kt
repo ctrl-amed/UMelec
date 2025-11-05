@@ -11,6 +11,8 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import android.animation.AnimatorInflater
+import android.os.Build
 
 // NOTE: We assume NotificationItem, NotificationType, and NotificationManager
 // are available in the com.example.umelec package.
@@ -94,6 +96,11 @@ class Candidates : AppCompatActivity() {
             background = context.resources.getDrawable(R.drawable.blue_rounded_button, null)
             isClickable = true
             isFocusable = true
+            // 🔥 IMPLEMENTATION: Load and set the StateListAnimator
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                stateListAnimator = AnimatorInflater.loadStateListAnimator(context, R.animator.button_press_animator)
+            }
+            // Note: The system will automatically fall back to standard press feedback on older devices.
         }
 
         // 2. Position TextView
@@ -105,11 +112,11 @@ class Candidates : AppCompatActivity() {
             )
             text = positionName
             setTextColor(Color.WHITE)
-            textSize = 20f
+            textSize = 14f
 
             // ⭐️ FIX: Load and set the custom font
             try {
-                val typeface = ResourcesCompat.getFont(context, R.font.montserrat_bold)
+                val typeface = ResourcesCompat.getFont(context, R.font.poppins_bold)
                 setTypeface(typeface)
             } catch (e: Exception) {
                 // Fallback to default bold if the font resource is missing
@@ -119,17 +126,13 @@ class Candidates : AppCompatActivity() {
         }
         btnPosition.addView(positionText)
 
-        // 3. Click Listener for the Position Button
+        // 3. Click Listener for the Position Button (SIMPLIFIED NAVIGATION)
         btnPosition.setOnClickListener {
-            // Apply the color change animation and navigate
-            animateAndNavigate(
-                view = it,
-                originalBgResource = R.drawable.blue_rounded_button,
-                targetActivity = Position::class.java,
-                // ⭐️ NEW: Pass the position name to the next activity
-                extraKey = "POSITION_NAME",
-                extraValue = positionName
-            )
+            // Navigate directly, relying on the system's default visual press feedback
+            val intent = Intent(context, Position::class.java).apply {
+                putExtra("POSITION_NAME", positionName)
+            }
+            context.startActivity(intent)
         }
 
         return btnPosition
@@ -163,60 +166,41 @@ class Candidates : AppCompatActivity() {
         notificationIcon.setOnClickListener {
             notificationManager.toggleNotificationDropdown(it as ImageView)
         }
-
-        // --- Compare Button Click Listener ---
-        // if (compareButton != null) {
-        //     compareButton.setOnClickListener {
-        //         animateAndNavigate(
-        //             view = it,
-        //             originalBgResource = R.drawable.blue_rounded_button,
-        //             targetActivity = Comparison::class.java
-        //         )
-        //     }
-        // }
     }
 
 
     /**
-     * Helper function to provide visual feedback and then navigate to a new activity.
-     * Applies a temporary color change to FCBE6A before navigating.
+     * 🔥 REMOVED: Helper function to provide visual feedback and then navigate to a new activity.
+     * The custom color change logic has been removed as requested.
      */
-    private fun animateAndNavigate(view: View, originalBgResource: Int, targetActivity: Class<*>,
-        // ⭐️ NEW: Optional Intent Extra parameters
-                                   extraKey: String? = null,
-                                   extraValue: String? = null) {
-        // 1. Get the original background (assuming it's a GradientDrawable with corners)
-        val originalBackground = view.background
-
-        // 2. Create the temporary highlight background (#FCBE6A)
-        val highlightColor = Color.parseColor("#FCBE6A")
-        val highlightDrawable = GradientDrawable().apply {
-            setColor(highlightColor)
-            // Attempt to preserve the corner radius from the original drawable
-            if (originalBackground is GradientDrawable) {
-                cornerRadii = originalBackground.cornerRadii
-            } else {
-                cornerRadius = 8.toPx().toFloat() // Default corner radius if not found
-            }
-        }
-
-        // 3. Apply the temporary highlight color
-        view.background = highlightDrawable
-
-        // 4. Delay navigation and restore original color
-        Handler(Looper.getMainLooper()).postDelayed({
-            // Restore the original background drawable by reloading from resources
-            view.background = ResourcesCompat.getDrawable(resources, originalBgResource, null)
-
-            // Navigate to the target activity
-            val intent = Intent(this, targetActivity)
-            // ⭐️ NEW: Add the extra to the intent if provided
-            if (extraKey != null && extraValue != null) {
-                intent.putExtra(extraKey, extraValue)
-            }
-            startActivity(intent)
-        }, 100) // 100ms delay for visual feedback
-    }
+    // private fun animateAndNavigate(view: View, originalBgResource: Int, targetActivity: Class<*>,
+    //                                extraKey: String? = null,
+    //                                extraValue: String? = null) {
+    //
+    //     val originalBackground = view.background
+    //
+    //     val highlightColor = Color.parseColor("#FCBE6A")
+    //     val highlightDrawable = GradientDrawable().apply {
+    //         setColor(highlightColor)
+    //         if (originalBackground is GradientDrawable) {
+    //             cornerRadii = originalBackground.cornerRadii
+    //         } else {
+    //             cornerRadius = 8.toPx().toFloat()
+    //         }
+    //     }
+    //
+    //     view.background = highlightDrawable
+    //
+    //     Handler(Looper.getMainLooper()).postDelayed({
+    //         view.background = ResourcesCompat.getDrawable(resources, originalBgResource, null)
+    //
+    //         val intent = Intent(this, targetActivity)
+    //         if (extraKey != null && extraValue != null) {
+    //             intent.putExtra(extraKey, extraValue)
+    //         }
+    //         startActivity(intent)
+    //     }, 100)
+    // }
 
     // ----------------------------------------------------------------------
     // --- FOOTER LOGIC ---
@@ -246,9 +230,6 @@ class Candidates : AppCompatActivity() {
         navResults.setOnClickListener { navigateTo(Results::class.java) }
         navFaq.setOnClickListener { navigateTo(Faq::class.java) }
     }
-
-    // NOTE: The old local notification methods (toggleNotificationDropdown and showNotificationDropdown)
-    // have been successfully removed as their functionality is now handled by the imported NotificationManager.
 
     // Utility extension function to convert DP to pixels
     private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()

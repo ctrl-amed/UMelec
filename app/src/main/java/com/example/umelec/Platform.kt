@@ -2,7 +2,6 @@ package com.example.umelec
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.ImageView
@@ -70,7 +69,7 @@ class Platform : AppCompatActivity() {
                 name = "Jane Doe",
                 position = "Marketing Director",
                 courseInfo = "III - CCIS",
-                profilePictureResource = R.drawable.profile,
+                profilePictureResource = R.drawable.ic_profile,
                 credentials = "Graduated with honors. Former Editor-in-Chief of the student paper and team lead for two successful university events.",
                 advocacy = "My platform focuses on modernizing student services through digitalization and creating a more inclusive community by funding new cultural organizations."
             )
@@ -79,7 +78,7 @@ class Platform : AppCompatActivity() {
                 name = "John Smith",
                 position = "Marketing Director",
                 courseInfo = "IV - CCIS",
-                profilePictureResource = R.drawable.profile,
+                profilePictureResource = R.drawable.ic_profile,
                 credentials = "Lead programmer for the university's attendance system. Holds multiple certifications in project management and database administration.",
                 advocacy = "I advocate for better student technological infrastructure, including faster campus Wi-Fi and subsidized cloud storage for all students."
             )
@@ -89,7 +88,7 @@ class Platform : AppCompatActivity() {
                 name = "Candidate Not Found",
                 position = "N/A",
                 courseInfo = "N/A",
-                profilePictureResource = R.drawable.profile,
+                profilePictureResource = R.drawable.ic_profile,
                 credentials = "Data not available.",
                 advocacy = "Data not available."
             )

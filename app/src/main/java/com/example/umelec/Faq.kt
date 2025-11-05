@@ -3,25 +3,43 @@ package com.example.umelec
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat // Required for accessing custom fonts
 
 // --- DATA STRUCTURES ---
+
+// Data class to hold FAQ content and its category
+data class FaqItem(
+    val category: String, // "General" or "Voting"
+    val question: String,
+    val answer: String
+)
+
+// Category Constants
+private const val CATEGORY_GENERAL = "General"
+private const val CATEGORY_VOTING = "Voting"
 
 
 class Faq : AppCompatActivity() {
 
-    // 1. 💡 NEW: Initialize the reusable NotificationManager
+    // 1. 💡 Initial Declaration (Preserved as per user request)
     private lateinit var notificationManager: NotificationManager
+
+    // ----------------------------------------------------------------------
+    // --- LIFECYCLE ---
+    // ----------------------------------------------------------------------
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_faq)
 
-        // 2. 💡 NEW: Instantiate the NotificationManager
+        // 2. 💡 Instantiation (Preserved as per user request)
         notificationManager = NotificationManager(this)
 
         // Initialize UI components and set up listeners
@@ -38,48 +56,155 @@ class Faq : AppCompatActivity() {
     // --- DYNAMIC FAQ POPULATION LOGIC ---
     // ----------------------------------------------------------------------
 
-    private fun populateFaqs() {
-        val contentContainer: LinearLayout = findViewById(R.id.ContentContainer)
-
-        val faqList = listOf(
+    /**
+     * Guides the backend/database implementation.
+     *
+     * IMPORTANT: This function currently returns hardcoded, fake data.
+     * Developers should replace the contents of this function to fetch real FAQ data
+     * from a repository, database (like Firebase), or an API call.
+     *
+     * The returned list MUST maintain the FaqItem structure, including the 'category'
+     * field (using CATEGORY_GENERAL or CATEGORY_VOTING) to ensure correct grouping
+     * in the UI containers.
+     */
+    private fun getFaqData(): List<FaqItem> {
+        // ---------------------------------------------------------------------------
+        // 🚨 BACKEND/DATABASE INTEGRATION POINT 🚨
+        // Replace this hardcoded list with your data retrieval logic:
+        // E.g., return faqRepository.getAllFaqs()
+        // ---------------------------------------------------------------------------
+        return listOf(
+            // General/System FAQs
             FaqItem(
+                category = CATEGORY_GENERAL,
+                question = "What is Umelec and is it secure?",
+                answer = "Umelec is a secure, modern, and transparent mobile application designed to facilitate student elections. All voting data is encrypted to ensure integrity."
+            ),
+            FaqItem(
+                category = CATEGORY_GENERAL,
+                question = "Which devices support the app?",
+                answer = "Umelec is compatible with all devices running Android 7.0 (Nougat) or newer. Please ensure your operating system is up-to-date for the best experience."
+            ),
+            // Voting Process FAQs
+            FaqItem(
+                category = CATEGORY_VOTING,
                 question = "How do I cast my vote?",
                 answer = "You can cast your vote by navigating to the 'Vote' tab, selecting the candidates you prefer for each position, and submitting your ballot before the deadline."
             ),
             FaqItem(
-                question = "When does the election start and end?",
-                answer = "The voting period is displayed on the homepage. Please check the 'Election Information' card for the exact dates and times."
-            ),
-            FaqItem(
-                question = "Who are the candidates running?",
-                answer = "The full list of candidates, along with their platforms and profiles, can be viewed in the 'Candidates' section of the application."
-            ),
-            FaqItem(
+                category = CATEGORY_VOTING,
                 question = "Can I change my vote after submitting?",
-                answer = "No, for security and integrity reasons, once your vote is submitted, it is final and cannot be altered or withdrawn."
+                answer = "No, once your vote is submitted, it is final and cannot be altered or withdrawn. Please review your choices carefully before confirming."
             ),
             FaqItem(
+                category = CATEGORY_VOTING,
                 question = "Where can I see the election results?",
                 answer = "Live tallies and final results will be posted in the 'Results' section once the voting period has officially closed."
             ),
         )
+    }
 
-        val placeholderIndex = contentContainer.childCount - 1
-        val placeholderView = if (placeholderIndex >= 0) contentContainer.getChildAt(placeholderIndex) else null
+    private fun populateFaqs() {
+        val generalContainer: LinearLayout = findViewById(R.id.GeneralContainer)
+        val votingContainer: LinearLayout = findViewById(R.id.VotingContainer)
 
-        contentContainer.removeAllViews()
-
-        faqList.forEach { faq ->
-            val faqView = createFaqItemView(this, faq.question, faq.answer)
-            contentContainer.addView(faqView)
+        if (generalContainer.childCount > 1) {
+            generalContainer.removeViews(1, generalContainer.childCount - 1)
+        }
+        if (votingContainer.childCount > 1) {
+            votingContainer.removeViews(1, votingContainer.childCount - 1)
         }
 
-        if (placeholderView != null) {
-            contentContainer.addView(placeholderView)
+        getFaqData().forEach { faq ->
+            val faqView = createFaqItemView(this, faq.question, faq.answer)
+            when (faq.category) {
+                CATEGORY_GENERAL -> generalContainer.addView(faqView)
+                CATEGORY_VOTING -> votingContainer.addView(faqView)
+            }
         }
     }
 
+    /**
+     * Dynamically creates the interactive FAQ item view.
+     * Implements the expand/collapse logic using the arrowToggle.
+     */
     private fun createFaqItemView(context: Context, question: String, answer: String): View {
+
+        // Fetch custom font once (assuming R.font.montserrat_semi_bold exists)
+        val font = ResourcesCompat.getFont(context, R.font.poppins_regular)
+
+        // --- 1. Arrow Toggle (ImageView) ---
+        val arrowToggle = ImageView(context).apply {
+            id = View.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(24.toPx(), 24.toPx())
+            setImageResource(R.drawable.selector_arrow_toggle)
+            contentDescription = "Toggle visibility"
+            isClickable = true
+            isFocusable = true
+        }
+
+        // --- 2. Question Text ---
+        val questionText = TextView(context).apply {
+            id = View.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                0, // MATCH_CONSTRAINT
+                ConstraintLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = 8.toPx()
+            }
+            text = question
+            textSize = 16f // 18sp size from XML
+            setTextColor(Color.parseColor("#313131"))
+            setTypeface(font) // Set custom font and bold style
+        }
+
+        // --- 3. Question Header Layout (ConstraintLayout) ---
+        // This container holds the Question and Arrow
+        val questionHeaderLayout = ConstraintLayout(context).apply {
+            id = View.generateViewId()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+
+            // Set up constraints for questionText
+            addView(questionText)
+            (questionText.layoutParams as ConstraintLayout.LayoutParams).apply {
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                endToStart = arrowToggle.id
+            }
+
+            // Set up constraints for arrowToggle
+            addView(arrowToggle)
+            (arrowToggle.layoutParams as ConstraintLayout.LayoutParams).apply {
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+        }
+
+        // --- 4. Answer Text (Hidden by Default) ---
+        val answerText = TextView(context).apply {
+            id = View.generateViewId()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = 10.toPx()
+            }
+            text = answer
+            textSize = 12f // Slightly smaller 16sp size for body text
+            setTextColor(Color.parseColor("#313131"))
+            setTypeface(font) // Set custom font and normal style
+
+            // KEY: Answer is hidden by default
+            visibility = View.GONE
+        }
+
+
+        // --- 5. Faq Layout (Outer Container) ---
         val faqLayout = LinearLayout(context).apply {
             id = View.generateViewId()
             layoutParams = LinearLayout.LayoutParams(
@@ -91,44 +216,32 @@ class Faq : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             background = ContextCompat.getDrawable(context, R.drawable.faq_bg)
             setPadding(16.toPx(), 16.toPx(), 16.toPx(), 16.toPx())
-            elevation = 4f
+
+            // Add the Question Header and the Answer
+            addView(questionHeaderLayout)
+            addView(answerText)
         }
 
-        val questionText = TextView(context).apply {
-            id = View.generateViewId()
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 8.toPx()
+        // --- 6. TOGGLE LOGIC (Interactivity) ---
+        // FIX: Attach listener only to the arrowToggle, not the whole header layout.
+        arrowToggle.setOnClickListener {
+            // Check current visibility state of the answer
+            if (answerText.visibility == View.VISIBLE) {
+                // Collapse: Hide answer, point arrow down
+                answerText.visibility = View.GONE
+                arrowToggle.isSelected = false // Switches to down arrow
+            } else {
+                // Expand: Show answer, point arrow up
+                answerText.visibility = View.VISIBLE
+                arrowToggle.isSelected = true // Switches to up arrow
             }
-            text = question
-            textSize = 18f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(Color.parseColor("#0E0E2C"))
         }
-        faqLayout.addView(questionText)
-
-        val answerText = TextView(context).apply {
-            id = View.generateViewId()
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 8.toPx()
-            }
-            text = answer
-            textSize = 18f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(Color.parseColor("#4A4A68"))
-        }
-        faqLayout.addView(answerText)
 
         return faqLayout
     }
 
     // ----------------------------------------------------------------------
-    // --- BASE ACTIVITY LOGIC ---
+    // --- BASE ACTIVITY LOGIC (PRESERVED AS REQUESTED) ---
     // ----------------------------------------------------------------------
 
     /**
@@ -144,7 +257,7 @@ class Faq : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 3. 💡 NEW: Notification Icon Click Listener (Uses the utility class)
+        // 3. 💡 Notification Icon Click Listener (PRESERVED)
         // This is where we call the reusable function
         notificationIcon.setOnClickListener {
             notificationManager.toggleNotificationDropdown(it as ImageView)
@@ -169,6 +282,7 @@ class Faq : AppCompatActivity() {
             }
         }
 
+        // FOOTER NAVIGATION LOGIC PRESERVED AS REQUESTED
         navHome.setOnClickListener { navigateTo(Homepage::class.java) }
         navVote.setOnClickListener { navigateTo(Vote::class.java) }
         navCandidates.setOnClickListener { navigateTo(Candidates::class.java) }

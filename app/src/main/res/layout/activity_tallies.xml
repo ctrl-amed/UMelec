@@ -5,8 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="#FAFCFE"
     tools:context=".Tallies">
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/HeaderLayout"
@@ -19,31 +20,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="back_button_content_description"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF"
+        <FrameLayout
+            android:id="@+id/Back_Button_Wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="back_button_content_description"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="#00537A" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/TallyTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Tallies"
-            android:textSize="25sp"
+            android:text="Live Tallies"
+            android:textSize="32sp"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#FAFCFE"
+            android:textColor="#313131"
+            android:gravity="center_horizontal"
+            android:maxLines="2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/Back_Button_Wrapper"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5" />
+            app:layout_constraintHorizontal_bias="0.5"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -64,11 +73,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Status text loading..."
-            android:textSize="15sp"
-            android:textColor="#FAFCFE"
+            android:textSize="12sp"
+            android:textColor="#313131"
             android:fontFamily="@font/poppins_regular"
             />
     </LinearLayout>
+
+    <!-- uses: list_item_candidate_tally and tallies_card_template-->
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/WhiteContainerScroll"
@@ -81,7 +92,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
-        android:backgroundTint="#0039A6">
+        android:backgroundTint="#FAFCFE">
+
 
         <LinearLayout
             android:id="@+id/registerContainer"
@@ -91,6 +103,57 @@
             android:layout_marginHorizontal="30dp"
             android:gravity="center_horizontal">
 
+            <!-- VoteTally (STATIC - NO LONGER REMOVED) -->
+            <LinearLayout
+                android:id="@+id/VoteTally"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_gradient_bg"
+                android:paddingHorizontal="30dp"
+                android:paddingVertical="15dp"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/votes_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total votes counted"
+                    android:textSize="20sp"
+                    android:textColor="#FFFFFF"
+                    android:fontFamily="@font/montserrat_bold"
+                    />
+
+                <TextView
+                    android:id="@+id/votes_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="votes"
+                    android:textSize="20sp"
+                    android:textColor="#FFFFFF"
+                    android:fontFamily="@font/montserrat_bold"
+                    />
+
+                <TextView
+                    android:id="@+id/downloadTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/download_link"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:fontFamily="@font/poppins_bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/button_press_animator"
+                    />
+
+
+            </LinearLayout>
+
+
+            <!-- TalliesCard (BOILERPLATE EXAMPLE - NO LONGER REMOVED, as requested)-->
+            <!-- I hid it instead cause its showing at the runtime -->
             <LinearLayout
                 android:id="@+id/TalliesCard"
                 android:layout_width="match_parent"
@@ -99,7 +162,8 @@
                 android:background="@drawable/rounded_gray_bg"
                 android:padding="16dp"
                 android:layout_marginBottom="20dp"
-                android:layout_gravity="center_horizontal">
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/position_title"
@@ -110,7 +174,8 @@
                     android:textColor="#0E0E2C"
                     android:fontFamily="@font/montserrat_bold"
                     android:layout_marginBottom="12dp"
-                    android:gravity="left"/>
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -297,6 +362,15 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- 🔥 NEW CONTAINER: This will hold the dynamically generated cards, so we can clear it safely. -->
+            <LinearLayout
+                android:id="@+id/dynamic_tallies_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"/>
+
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -414,7 +488,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_results"
                 android:contentDescription="Results"
-                app:tint="#0039A6" />
+                app:tint="#0098E0" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -422,7 +496,7 @@
                 android:text="  Results  "
                 android:textSize="12sp"
                 android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_text_bg"
+                android:background="@drawable/blue_rounded_button"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>

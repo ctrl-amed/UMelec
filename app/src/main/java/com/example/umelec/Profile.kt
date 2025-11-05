@@ -6,7 +6,12 @@ import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton // Required for the logout button
+import androidx.appcompat.widget.AppCompatButton
+import android.view.LayoutInflater
+import android.view.View
+import android.view.Gravity
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 
 class Profile : AppCompatActivity() {
 
@@ -17,7 +22,12 @@ class Profile : AppCompatActivity() {
     private lateinit var collegeValue: TextView
     private lateinit var statusValue: TextView
     private lateinit var btnBack: ImageButton
-    private lateinit var btnLogout: AppCompatButton // ⭐️ Added Logout Button ⭐️
+    private lateinit var btnLogout: AppCompatButton
+
+    // ⭐️ NEW: Declare TextViews for the new profile fields ⭐️
+    private lateinit var profileAcronym: TextView
+    private lateinit var moduleValue: TextView
+    private lateinit var genderValue: TextView // Using conventional Kotlin camelCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +56,11 @@ class Profile : AppCompatActivity() {
 
         // ⭐️ Initialize the Logout Button ⭐️
         btnLogout = findViewById(R.id.btnLogout)
+
+        // ⭐️ NEW: Initialize the new TextViews ⭐️
+        profileAcronym = findViewById(R.id.profileAcronym)
+        moduleValue = findViewById(R.id.moduleValue)
+        genderValue = findViewById(R.id.GenderValue) // Maps to R.id.GenderValue
     }
 
     private fun setupListeners() {
@@ -60,30 +75,100 @@ class Profile : AppCompatActivity() {
         }
     }
 
-    /**
-     * ⭐️ New Function: Displays the alert dialog for logout confirmation. ⭐️
-     */
-    private fun showLogoutConfirmationDialog() {
-        // Use AlertDialog.Builder to create the dialog
-        AlertDialog.Builder(this)
-            .setTitle("Log Out Confirmation")
-            .setMessage("Are you sure you want to log out of your account?")
-            // Set the "Log Out" action
-            .setPositiveButton("Log Out") { dialog, which ->
-                // User clicked the Log Out button
-                performLogout()
-            }
-            // Set the "Cancel" action
-            .setNegativeButton("Cancel") { dialog, which ->
-                // User clicked the Cancel button, just dismiss the dialog
-                dialog.dismiss()
-            }
-            .setIcon(android.R.drawable.ic_dialog_alert) // Optional: Add a simple warning icon
-            .show() // Display the dialog to the user
+    // ----------------------------------------------------------------------
+// NEW FUNCTION: Custom Success Toast
+// ----------------------------------------------------------------------
+    // In Profile.kt
+
+    private fun showCustomSuccessToast() {
+        val inflater = LayoutInflater.from(this)
+        // You should use the root view of the activity (e.g., findViewById<ViewGroup>(android.R.id.content))
+        // or just 'null' as the root argument when inflating a standalone layout for a Toast.
+        val layout = inflater.inflate(R.layout.custom_toast_success, null)
+
+        // Find and customize the views
+        val titleText: TextView = layout.findViewById(R.id.toast_title)
+        val valueText: TextView = layout.findViewById(R.id.toast_value)
+        val actionButton: AppCompatButton = layout.findViewById(R.id.btn_action)
+
+        // Set content and hide button as requested
+        titleText.text = "Logged out successfully."
+        valueText.text = "Goodbye!"
+        actionButton.visibility = View.GONE // Hide the button
+
+        // Create and show the Toast
+        with (Toast(applicationContext)) {
+            duration = Toast.LENGTH_SHORT
+
+            // 💡 CHANGE HERE: Use Gravity.BOTTOM and Gravity.CENTER_HORIZONTAL
+            // This allows the margins defined in your XML (layout_marginHorizontal="30dp")
+            // to control the spacing from the walls.
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
+
+            // We'll keep the yOffset at 100 to lift it up from the bottom edge.
+
+            view = layout
+            show()
+        }
     }
 
     /**
-     * ⭐️ New Function: Handles the actual logout process. ⭐️
+     * Displays the alert dialog for logout confirmation.
+     */
+    // ----------------------------------------------------------------------
+// REVISED DIALOG FUNCTION: Now calls the Toast before logging out
+// ----------------------------------------------------------------------
+    private fun showLogoutConfirmationDialog() {
+        // 1. Inflate the custom layout
+        val customView = LayoutInflater.from(this).inflate(R.layout.custom_toast_question, null)
+
+        // 2. Find and customize the views
+        val titleText: TextView = customView.findViewById(R.id.toast_title)
+        val valueText: TextView = customView.findViewById(R.id.toast_value)
+        val btnCancel: AppCompatButton = customView.findViewById(R.id.btn_action_primary)
+        val btnConfirm: AppCompatButton = customView.findViewById(R.id.btn_action_secondary)
+
+        // Set content and visibility
+        titleText.text = "Are you sure you want to logout?"
+        valueText.visibility = View.GONE
+
+        btnCancel.text = "Cancel"
+        btnConfirm.text = "Confirm"
+
+        // 3. Create the dialog with the custom view
+        val dialog = AlertDialog.Builder(this)
+            .setView(customView)
+            .setCancelable(true)
+            .create()
+
+        // Important: Remove the default dialog background to show the custom background
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // 4. Set button actions
+
+        // Primary Button: Cancel (Dismiss)
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Secondary Button: Confirm (Show Toast, Dismiss Dialog, and Logout)
+        btnConfirm.setOnClickListener {
+            // Step 1: Show the success toast
+            showCustomSuccessToast()
+
+            // Step 2: Dismiss the dialog
+            dialog.dismiss()
+
+            // Step 3: Perform the final logout and navigation
+            performLogout()
+        }
+
+        // 5. Show the dialog
+        dialog.show()
+    }
+
+    /**
+     * Handles the actual logout process.
      */
     private fun performLogout() {
         // 1. Clear user session/credentials (IMPORTANT for actual backend integration)
@@ -108,13 +193,17 @@ class Profile : AppCompatActivity() {
      * This function demonstrates how to set the text on your TextViews.
      */
     fun populateProfileData() {
-        // Example data structure (you'd replace this with your actual data source)
+        // Example data structure (updated to include new fields)
         val userProfile = mapOf(
             "email" to "user.new@example.com",
             "studentId" to "S98765432",
             "year" to "4th year",
-            "college" to "CITCS",
-            "status" to "Ineligible"
+            "college" to "College of Computing and Information Sciences (CCIS)",
+            "status" to "Ineligible",
+            // ⭐️ NEW PROFILE DATA ⭐️
+            "profileAcronym" to "UN",
+            "moduleValue" to "Voter",
+            "gender" to "Female"
         )
 
         // Set the text of each TextView using the retrieved data
@@ -123,5 +212,10 @@ class Profile : AppCompatActivity() {
         yearValue.text = userProfile["year"]
         collegeValue.text = userProfile["college"]
         statusValue.text = userProfile["status"]
+
+        // ⭐️ NEW: Set the text for the new TextViews ⭐️
+        profileAcronym.text = userProfile["profileAcronym"]
+        moduleValue.text = userProfile["moduleValue"]
+        genderValue.text = userProfile["gender"]
     }
 }

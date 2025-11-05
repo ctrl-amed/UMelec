@@ -3,46 +3,64 @@ package com.example.umelec
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.LayoutInflater
-// 💡 REQUIRED IMPORT ADDED HERE
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-// Assuming Notification2, Homepage, Vote, Candidates, Results, and Faq classes exist.
+import java.util.concurrent.TimeUnit
+import android.text.format.DateFormat
+import androidx.core.content.res.ResourcesCompat
+import android.graphics.Typeface
+import android.text.format.DateUtils
+import android.graphics.Color
+import android.content.Context
+import java.util.Date
 
-// ----------------------------------------------------------------------
-// --- DATA STRUCTURE FOR NOTIFICATIONS (Model) ---
-// ----------------------------------------------------------------------
-data class FullNotificationData(
-    val id: String, // Unique ID for navigation (e.g., to Notification2)
-    val title: String,
-    val previewText: String,
-    var isRead: Boolean // Important: Must be 'var' to allow state changes
-)
 
 class Notification : AppCompatActivity() {
 
-    // Variable to hold all notifications (Simulates your database/backend list)
-    private lateinit var allNotifications: MutableList<FullNotificationData>
+    // 💡 CHANGE: Reference the global mutable list from NotificationData.kt
+    private val allNotificationsData: MutableList<NotificationItem> = allNotifications
+
+    // NEW: Load the custom typeface once for efficiency
+    private val poppinsRegularTypeface: Typeface? by lazy {
+        try {
+            ResourcesCompat.getFont(this, R.font.poppins_regular)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    // NEW: Load the bold typeface for headers
+    private val montserratSemiBoldTypeface: Typeface? by lazy {
+        try {
+            ResourcesCompat.getFont(this, R.font.montserrat_semi_bold)
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notification)
 
-        // 1. Fetch initial data
-        allNotifications = fetchAllNotifications().toMutableList()
+        // 1. Setup header
+        setupBackNavigation()
 
-        // 2. Populate UI with cards and update the counter
+        // 2. Populate UI with cards
         populateNotifications()
 
-        // 3. Setup header and footer
-        setupBackNavigation()
-        setupFooterNavigation()
+        // 3. Apply font to static header text
+        applyFontsToStaticText()
     }
 
-    // ----------------------------------------------------------------------
-    // --- TOP NAVIGATION LOGIC (Back Button) ---
-    // ----------------------------------------------------------------------
+    // --- FONT APPLICATION ---
+
+    private fun applyFontsToStaticText() {
+        (findViewById<LinearLayout>(R.id.newContainer).getChildAt(0) as? TextView)?.typeface = montserratSemiBoldTypeface
+        (findViewById<LinearLayout>(R.id.olderContainer).getChildAt(0) as? TextView)?.typeface = montserratSemiBoldTypeface
+    }
+
+    // --- TOP NAVIGATION LOGIC ---
 
     private fun setupBackNavigation() {
         val backButton: ImageButton = findViewById(R.id.btnBack)
@@ -51,126 +69,210 @@ class Notification : AppCompatActivity() {
         }
     }
 
-    // ----------------------------------------------------------------------
-    // --- DATA FETCHING (Simulated, replace this with your actual DB/API call) ---
-    // ----------------------------------------------------------------------
+    // 💡 REMOVED: The local fetchAllNotifications function is no longer needed.
 
-    private fun fetchAllNotifications(): List<FullNotificationData> {
-        return listOf(
-            FullNotificationData(
-                id = "N001",
-                title = "Candidate Registration is Open!",
-                previewText = "The window for candidate registration is now officially open...",
-                isRead = true
-            ),
-            FullNotificationData(
-                id = "N002",
-                title = "New Message from Admin",
-                previewText = "Please check the updated guidelines regarding the campaigning rules...",
-                isRead = false
-            ),
-            FullNotificationData(
-                id = "N003",
-                title = "System Maintenance Alert",
-                previewText = "The system will undergo brief maintenance tonight from 1 AM to 3 AM...",
-                isRead = false
-            ),
-            FullNotificationData(
-                id = "N004",
-                title = "Voting Period Starts Soon!",
-                previewText = "Less than 24 hours left before the official voting period begins...",
-                isRead = true
-            )
-        )
-    }
-
-    // ----------------------------------------------------------------------
-    // --- DYNAMIC POPULATION AND COUNTER LOGIC ---
-    // ----------------------------------------------------------------------
+    // --- DYNAMIC POPULATION ---
 
     private fun populateNotifications() {
-        // 💡 CHANGE 1: Find the parent container
-        val notificationContainer: LinearLayout = findViewById(R.id.NotificationContainer)
-        notificationContainer.removeAllViews()
-        updateNotificationCounter()
+        val newContainer: LinearLayout = findViewById(R.id.newContainer)
+        val olderContainer: LinearLayout = findViewById(R.id.olderContainer)
 
-        allNotifications.forEach { notification ->
-            // 💡 CHANGE 2: Pass the parent container to the creation function
-            val cardView = createNotificationCard(notification, notificationContainer)
-            notificationContainer.addView(cardView)
+        // Clear existing dynamic views, but keep the header TextViews
+        val newHeader = newContainer.getChildAt(0)
+        val olderHeader = olderContainer.getChildAt(0)
+
+        newContainer.removeAllViews()
+        olderContainer.removeAllViews()
+
+        newContainer.addView(newHeader) // Add the "New" TextView back
+        olderContainer.addView(olderHeader) // Add the "Older" TextView back
+
+        val cutoffTime = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(24)
+
+        // Sort and filter using the centralized data list
+        val sortedNotifications = allNotificationsData.sortedByDescending { it.timestamp }
+        val newNotifications = sortedNotifications.filter { it.timestamp > cutoffTime }
+        val olderNotifications = sortedNotifications.filter { it.timestamp <= cutoffTime }
+
+        // 2. Populate "New" Section
+        if (newNotifications.isNotEmpty()) {
+            newContainer.visibility = View.VISIBLE
+            newNotifications.forEach { notification ->
+                val itemView = createNotificationItemView(notification)
+                newContainer.addView(itemView)
+
+                // Always add separator after every item in the New list
+                newContainer.addView(createSeparatorView(this))
+            }
+        } else {
+            newContainer.visibility = View.GONE
+        }
+
+        // 3. Populate "Older" Section
+        if (olderNotifications.isNotEmpty()) {
+            olderContainer.visibility = View.VISIBLE
+            olderNotifications.forEach { notification ->
+                val itemView = createNotificationItemView(notification)
+                olderContainer.addView(itemView)
+
+                // Always add separator after every item in the Older list
+                olderContainer.addView(createSeparatorView(this))
+            }
+        } else {
+            olderContainer.visibility = View.GONE
         }
     }
 
-    private fun updateNotificationCounter() {
-        val counterTextView: TextView? = findViewById(R.id.number)
-
-        counterTextView?.let { textView ->
-            val totalCount = allNotifications.size
-            val readCount = allNotifications.count { it.isRead }
-            textView.text = "$readCount/$totalCount"
-        }
-    }
+    // --- PROGRAMMATIC VIEW CREATION ---
 
     /**
-     * Programmatically inflates and configures a single notification card.
+     * Dynamically creates the view for a single notification item based on its read status and type.
      */
-    // 💡 CHANGE 3: Function now accepts the parent ViewGroup
-    private fun createNotificationCard(notification: FullNotificationData, parent: ViewGroup): View {
-        val inflater = LayoutInflater.from(this)
+    private fun createNotificationItemView(item: NotificationItem): View {
+        val context = this
+        val unreadIndicatorId = View.generateViewId()
 
-        // 💡 CHANGE 4: Use the 3-argument inflate method to honor layout_marginBottom
-        val cardView = inflater.inflate(R.layout.notification_card_item, parent, false)
-
-        val titleTextView: TextView = cardView.findViewById(R.id.notification_title)
-        val previewTextView: TextView = cardView.findViewById(R.id.notification_preview_text)
-
-        titleTextView.text = notification.title
-        previewTextView.text = notification.previewText
-
-        cardView.setBackgroundResource(
-            if (notification.isRead) R.drawable.notification_read_bg else R.drawable.notification_unread_bg
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
-        cardView.setOnClickListener { view ->
-            if (!notification.isRead) {
-                view.setBackgroundResource(R.drawable.notification_read_bg)
-
-                notification.isRead = true
-                updateNotificationCounter()
-
-                // ⚠️ Update backend here
-            }
-
-            val intent = Intent(this, Notification2::class.java).apply {
-                putExtra("NOTIFICATION_ID", notification.id)
-            }
-            startActivity(intent)
+        if (!item.isRead) {
+            val cornerRadiusMargin = 3.toPx()
+            lp.leftMargin = cornerRadiusMargin
+            lp.rightMargin = cornerRadiusMargin
         }
 
-        return cardView
+        val rootView = LinearLayout(context).apply {
+            id = View.generateViewId()
+            layoutParams = lp
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(16.toPx(), 8.toPx(), 16.toPx(), 8.toPx())
+
+            if (!item.isRead) {
+                setBackgroundColor(Color.parseColor("#ECF1F4"))
+            } else {
+                setBackgroundColor(Color.TRANSPARENT)
+            }
+
+            setOnClickListener { view ->
+                if (!item.isRead) {
+                    // Find the original item in the global list and update its state
+                    val globalItem = allNotificationsData.find { it.id == item.id }
+                    globalItem?.isRead = true
+
+                    // Update UI visually
+                    view.setBackgroundColor(Color.TRANSPARENT)
+                    val indicator = view.findViewById<ImageView>(unreadIndicatorId)
+                    indicator?.visibility = View.GONE
+
+                    // Force the list to redraw on resume to update the correct state (best practice with a mutable list)
+                    // If you return from Notification2.kt, the state will be updated.
+                }
+
+                // Navigate
+                val intent = Intent(context, Notification2::class.java)
+                intent.putExtra("NOTIFICATION_ID", item.id)
+                context.startActivity(intent)
+            }
+        }
+
+        val iconRes = when (item.type) {
+            NotificationType.REMINDER -> R.drawable.ic_notif_reminder
+            NotificationType.SUBMISSION -> R.drawable.ic_notif_submitted
+            NotificationType.GENERIC -> android.R.drawable.ic_menu_info_details
+        }
+
+        val icon = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(30.toPx(), 30.toPx()).apply {
+                marginEnd = 12.toPx()
+            }
+            setImageResource(iconRes)
+            setColorFilter(Color.parseColor("#4A4A68"))
+            contentDescription = "Notification type icon"
+        }
+        rootView.addView(icon)
+
+        val textContainer = LinearLayout(context).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
+            orientation = LinearLayout.VERTICAL
+        }
+        rootView.addView(textContainer)
+
+        val titleText = TextView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            text = item.title
+            textSize = 16f
+            setTypeface(poppinsRegularTypeface, Typeface.BOLD)
+            setTextColor(Color.parseColor("#4A4A68"))
+        }
+        textContainer.addView(titleText)
+
+        val previewText = TextView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            text = item.previewText
+            textSize = 12f
+            maxLines = 2
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            typeface = poppinsRegularTypeface
+            setTextColor(Color.parseColor("#8C8CA1"))
+        }
+        textContainer.addView(previewText)
+
+        val timeText = TextView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            text = formatNotificationTime(item.timestamp)
+            textSize = 10f
+            typeface = poppinsRegularTypeface
+            setTextColor(Color.parseColor("#8C8CA1"))
+        }
+        textContainer.addView(timeText)
+
+        if (!item.isRead) {
+            val unreadIndicator = ImageView(context).apply {
+                id = unreadIndicatorId
+                layoutParams = LinearLayout.LayoutParams(10.toPx(), 10.toPx()).apply {
+                    marginStart = 8.toPx()
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                }
+                setImageResource(R.drawable.ic_circle)
+                setColorFilter(Color.parseColor("#0098E0"))
+                contentDescription = "Unread Indicator"
+            }
+            rootView.addView(unreadIndicator)
+        }
+
+        return rootView
     }
 
-    // ----------------------------------------------------------------------
-    // --- FOOTER NAVIGATION LOGIC (No change needed) ---
-    // ----------------------------------------------------------------------
-
-    private fun setupFooterNavigation() {
-        val navHome: LinearLayout = findViewById(R.id.nav_home)
-        val navVote: LinearLayout = findViewById(R.id.nav_vote)
-        val navCandidates: LinearLayout = findViewById(R.id.nav_candidates)
-        val navResults: LinearLayout = findViewById(R.id.nav_results)
-        val navFaq: LinearLayout = findViewById(R.id.nav_faq)
-
-        val navigateTo = { activityClass: Class<*> ->
-            val intent = Intent(this, activityClass)
-            intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-            startActivity(intent)
+    private fun createSeparatorView(context: Context): View {
+        return View(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1.toPx() // 1dp height
+            )
+            setBackgroundColor(Color.parseColor("#4A4A68"))
         }
+    }
 
-        navHome.setOnClickListener { navigateTo(Homepage::class.java) }
-        navVote.setOnClickListener { navigateTo(Vote::class.java) }
-        navCandidates.setOnClickListener { navigateTo(Candidates::class.java) }
-        navResults.setOnClickListener { navigateTo(Results::class.java) }
-        navFaq.setOnClickListener { navigateTo(Faq::class.java) }
+
+    private fun formatNotificationTime(timestamp: Long): CharSequence {
+        val now = System.currentTimeMillis()
+        val difference = now - timestamp
+
+        if (difference < TimeUnit.DAYS.toMillis(1)) {
+            return DateUtils.getRelativeTimeSpanString(timestamp, now, DateUtils.MINUTE_IN_MILLIS)
+        } else {
+            return DateFormat.format("MMM dd, yyyy", timestamp)
+        }
+    }
+
+    private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()
+
+    // Add onResume to re-populate the list when returning from Notification2.kt
+    override fun onResume() {
+        super.onResume()
+        populateNotifications()
     }
 }

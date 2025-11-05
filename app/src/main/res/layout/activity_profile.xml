@@ -5,17 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
-    tools:context=".RegisterActivity">
+    android:background="#FAFCFE"
+    tools:context=".Profile">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/HeaderLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="130dp"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/blue_rounded_button"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -24,45 +25,64 @@
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@android:color/transparent"
+            android:background="@drawable/circle_white_background"
             android:contentDescription="back_button_content_description"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF"
+            app:tint="#0098E0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="-50dp"/>
 
         <TextView
             android:id="@+id/NameTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Profile"
-            android:textSize="25sp"
+            android:textSize="32sp"
             android:fontFamily="@font/montserrat_bold"
             android:textColor="#FAFCFE"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5" />
+            app:layout_constraintHorizontal_bias="0.5"
+            android:layout_marginTop="-50dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    ---
 
-    <!-- Header Content (Fixed at the top) -->
+    <LinearLayout
+        android:id="@+id/profileCircleContainer"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/circle_gradient_outline_background"
+        android:elevation="4dp"
+        app:layout_constraintStart_toStartOf="@+id/HeaderLayout"
+        app:layout_constraintEnd_toEndOf="@+id/HeaderLayout"
+        app:layout_constraintBottom_toBottomOf="@+id/HeaderLayout"
+        android:layout_marginBottom="-40dp">
 
-
-        <!-- 🔹 Back Arrow (now outside the white container) -->
-
-
+        <TextView
+        android:id="@+id/profileAcronym"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="JD"
+            android:textSize="32sp"
+        android:textColor="#313131"
+        android:fontFamily="@font/montserrat_bold"
+        tools:ignore="HardcodedText" />
+    </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/GreetingLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/HeaderLayout"
-
-            >
+            app:layout_constraintTop_toBottomOf="@id/HeaderLayout">
 
             <LinearLayout
                 android:id="@+id/greetingTextLayout"
@@ -74,26 +94,9 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                android:gravity="center_horizontal"
-                >
-
-
-                <ImageView
-                    android:id="@+id/ProfilePicture"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/profile"
-                    android:contentDescription="Candidate Photo"
-                    android:scaleType="centerCrop"/>
-
-
+                android:gravity="center_horizontal">
             </LinearLayout>
-
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
 
     <!-- 🔹 White Rounded Container for Registration -->
     <LinearLayout
@@ -102,12 +105,11 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         android:background="@drawable/rounded_white_bg"
-        android:padding="24dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="190dp"
         android:gravity="center_horizontal">
 
         <!-- Your registration form content goes here -->
@@ -119,35 +121,17 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:fontFamily="@font/montserrat_semi_bold"
-            android:textColor="#0E0E2C"
-            android:layout_marginBottom="10dp" />
+            android:textColor="#0E0E2C" />
 
         <!-- Email -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/rounded_gray_bg"
-            android:padding="16dp"
             android:layout_marginBottom="20dp"
             android:outlineProvider="bounds"
-            android:clipToPadding="false">
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Email: "
-                    android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppins_regular"/>
+            android:clipToPadding="false"
+            android:gravity="center_horizontal">
                 <TextView
                     android:id="@+id/EmailValue"
                     android:layout_width="wrap_content"
@@ -155,13 +139,22 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="jluna.a12345678@gmail.com"
-                    android:textColor="#333333"
+                    android:textColor="#313131"
                     android:textSize="16sp"
                     android:textStyle="normal"
                     android:fontFamily="@font/poppins_regular"/>
+            <TextView
+                android:id="@+id/moduleValue"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                android:text="module"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
 
-        </LinearLayout>
         <!-- END FIRST CONTENT CARD -->
 
         <!-- Student ID -->
@@ -169,39 +162,100 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/rounded_gray_bg"
-            android:padding="16dp"
-            android:layout_marginBottom="20dp"
+            android:background="@drawable/outline_for_profile"
+            android:paddingVertical="20dp"
+
             android:outlineProvider="bounds"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            android:layout_marginHorizontal="16dp">
 
-
-            <LinearLayout
+            <!-- Switch to ConstraintLayout for precise left/right alignment -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                >
+                android:layout_height="wrap_content">
+
+                <!-- Label: Constrained to the start (left) -->
                 <TextView
+                    android:id="@+id/StudentIDLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Student ID: "
+                    android:text="Student ID:"
                     android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppins_regular"/>
+                    android:textColor="#313131"
+                    android:fontFamily="@font/poppins_regular"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <!-- Value: Constrained to the end (right) -->
                 <TextView
                     android:id="@+id/StudentIDValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="A12345678"
-                    android:textColor="#333333"
+                    android:textColor="#313131"
                     android:textSize="16sp"
                     android:textStyle="normal"
-                    android:fontFamily="@font/poppins_regular"/>
-            </LinearLayout>
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="end"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/StudentIDLabel"
+                    android:layout_marginStart="8dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+        <!-- END FIRST CONTENT CARD -->
+
+        <!-- Gender -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/outline_for_profile"
+            android:paddingVertical="20dp"
+            android:outlineProvider="bounds"
+            android:clipToPadding="false"
+            android:layout_marginHorizontal="16dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/GenderLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gender:"
+                    android:textSize="16sp"
+                    android:textColor="#313131"
+                    android:fontFamily="@font/poppins_regular"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <TextView
+                    android:id="@+id/GenderValue"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Female"
+                    android:textColor="#313131"
+                    android:textSize="16sp"
+                    android:textStyle="normal"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="end"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/GenderLabel"
+                    android:layout_marginStart="8dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
         <!-- END FIRST CONTENT CARD -->
@@ -211,39 +265,46 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/rounded_gray_bg"
-            android:padding="16dp"
-            android:layout_marginBottom="20dp"
+            android:background="@drawable/outline_for_profile"
+            android:paddingVertical="20dp"
             android:outlineProvider="bounds"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            android:layout_marginHorizontal="16dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/YearLabel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Year: "
-                    android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppins_regular"/>
-                <TextView
-                    android:id="@+id/YearValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="3rd year"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="normal"
-                    android:fontFamily="@font/poppins_regular"/>
-            </LinearLayout>
+                android:text="Year: "
+                android:textSize="16sp"
+                android:textColor="#313131"
+                android:fontFamily="@font/poppins_regular"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/YearValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="3rd year"
+                android:textColor="#313131"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/YearLabel"
+                android:layout_marginStart="8dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
         <!-- END FIRST CONTENT CARD -->
@@ -253,84 +314,149 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/rounded_gray_bg"
-            android:padding="16dp"
-            android:layout_marginBottom="20dp"
+            android:background="@drawable/outline_for_profile"
+            android:paddingVertical="20dp"
             android:outlineProvider="bounds"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            android:layout_marginHorizontal="16dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/CollegeLabel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="College: "
-                    android:textSize="16sp"
-                    android:textColor="#666666"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppins_regular"/>
-                <TextView
-                    android:id="@+id/CollegeValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="CCIS"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="normal"
-                    android:fontFamily="@font/poppins_regular"/>
-            </LinearLayout>
+                android:text="College: "
+                android:textSize="16sp"
+                android:textColor="#313131"
+                android:fontFamily="@font/poppins_regular"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/CollegeValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:text="College of Computing and Information Sciences (CCIS)"
+                android:textColor="#313131"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/CollegeLabel"
+                android:layout_marginStart="8dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
         <!-- END FIRST CONTENT CARD -->
 
-        <!-- Year -->
+        <!-- Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/rounded_gray_bg"
-            android:padding="16dp"
-            android:layout_marginBottom="20dp"
+            android:background="@drawable/outline_for_profile"
+            android:paddingVertical="20dp"
             android:outlineProvider="bounds"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            android:layout_marginHorizontal="16dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/StatusLabel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                >
+                android:text="Election Status: "
+                android:textSize="16sp"
+                android:textColor="#313131"
+                android:fontFamily="@font/poppins_regular"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/statusValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Eligible"
+                android:textColor="#313131"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/StatusLabel"
+                android:layout_marginStart="8dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <!-- SPACE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/outline_for_profile" android:paddingVertical="20dp"
+            android:outlineProvider="bounds"
+            android:clipToPadding="false"
+            android:layout_marginHorizontal="16dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
                 <TextView
+                    android:id="@+id/SpaceLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Status: "
-                    android:textSize="16sp"
+                    android:text="Election Status: "
+                    android:textSize="1sp"
                     android:textColor="#666666"
                     android:textStyle="bold"
-                    android:fontFamily="@font/poppins_regular"/>
+                    android:fontFamily="@font/poppins_regular"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:visibility="gone"/>
+
                 <TextView
-                    android:id="@+id/statusValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:id="@+id/SpaceValue"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="Eligible"
                     android:textColor="#333333"
-                    android:textSize="16sp"
+                    android:textSize="1sp"
                     android:textStyle="normal"
-                    android:fontFamily="@font/poppins_regular"/>
-            </LinearLayout>
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="end"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/SpaceLabel"
+                    android:layout_marginStart="8dp"
+                    android:visibility="gone"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
+        <!-- END FIRST CONTENT CARD -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
@@ -342,16 +468,9 @@
             android:background="@drawable/blue_rounded_button"
             android:textAllCaps="false"
             android:fontFamily="@font/montserrat_bold"
+            android:layout_marginHorizontal="50dp"
             />
-        <!-- END FIRST CONTENT CARD -->
-
-
-
-
-
-
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 

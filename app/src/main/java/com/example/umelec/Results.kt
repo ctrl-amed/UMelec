@@ -2,96 +2,260 @@ package com.example.umelec
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.constraintlayout.widget.ConstraintLayout
+import java.util.concurrent.TimeUnit
+import java.util.Calendar
 
 // ⭐️ Data class for the leading candidate carousel content
 data class LeadingCandidate(
     val position: String,
     val name: String,
     val votes: Int,
-    val profileResId: Int // Resource ID for the drawable/image
+    val profileResId: Int // Resource ID for the drawable/image (e.g., R.drawable.ic_profile)
 )
 
 // ⭐️ Enum to manage the state of the results card
-enum class ResultCardState { ONGOING, NO_ELECTION, ENDED }
+enum class ResultCardState { UPCOMING, ONGOING, NO_ELECTION, ENDED }
 
 class Results : AppCompatActivity() {
 
-    // 1. 💡 NEW: Declare the reusable NotificationManager
     private lateinit var notificationManager: NotificationManager
+    private var countDownTimer: CountDownTimer? = null
+    private var candidateItemWidth = 0
+    private var currentCandidateIndex = 0
 
-    // NOTE: Removed old local 'notifications' list and 'isNotificationDropdownVisible'
-
-    // ⭐️ Simulated data for leading candidates
+    // ⭐️ Simulated data for leading candidates (used in ONGOING phase)
     private val leadingCandidates = listOf(
         LeadingCandidate(
             position = "Chairperson",
-            name = "Mark Tan The Candidate With A Very Long Name", // Long name test
+            name = "Mark Tan",
             votes = 2540,
-            profileResId = R.drawable.profile // Use your placeholder image resource
+            profileResId = R.drawable.ic_profile // Use your placeholder image resource
         ),
         LeadingCandidate(
             position = "Treasurer",
             name = "Sarah Lee",
             votes = 1800,
-            profileResId = R.drawable.profile // Use your placeholder image resource
+            profileResId = R.drawable.ic_profile // Use your placeholder image resource
         ),
         LeadingCandidate(
-            position = "Public Relations Officer",
+            position = "PRO",
             name = "Alex Stone",
             votes = 1500,
-            profileResId = R.drawable.profile // Use your placeholder image resource
+            profileResId = R.drawable.ic_profile // Use your placeholder image resource
         )
     )
-    // ⭐️ Index tracks the current candidate being displayed
-    private var currentCandidateIndex = 0
+
+    // ⭐️ Mock data for Receipt Verification (ENDED phase)
+    private val FAKE_RECEIPT_DATA = mapOf(
+        "test@example.com" to "0x12345678",
+        "user@umelec.edu" to "0xABCDEF01"
+    )
+
+    // ⭐️ Fake Future Dates for Countdown demonstration
+    private val UPCOMING_START_TIME_MS: Long
+    private val ONGOING_END_TIME_MS: Long
 
     // ⭐️ CHANGE THIS VALUE to test the different card messages:
     private var resultCardState = ResultCardState.ENDED
 
 
+    init {
+        // Calculate demonstration dates immediately
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, 5) // 5 days for UPCOMING phase
+        UPCOMING_START_TIME_MS = calendar.timeInMillis
+
+        val calendar2 = Calendar.getInstance()
+        calendar2.add(Calendar.MINUTE, 10) // 10 minutes for ONGOING phase
+        ONGOING_END_TIME_MS = calendar2.timeInMillis
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_results)
 
-        // 2. 💡 NEW: Initialize the NotificationManager
         notificationManager = NotificationManager(this)
 
         setupHeaderIcons()
         setupFooterNavigation()
 
-        setupAllResultsCards()
+        updateUIForPhase(resultCardState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        countDownTimer?.cancel()
     }
 
     // ----------------------------------------------------------------------
-    // --- RESULTS CARD LOGIC ---
+    // --- UTILITY ---
     // ----------------------------------------------------------------------
 
-    /**
-     * **UPDATED:** Now inflates the reusable XML layout (leading_candidate_card.xml)
-     * and sets the data on the child views.
-     */
+    private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()
+
+    // ----------------------------------------------------------------------
+    // --- MAIN PHASE LOGIC ---
+    // ----------------------------------------------------------------------
+
+    private fun updateUIForPhase(state: ResultCardState) {
+        val timeCard: ConstraintLayout = findViewById(R.id.TimeCard)
+        val candidatesPreviewCard: LinearLayout = findViewById(R.id.CandidatesPreviewCard)
+        val talliesCard: LinearLayout = findViewById(R.id.TalliesCard)
+        val resultsCard: LinearLayout = findViewById(R.id.ResultsCard)
+        val receiptCard: LinearLayout = findViewById(R.id.ReceiptCard)
+
+        timeCard.visibility = View.GONE
+        candidatesPreviewCard.visibility = View.GONE
+        talliesCard.visibility = View.GONE
+        resultsCard.visibility = View.GONE
+        receiptCard.visibility = View.GONE
+
+        countDownTimer?.cancel()
+
+
+        when (state) {
+            ResultCardState.UPCOMING -> {
+                timeCard.visibility = View.VISIBLE
+                findViewById<TextView>(R.id.TimeTitle).text = "Next election starts in"
+                setupCountdown(UPCOMING_START_TIME_MS)
+            }
+            ResultCardState.ONGOING -> {
+                timeCard.visibility = View.VISIBLE
+                candidatesPreviewCard.visibility = View.VISIBLE
+                talliesCard.visibility = View.VISIBLE
+
+                findViewById<TextView>(R.id.TimeTitle).text = "Remaining time for the election"
+                setupCountdown(ONGOING_END_TIME_MS)
+                setupCandidatesPreviewCard()
+                setupTalliesCard(isFinal = false)
+            }
+            ResultCardState.ENDED -> {
+                timeCard.visibility = View.VISIBLE
+                talliesCard.visibility = View.VISIBLE
+                resultsCard.visibility = View.VISIBLE
+                receiptCard.visibility = View.VISIBLE
+
+                findViewById<TextView>(R.id.TimeTitle).text = "Election has ended"
+                updateTimerDisplay(0)
+
+                setupTalliesCard(isFinal = true)
+                setupResultsCard()
+                setupReceiptCard()
+            }
+            ResultCardState.NO_ELECTION -> {
+                timeCard.visibility = View.VISIBLE
+                findViewById<TextView>(R.id.TimeTitle).text = "No election data available."
+                updateTimerDisplay(0)
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // --- COUNTDOWN TIMER LOGIC ---
+    // ----------------------------------------------------------------------
+
+    private fun setupCountdown(futureTimeMs: Long) {
+        countDownTimer?.cancel()
+        val timeRemaining = futureTimeMs - System.currentTimeMillis()
+
+        if (timeRemaining <= 0) {
+            updateTimerDisplay(0)
+            return
+        }
+        // ... (CountDownTimer implementation remains the same) ...
+        countDownTimer = object : CountDownTimer(timeRemaining, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                updateTimerDisplay(millisUntilFinished)
+            }
+
+            override fun onFinish() {
+                updateTimerDisplay(0)
+                if (resultCardState == ResultCardState.UPCOMING) {
+                    resultCardState = ResultCardState.ONGOING
+                    updateUIForPhase(resultCardState)
+                    Toast.makeText(this@Results, "The election is now ONGOING!", Toast.LENGTH_LONG).show()
+                } else if (resultCardState == ResultCardState.ONGOING) {
+                    resultCardState = ResultCardState.ENDED
+                    updateUIForPhase(resultCardState)
+                    Toast.makeText(this@Results, "The election has ENDED!", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun updateTimerDisplay(millis: Long) {
+        val days = TimeUnit.MILLISECONDS.toDays(millis)
+        val hours = TimeUnit.MILLISECONDS.toHours(millis) % 24
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) % 60
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) % 60
+
+        findViewById<TextView>(R.id.tvDaysValue).text = String.format("%02d", days)
+        findViewById<TextView>(R.id.tvHoursValue).text = String.format("%02d", hours)
+        findViewById<TextView>(R.id.tvMinutesValue).text = String.format("%02d", minutes)
+        findViewById<TextView>(R.id.tvSecondsValue).text = String.format("%02d", seconds)
+    }
+
+    // ----------------------------------------------------------------------
+    // --- ONGOING PHASE CARD LOGIC ---
+    // ----------------------------------------------------------------------
+
+    private fun setupCandidatesPreviewCard() {
+        val container: LinearLayout = findViewById(R.id.candidateListContainer)
+        val cardLayout: LinearLayout = findViewById(R.id.CandidatesPreviewCard)
+
+        cardLayout.post {
+            val viewWidth = cardLayout.width
+            val btnPrev: ImageButton = findViewById(R.id.btnPrevCandidate)
+            val btnNext: ImageButton = findViewById(R.id.btnNextCandidate)
+
+            val arrowWidth = btnPrev.width + btnNext.width + (8.toPx() * 2)
+
+            candidateItemWidth = ((viewWidth - arrowWidth) / 2).coerceAtLeast(180.toPx())
+
+            container.removeAllViews()
+
+            leadingCandidates.forEach { candidate ->
+                container.addView(createLeadingCandidateView(candidate))
+            }
+
+            setupCandidateScrollControls()
+        }
+    }
+
     private fun createLeadingCandidateView(candidate: LeadingCandidate): View {
-        // Inflate the reusable layout for a single candidate card
         val cardView = LayoutInflater.from(this).inflate(
             R.layout.leading_candidate_card,
-            null,
+            findViewById<ViewGroup>(R.id.candidateListContainer),
             false
         ) as LinearLayout
 
-        // 1. Get references to the views
-        // Note: ImageView is used here, but the underlying XML tag is CircleImageView
-        val profilePic = cardView.findViewById<ImageView>(R.id.candidateProfilePicture)
-        val nameText = cardView.findViewById<TextView>(R.id.candidateNameTextView)
-        val positionText = cardView.findViewById<TextView>(R.id.candidatePositionTextView)
-        val voteCountText = cardView.findViewById<TextView>(R.id.candidateVotesTextView)
+        cardView.layoutParams = LinearLayout.LayoutParams(
+            candidateItemWidth.coerceAtLeast(180.toPx()),
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            rightMargin = 4.toPx()
+            leftMargin = 4.toPx()
+        }
 
-        // 2. Set data
+        val profilePic = cardView.findViewById<ImageView>(R.id.candidatePhoto)
+        val nameText = cardView.findViewById<TextView>(R.id.candidateName)
+        val positionText = cardView.findViewById<TextView>(R.id.candidatePosition)
+        val voteCountText = cardView.findViewById<TextView>(R.id.candidateVotecount)
+
         profilePic.setImageResource(candidate.profileResId)
         nameText.text = candidate.name
         positionText.text = candidate.position
@@ -102,157 +266,197 @@ class Results : AppCompatActivity() {
         return cardView
     }
 
-    /**
-     * Updates the candidate display area to show the single candidate at the current index.
-     */
-    private fun updateLeadingCandidateDisplay() {
-        // ID for the container inside the HorizontalScrollView
-        val container = findViewById<LinearLayout>(R.id.candidateDisplayArea)
-        val btnPrev = findViewById<ImageButton>(R.id.btnPrevCandidate)
-        val btnNext = findViewById<ImageButton>(R.id.btnNextCandidate)
+    private fun setupCandidateScrollControls() {
+        val scrollView: HorizontalScrollView = findViewById(R.id.candidateScrollView)
+        val btnPrev: ImageButton = findViewById(R.id.btnPrevCandidate)
+        val btnNext: ImageButton = findViewById(R.id.btnNextCandidate)
 
-        container?.removeAllViews()
-
-        if (leadingCandidates.isEmpty()) return
-
-        // Display the single candidate at the current index
-        val candidate = leadingCandidates[currentCandidateIndex]
-        container?.addView(createLeadingCandidateView(candidate))
-
-        // Arrows are visible if there is more than one candidate
         val shouldShowArrows = leadingCandidates.size > 1
-        btnPrev?.visibility = if (shouldShowArrows) View.VISIBLE else View.INVISIBLE
-        btnNext?.visibility = if (shouldShowArrows) View.VISIBLE else View.INVISIBLE
-    }
+        btnPrev.visibility = if (shouldShowArrows) View.VISIBLE else View.INVISIBLE
+        btnNext.visibility = if (shouldShowArrows) View.VISIBLE else View.INVISIBLE
 
-    /**
-     * Manages the visibility of the messages or the carousel for the Leading Candidates Card.
-     */
-    private fun setupLeadingCandidatesCard() {
-        val messageContainer = findViewById<LinearLayout>(R.id.leadingCandidatesMessageContainer)
-        val noDataText = findViewById<TextView>(R.id.noElectionDataTextView)
-        val endedText = findViewById<TextView>(R.id.electionEndedTextView)
-        // CORRECTED ID: using leadingCandidatesCarouselContainer from your XML
-        val controlsContainer = findViewById<LinearLayout>(R.id.leadingCandidatesCarouselContainer)
-        val btnPrev = findViewById<ImageButton>(R.id.btnPrevCandidate)
-        val btnNext = findViewById<ImageButton>(R.id.btnNextCandidate)
-
-        when (resultCardState) {
-            ResultCardState.NO_ELECTION, ResultCardState.ENDED -> {
-                messageContainer?.visibility = View.VISIBLE
-                noDataText?.visibility = if (resultCardState == ResultCardState.NO_ELECTION) View.VISIBLE else View.GONE
-                endedText?.visibility = if (resultCardState == ResultCardState.ENDED) View.VISIBLE else View.GONE
-                controlsContainer?.visibility = View.GONE
+        btnPrev.setOnClickListener {
+            if (candidateItemWidth > 0) {
+                scrollView.smoothScrollBy(-candidateItemWidth, 0)
             }
-            ResultCardState.ONGOING -> {
-                if (leadingCandidates.isEmpty()) {
-                    messageContainer?.visibility = View.VISIBLE
-                    noDataText?.visibility = View.VISIBLE
-                    endedText?.visibility = View.GONE
-                    controlsContainer?.visibility = View.GONE
-                    return
-                }
+        }
 
-                messageContainer?.visibility = View.GONE
-                controlsContainer?.visibility = View.VISIBLE
-
-                updateLeadingCandidateDisplay()
-
-                // Re-implemented manual rotation logic
-                btnPrev?.setOnClickListener {
-                    currentCandidateIndex = (currentCandidateIndex - 1 + leadingCandidates.size) % leadingCandidates.size
-                    updateLeadingCandidateDisplay()
-                }
-
-                btnNext?.setOnClickListener {
-                    currentCandidateIndex = (currentCandidateIndex + 1) % leadingCandidates.size
-                    updateLeadingCandidateDisplay()
-                }
+        btnNext.setOnClickListener {
+            if (candidateItemWidth > 0) {
+                scrollView.smoothScrollBy(candidateItemWidth, 0)
             }
         }
     }
 
-    /**
-     * Manages the Tallies Card and the Official Results Card based on the election state,
-     * adding Intent navigation for the buttons.
-     */
-    private fun updateTalliesAndOfficialResultsCards() {
-        // TALLIES CARD ELEMENTS: Use AppCompatButton
+
+    // ----------------------------------------------------------------------
+    // --- TALLIES & RESULTS CARD LOGIC ---
+    // ----------------------------------------------------------------------
+
+    private fun setupTalliesCard(isFinal: Boolean) {
         val talliesTitle = findViewById<TextView>(R.id.talliesCardTitle)
         val talliesMessage = findViewById<TextView>(R.id.talliesCardMessage)
-        val talliesButton = findViewById<AppCompatButton>(R.id.btnViewTallies)
+        val btnTally = findViewById<AppCompatButton>(R.id.btnTally)
 
-        // OFFICIAL RESULTS CARD ELEMENTS: Use AppCompatButton
-        val officialMessage = findViewById<TextView>(R.id.officialResultsCardMessage)
-        val officialButton = findViewById<AppCompatButton>(R.id.btnViewOfficialResult)
-
-        when (resultCardState) {
-            ResultCardState.NO_ELECTION -> {
-                // TALLIES CARD
-                talliesTitle?.text = "Tallies"
-                talliesMessage?.text = "No election data available."
-                talliesButton?.visibility = View.GONE
-
-                // OFFICIAL RESULTS CARD
-                officialMessage?.text = "No Election data available."
-                officialButton?.isEnabled = false
-            }
-            ResultCardState.ONGOING -> {
-                // TALLIES CARD
-                talliesTitle?.text = "Live Tallies"
-                talliesMessage?.text = "Live tallies are available."
-                talliesButton?.text = "View Live Tally"
-                talliesButton?.visibility = View.VISIBLE
-                talliesButton?.isEnabled = true
-
-                // OFFICIAL RESULTS CARD
-                officialMessage?.text = "Election is still ongoing."
-                officialButton?.text = "View Result"
-                officialButton?.isEnabled = false
-            }
-            ResultCardState.ENDED -> {
-                // TALLIES CARD
-                talliesTitle?.text = "Final Tallies"
-                talliesMessage?.text = "Live tallies have been finalized."
-                talliesButton?.text = "View Final Tallies"
-                talliesButton?.visibility = View.VISIBLE
-                talliesButton?.isEnabled = true
-
-                // OFFICIAL RESULTS CARD
-                officialMessage?.text = "The official and verified results are now available."
-                officialButton?.text = "View Result"
-                officialButton?.isEnabled = true
-            }
+        if (isFinal) {
+            talliesTitle.text = "Final Tallies"
+            talliesMessage.text = "Live tallies have been finalized."
+            btnTally.text = "View Final Tallies"
+        } else {
+            talliesTitle.text = "Live Tallies"
+            talliesMessage.text = "Live tallies are available."
+            btnTally.text = "View Live Tally"
         }
 
-        // Set up button click listeners for navigation
-        talliesButton?.setOnClickListener {
-            // Ensure you have a Tallies.kt activity defined
+        btnTally.setOnClickListener {
             val intent = Intent(this, Tallies::class.java)
             startActivity(intent)
         }
-        officialButton?.setOnClickListener {
-            // Ensure you have an OfficialResults.kt activity defined
+    }
+
+    private fun setupResultsCard() {
+        val btnResult = findViewById<AppCompatButton>(R.id.btnResult)
+
+        btnResult.setOnClickListener {
             val intent = Intent(this, OfficialResults::class.java)
             startActivity(intent)
         }
     }
 
+    // ----------------------------------------------------------------------
+    // --- RECEIPT CARD LOGIC (ENDED) ---
+    // ----------------------------------------------------------------------
+
     /**
-     * Initializes all result cards by delegating setup based on the current state.
+     * Helper to clear the receipt input fields.
      */
-    private fun setupAllResultsCards() {
-        setupLeadingCandidatesCard()
-        updateTalliesAndOfficialResultsCards()
+    private fun clearReceiptFields() {
+        findViewById<EditText>(R.id.inputEmail).text.clear()
+        findViewById<EditText>(R.id.inputSignatureSnippet).text.clear()
+    }
+
+    /**
+     * Custom dialog for successful verification.
+     */
+    private fun showReceiptSuccessDialog() {
+        val layoutInflater = LayoutInflater.from(this)
+        // ⭐️ Assumes you have R.layout.custom_toast_success
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        // ⭐️ Updated content for verification success
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Verified!"
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Ballot included in final count."
+
+        val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
+        btnAction.text = "Ok"
+        btnAction.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    /**
+     * Custom dialog for verification failure (no match).
+     */
+    private fun showReceiptFailureDialog() {
+        val layoutInflater = LayoutInflater.from(this)
+        // ⭐️ Assumes you have R.layout.custom_toast_error
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_error, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        // ⭐️ Updated content for no match failure
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "No Match Found."
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Check codes or contact COSEL."
+
+        // Use the close button to dismiss and clear fields
+        dialogView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
+            dialog.dismiss()
+            clearReceiptFields()
+        }
+
+        // NOTE: References to otpLayouts and red border logic are removed as they are specific
+        // to an OTP input layout not available here.
+
+        dialog.show()
+    }
+
+    /**
+     * Sets up the receipt card logic, now using custom AlertDialogs.
+     */
+    private fun setupReceiptCard() {
+        val inputEmail: EditText = findViewById(R.id.inputEmail)
+        val inputSignatureSnippet: EditText = findViewById(R.id.inputSignatureSnippet)
+        val btnSearch: AppCompatButton = findViewById(R.id.btnSearch)
+        val codeContainer: LinearLayout = findViewById(R.id.Code)
+        val signatureSnippetContainer: LinearLayout = findViewById(R.id.SignatureSnippet)
+
+        codeContainer.visibility = View.GONE
+        signatureSnippetContainer.visibility = View.GONE
+
+        fun areInputsEmpty(): Boolean {
+            return inputEmail.text.isNullOrBlank() && inputSignatureSnippet.text.isNullOrBlank()
+        }
+
+        val textWatcher = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (!areInputsEmpty()) {
+                    codeContainer.visibility = View.GONE
+                    signatureSnippetContainer.visibility = View.GONE
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }
+
+        inputEmail.addTextChangedListener(textWatcher)
+        inputSignatureSnippet.addTextChangedListener(textWatcher)
+
+        // Search Button Logic (Updated to use Dialogs)
+        btnSearch.setOnClickListener {
+            val email = inputEmail.text.toString().trim()
+            val signatureSnippet = inputSignatureSnippet.text.toString().trim()
+
+            if (email.isEmpty() && signatureSnippet.isEmpty()) {
+                // Keep as Toast for quick input prompt
+                codeContainer.visibility = View.VISIBLE
+                signatureSnippetContainer.visibility = View.VISIBLE
+                Toast.makeText(this, "Please enter verification details.", Toast.LENGTH_SHORT).show()
+
+            } else if (email.isNotEmpty() && signatureSnippet.isNotEmpty()) {
+                // Use Dialogs for critical verification results
+                if (FAKE_RECEIPT_DATA[email] == signatureSnippet) {
+                    showReceiptSuccessDialog()
+                } else {
+                    showReceiptFailureDialog()
+                }
+
+            } else {
+                // Keep as Toast for quick input prompt
+                Toast.makeText(this, "Please fill both Email and Signature fields for verification.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // ----------------------------------------------------------------------
     // --- EXISTING LOGIC (HEADER, FOOTER) ---
     // ----------------------------------------------------------------------
 
-    /**
-     * Initializes header elements: Profile Icon and Notification Icon.
-     */
     private fun setupHeaderIcons() {
         val profileIcon: ImageView? = findViewById(R.id.profileIcon)
         val notificationIcon: ImageView? = findViewById(R.id.notificationIcon)
@@ -262,18 +466,15 @@ class Results : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 3. 💡 NEW: Notification Icon Click Listener (Uses the utility class)
         notificationIcon?.setOnClickListener {
             if (it is ImageView) {
-                // Call the reusable NotificationManager to toggle the dropdown
-                notificationManager.toggleNotificationDropdown(it)
+                if (::notificationManager.isInitialized) {
+                    notificationManager.toggleNotificationDropdown(it)
+                }
             }
         }
     }
 
-    /**
-     * Sets up click listeners for all elements in the footer navigation bar.
-     */
     private fun setupFooterNavigation() {
         val navHome: LinearLayout? = findViewById(R.id.nav_home)
         val navVote: LinearLayout? = findViewById(R.id.nav_vote)
@@ -295,10 +496,4 @@ class Results : AppCompatActivity() {
         navResults?.setOnClickListener { /* Already here, do nothing */ }
         navFaq?.setOnClickListener { navigateTo(Faq::class.java) }
     }
-
-    // NOTE: The old local notification methods (toggleNotificationDropdown and showNotificationDropdown)
-    // have been successfully removed as their functionality is now handled by the imported NotificationManager.
-
-    // NOTE: The toPx extension function is no longer needed in Results.kt
-    // because the removed notification methods were the only ones using it.
 }

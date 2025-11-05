@@ -1,6 +1,8 @@
 package com.example.umelec
 
+import android.animation.AnimatorInflater // 🔥 NEW: Import for AnimatorInflater
 import android.content.Intent
+import android.os.Build // 🔥 NEW: Import for Build class
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,9 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ColorDrawable
 
 // --- DATA STRUCTURE FOR CANDIDATES ---
 data class CandidateItem(
@@ -21,7 +20,7 @@ data class CandidateItem(
     val name: String,
     val position: String,
     val courseInfo: String,
-    val previewText: String,
+    // val previewText: String, // COMMENTED OUT: Removed the preview text field
     val profilePictureResource: Int // Use R.drawable.your_image
 )
 
@@ -48,7 +47,7 @@ class Position : AppCompatActivity() {
         // 4. Populate the candidate cards dynamically (FIXED)
         populateCandidates()
 
-        // 5. Setup the compare button logic (CRASH-PROOF)
+        // 5. Setup the compare button logic (FIXED: Removed custom animator)
         setupCompareButton()
 
         // 6. Setup the persistent footer navigation
@@ -93,7 +92,7 @@ class Position : AppCompatActivity() {
 
 
     // ----------------------------------------------------------------------
-    // --- COMPARE BUTTON LOGIC ---
+    // --- COMPARE BUTTON LOGIC (REVISED) ---
     // ----------------------------------------------------------------------
 
     /**
@@ -105,32 +104,24 @@ class Position : AppCompatActivity() {
 
         // Only proceed if the button exists
         compareButton?.setOnClickListener {
-            // Apply the color change animation and then show the dialog
-            animateClickFeedback(
-                view = it,
-                originalBgResource = R.drawable.blue_rounded_button,
-                navigationAction = {
-                    showCompareBottomSheet()
-                }
-            )
+            // REVISION: Removed the call to animateClickFeedback, now calls action directly.
+            showCompareBottomSheet()
         }
     }
-
-    // ... (All other functions remain the same as the previous, crash-proof version)
 
     // ----------------------------------------------------------------------
     // --- DATA FETCHING (SIMULATED) ---
     // ----------------------------------------------------------------------
 
     private fun getCandidatesForPosition(positionName: String): List<CandidateItem> {
-        val profileResId = R.drawable.profile // Use a valid resource ID
+        val profileResId = R.drawable.ic_launcher_background // Use a valid resource ID
         return listOf(
             CandidateItem(
                 candidateId = "JANE_D",
                 name = "Jane Doe",
                 position = positionName,
                 courseInfo = "III - CCIS",
-                previewText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+                // previewText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit...", // COMMENTED OUT
                 profilePictureResource = profileResId
             ),
             CandidateItem(
@@ -138,7 +129,7 @@ class Position : AppCompatActivity() {
                 name = "John Smith",
                 position = positionName,
                 courseInfo = "IV - CCIS",
-                previewText = "Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...",
+                // previewText = "Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...", // COMMENTED OUT
                 profilePictureResource = profileResId
             ),
             CandidateItem(
@@ -146,7 +137,7 @@ class Position : AppCompatActivity() {
                 name = "Sarah Lee",
                 position = positionName,
                 courseInfo = "II - CCIS",
-                previewText = "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...",
+                // previewText = "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...", // COMMENTED OUT
                 profilePictureResource = profileResId
             ),
             CandidateItem(
@@ -154,7 +145,7 @@ class Position : AppCompatActivity() {
                 name = "Mark Tan",
                 position = positionName,
                 courseInfo = "I - CCIS",
-                previewText = "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                // previewText = "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", // COMMENTED OUT
                 profilePictureResource = profileResId
             )
         )
@@ -193,7 +184,7 @@ class Position : AppCompatActivity() {
                 } else if (selectedCandidates.size < 2) {
                     selectedCandidates.add(candidate)
                     selectedViews.add(v)
-                    v.background = ColorDrawable(Color.parseColor("#FCBE6A"))
+                    v.background = ContextCompat.getDrawable(this, R.drawable.rounded_yellow_gradient_bg)
                 } else {
                     Toast.makeText(this, "You can only select a maximum of two candidates.", Toast.LENGTH_SHORT).show()
                 }
@@ -221,11 +212,11 @@ class Position : AppCompatActivity() {
         val view = inflater.inflate(R.layout.compare_candidate_item, null)
 
         val nameTextView: TextView? = view.findViewById(R.id.tv_name)
-        val positionTextView: TextView? = view.findViewById(R.id.tv_position)
+        // val positionTextView: TextView? = view.findViewById(R.id.tv_position) // COMMENTED OUT: Removed position text view logic for comparison item
         val profileImageView: ImageView? = view.findViewById(R.id.iv_profile_picture)
 
         nameTextView?.text = candidate.name
-        positionTextView?.text = candidate.position
+        // positionTextView?.text = candidate.position // COMMENTED OUT: Removed position text assignment for comparison item
         profileImageView?.setImageResource(candidate.profilePictureResource)
 
         view.background = ContextCompat.getDrawable(this, R.drawable.compare_candidate_unselected_bg)
@@ -262,26 +253,33 @@ class Position : AppCompatActivity() {
         val nameText: TextView? = cardView.findViewById(R.id.tv_name)
         val positionText: TextView? = cardView.findViewById(R.id.tv_position)
         val courseText: TextView? = cardView.findViewById(R.id.tv_course_info)
-        val previewText: TextView? = cardView.findViewById(R.id.tv_preview_text)
-        val viewAllButton: Button? = cardView.findViewById(R.id.btnViewAll)
+        // val previewText: TextView? = cardView.findViewById(R.id.tv_preview_text) // COMMENTED OUT: Removed TextView find
+        val viewAllLinkContainer: LinearLayout? = cardView.findViewById(R.id.btnViewAllContainer)
 
         nameText?.text = candidate.name
         positionText?.text = candidate.position
         courseText?.text = candidate.courseInfo
-        previewText?.text = candidate.previewText
+        // previewText?.text = candidate.previewText // COMMENTED OUT: Removed text assignment
         profilePic?.setImageResource(candidate.profilePictureResource)
 
-        viewAllButton?.setOnClickListener {
-            animateClickFeedback(
-                view = it,
-                originalBgResource = R.drawable.blue_rounded_button,
-                navigationAction = {
-                    val intent = Intent(this, Platform::class.java).apply {
-                        putExtra("CANDIDATE_ID", candidate.candidateId)
-                    }
-                    startActivity(intent)
-                }
-            )
+        // 🔥 NEW: Apply the StateListAnimator to the card view for press feedback
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                // This applies the same press animation as the position buttons
+                cardView.stateListAnimator = AnimatorInflater.loadStateListAnimator(this, R.animator.button_press_animator)
+            } catch (e: Exception) {
+                // Log error if the animator resource is missing (e.g., R.animator.button_press_animator)
+                // Log.e("Position", "Could not load StateListAnimator for card: ${e.message}")
+            }
+        }
+
+
+        viewAllLinkContainer?.setOnClickListener {
+            // No animation needed for a text link, just navigate immediately
+            val intent = Intent(this, Platform::class.java).apply {
+                putExtra("CANDIDATE_ID", candidate.candidateId)
+            }
+            startActivity(intent)
         }
 
         return cardView
@@ -309,24 +307,5 @@ class Position : AppCompatActivity() {
 
     private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()
 
-    private fun animateClickFeedback(view: View, originalBgResource: Int, navigationAction: () -> Unit) {
-        val originalBackground = view.background
-        val highlightColor = Color.parseColor("#FCBE6A")
-
-        val highlightDrawable = GradientDrawable().apply {
-            setColor(highlightColor)
-            if (originalBackground is GradientDrawable) {
-                cornerRadii = originalBackground.cornerRadii
-            } else {
-                cornerRadius = 8.toPx().toFloat()
-            }
-        }
-
-        view.background = highlightDrawable
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            view.background = ContextCompat.getDrawable(view.context, originalBgResource)
-            navigationAction()
-        }, 100)
-    }
+    // REMOVED: The animateClickFeedback function has been removed in the previous step.
 }

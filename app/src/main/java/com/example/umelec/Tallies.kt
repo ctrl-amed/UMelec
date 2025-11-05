@@ -10,7 +10,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast // 🔥 NEW: Import for Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import de.hdodenhof.circleimageview.CircleImageView
@@ -35,7 +37,9 @@ class Tallies : AppCompatActivity() {
      * Fetch the current state of the election from the database or configuration.
      * Use ElectionPhase.ONGOING for "Live Tallies" and ElectionPhase.ENDED for "Final Tallies".
      */
-    private val currentPhase = ElectionPhase.ENDED
+    private val currentPhase =
+        //ElectionPhase.ENDED // Current setting
+        ElectionPhase.ONGOING // Uncomment this line to test the ONGOING phase behavior
 
     /** * DB/BACKEND GUIDE:
      * Fetch the timestamp (in milliseconds) of the latest data update from the database.
@@ -66,7 +70,7 @@ class Tallies : AppCompatActivity() {
             TallyCandidate("Peter King", 300, R.drawable.ic_launcher_background)
         ),
         "Treasurer" to listOf(
-            TallyCandidate("Maria Dela Cruz", 1200, R.drawable.ic_launcher_background),
+            TallyCandidate("Maria Dela Cruz", 1200, R.drawable.ic_launcher_background), // <-- MAX VOTES HERE
             TallyCandidate("Jose Rizal", 850, R.drawable.ic_launcher_background)
         ),
         "Auditor" to listOf(
@@ -81,9 +85,79 @@ class Tallies : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tallies)
 
+        displayOverallVotesCount()
+        setupVoteTallyBehavior() // 🔥 NEW CALL
         setupFooterNavigation()
         setupHeaderBehavior()
         setupTalliesCards()
+    }
+
+    // ----------------------------------------------------------------------
+    // --- VOTE TALLY CARD LOGIC (NEW) ---
+    // ----------------------------------------------------------------------
+
+    /**
+     * Controls the visibility and behavior of the Download link based on the election phase.
+     */
+    private fun setupVoteTallyBehavior() {
+        // votes_title and votes_value are always visible in both phases
+        // as the parent LinearLayout (VoteTally) is not hidden.
+
+        val downloadTitle: TextView? = findViewById(R.id.downloadTitle)
+
+        if (currentPhase == ElectionPhase.ENDED) {
+            // Requirement: SHOW downloadTitle when phase is ENDED
+            downloadTitle?.visibility = View.VISIBLE
+
+            // Requirement: Set click listener for downloadTitle
+            downloadTitle?.setOnClickListener {
+                // Display the placeholder Toast message
+                Toast.makeText(this, "PDF downloaded", Toast.LENGTH_SHORT).show()
+
+                // ⭐️ BACKEND/DATABASE GUIDE:
+                // This is the correct location to trigger the API call to generate
+                // and initiate the download of the official tallies report (e.g., PDF)
+                // for the user's device.
+                // Example: apiService.downloadTalliesReport()
+            }
+        } else {
+            // Requirement: HIDE downloadTitle when phase is ONGOING
+            downloadTitle?.visibility = View.GONE
+            // Optional: Remove any click listener when hidden
+            downloadTitle?.setOnClickListener(null)
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // --- VOTE COUNT LOGIC (CORRECTED) ---
+    // ----------------------------------------------------------------------
+
+    /**
+     * Calculates the overall number of UNIQUE participants who voted.
+     * This is determined by finding the single position that received the highest number of votes.
+     * This maximum vote count represents the total number of unique ballots cast in the election.
+     */
+    private fun calculateOverallVotes(): Int {
+        // Step 1: Flatten all candidate lists into a single list of vote counts.
+        val allVoteCounts = talliesData.values.flatMap { candidates ->
+            candidates.map { it.votes }
+        }
+
+        // Step 2: Find the maximum value in that list.
+        return allVoteCounts.maxOrNull() ?: 0 // Finds the maximum vote count across *all* candidates, or 0 if empty
+    }
+
+    /**
+     * Finds the TextView and displays the calculated overall vote count.
+     */
+    private fun displayOverallVotesCount() {
+        val overallVotes = calculateOverallVotes()
+        val votesValueTextView: TextView? = findViewById(R.id.votes_value)
+
+        // Format the number with commas (e.g., 1,234)
+        val formattedVotes = NumberFormat.getNumberInstance(Locale.US).format(overallVotes)
+
+        votesValueTextView?.text = formattedVotes
     }
 
     // ----------------------------------------------------------------------
@@ -94,21 +168,24 @@ class Tallies : AppCompatActivity() {
      * Finds the parent container in activity_tallies.xml and generates a full card for each position.
      */
     private fun setupTalliesCards() {
-        val outerContainer: LinearLayout? = findViewById(R.id.registerContainer)
+        // Find the new container ID where dynamic cards should be added.
+        val outerContainer: LinearLayout? = findViewById(R.id.dynamic_tallies_list)
+
+        // Only clear the container holding the dynamic content, leaving the VoteTally card untouched.
         outerContainer?.removeAllViews()
 
         talliesData.forEach { (position, candidates) ->
-            // The data is already sorted, but we call sortedByDescending for safety and clarity
             val sortedCandidates = candidates.sortedByDescending { it.votes }
 
+            // Assuming R.layout.tallies_card_template is the XML layout for one position card
             val positionCardView = createPositionCardView(position, sortedCandidates)
 
-            // FIX: Explicitly set LayoutParams to apply the layout_marginBottom="20dp"
+            // Apply margin at the bottom of each dynamically created card
             positionCardView.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                bottomMargin = 20.toPx() // Convert 20dp to pixels for the margin
+                bottomMargin = 20.toPx()
             }
 
             outerContainer?.addView(positionCardView)
@@ -134,6 +211,7 @@ class Tallies : AppCompatActivity() {
         // 4. Populate the list container with inflated candidate rows
         candidates.forEachIndexed { index, candidate ->
             val rank = index + 1
+            val isWinner = rank == 1 && currentPhase == ElectionPhase.ENDED
 
             // a. Inflate the single candidate row XML
             val candidateRowView = inflater.inflate(R.layout.list_item_candidate_tally, listContainer, false)
@@ -145,7 +223,16 @@ class Tallies : AppCompatActivity() {
                 setTextColor(Color.parseColor(if (rank == 1) "#FCBE6A" else "#4A4A68"))
             }
 
-            candidateRowView.findViewById<ImageView>(R.id.candidate_profile).setImageResource(candidate.photoResId)
+            // Set the profile picture and border (assuming CircleImageView is used in list_item_candidate_tally)
+            val profileImageView = candidateRowView.findViewById<ImageView>(R.id.candidate_profile)
+            if (profileImageView is CircleImageView) {
+                profileImageView.setImageResource(candidate.photoResId)
+                // Highlight winner's border if final tallies
+                profileImageView.borderColor = if (isWinner) Color.parseColor("#FCBE6A") else Color.parseColor("#CCCCCC")
+            } else {
+                profileImageView.setImageResource(candidate.photoResId)
+            }
+
 
             candidateRowView.findViewById<TextView>(R.id.candidate_name).text = candidate.name
 

@@ -12,6 +12,8 @@ import de.hdodenhof.circleimageview.CircleImageView
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+
 // Data structure for a single winner's result
 data class OfficialResultCandidate(
     val name: String,
@@ -79,18 +81,35 @@ class OfficialResults : AppCompatActivity() {
     }
 
     // ----------------------------------------------------------------------
-    // --- CARD GENERATION LOGIC ---
+    // --- CARD GENERATION LOGIC (FIXED) ---
     // ----------------------------------------------------------------------
 
     /**
      * Finds the parent container and dynamically generates a card for each winner.
+     * 🔥 FIX: Sets LayoutParams with a bottom margin for each card.
      */
     private fun setupResultsCards() {
         val outerContainer: LinearLayout? = findViewById(R.id.registerContainer)
         outerContainer?.removeAllViews() // Clear any static placeholder card in the XML
 
+        // Define the margin in DP (e.g., 20dp) and convert it to pixels
+        val cardMarginBottomPx = 20.toPx()
+
         winnerData.forEach { winner ->
             val candidateCardView = createCandidateCardView(winner)
+
+            // 1. Create LayoutParams for the card
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                // 2. Apply the bottom margin
+                bottomMargin = cardMarginBottomPx
+            }
+
+            // 3. Apply the parameters to the view
+            candidateCardView.layoutParams = params
+
             outerContainer?.addView(candidateCardView)
         }
     }
@@ -102,6 +121,7 @@ class OfficialResults : AppCompatActivity() {
         val inflater = LayoutInflater.from(this)
 
         // Inflate the reusable XML layout file (list_item_winner_card.xml)
+        // NOTE: The third argument 'false' ensures the layout parameters are not attached yet.
         val cardView = inflater.inflate(R.layout.list_item_winner_card, null, false) as LinearLayout
 
         // Populate data into the card views
@@ -127,6 +147,12 @@ class OfficialResults : AppCompatActivity() {
         val formatter = SimpleDateFormat("MMMM dd, yyyy, hh:mm a", Locale.getDefault())
         return formatter.format(Date(timeMillis))
     }
+
+    /**
+     * 🔥 NEW: Extension function to convert DP units to screen Pixels.
+     * This is required for setting margins programmatically.
+     */
+    private fun Int.toPx(): Int = (this * resources.displayMetrics.density).toInt()
 
     // ----------------------------------------------------------------------
     // --- FOOTER NAVIGATION LOGIC (REMAINS THE SAME) ---
@@ -155,7 +181,7 @@ class OfficialResults : AppCompatActivity() {
         navHome?.setOnClickListener { navigateTo(Homepage::class.java) }
         navVote?.setOnClickListener { navigateTo(Vote::class.java) }
         navCandidates?.setOnClickListener { navigateTo(Candidates::class.java) }
-        navResults?.setOnClickListener { navigateTo(Results::class.java) }
+        navResults?.setOnClickListener { navigateTo(Tallies::class.java) } // Assuming Results leads to Tallies/OfficialResults
         navFaq?.setOnClickListener { navigateTo(Faq::class.java) }
     }
 }

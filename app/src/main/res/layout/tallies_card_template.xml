@@ -6,26 +6,37 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/rounded_gray_bg"
-    android:padding="16dp"
+
     android:layout_marginBottom="20dp"
     android:layout_gravity="center_horizontal">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-85dp"
+        android:background="@drawable/rounded_blue_gradient_bg" />
     <TextView
         android:id="@+id/position_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Position Title"
         android:textSize="20sp"
-        android:textColor="#0E0E2C"
-        android:fontFamily="@font/montserrat_bold"
-        android:layout_marginBottom="12dp"
-        android:gravity="left"/>
+        android:textColor="#FAFCFE"
+        android:fontFamily="@font/montserrat_semi_bold"
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="30dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="8dp">
+        android:paddingBottom="8dp"
+        android:layout_marginHorizontal="16dp">
 
         <TextView
             android:layout_width="0dp"
@@ -33,7 +44,7 @@
             android:layout_weight="0.3"
             android:text="Rank"
             android:textSize="18sp"
-            android:textStyle="bold"
+
             android:textColor="#4A4A68"
             android:fontFamily="@font/poppins_regular"
             android:gravity="center"/>
@@ -44,7 +55,6 @@
             android:layout_weight="0.7"
             android:text="Candidate"
             android:textSize="18sp"
-            android:textStyle="bold"
             android:textColor="#4A4A68"
             android:fontFamily="@font/poppins_regular"
             android:gravity="center_horizontal"/>

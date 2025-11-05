@@ -5,15 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="@drawable/gradient_bg"
     tools:context=".Homepage">
 
     <!-- Header Content (Fixed at the top) -->
-    <LinearLayout
-        android:id="@+id/HeaderLayout"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/HeaderContentLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
@@ -22,62 +21,45 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
+            android:id="@+id/FAQsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Candidates"
-            android:textSize="30sp"
-            android:textStyle="bold"
+            android:text="Candidates \nProfile"
+            android:textSize="32sp"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#FAFCFE" />
+            android:textColor="#FAFCFE"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/GreetingLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/profileIcon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_profile"
+            android:contentDescription="Profile"
+            app:tint="#FAFCFE"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:clickable="true"
+            android:focusable="true"/>
 
+        <ImageView
+            android:id="@+id/notificationIcon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_notification"
+            android:contentDescription="Notification"
+            app:tint="#FAFCFE"
+            app:layout_constraintEnd_toStartOf="@id/profileIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true"/>
 
-
-            <LinearLayout
-                android:id="@+id/greetingTextLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/notificationIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/notification"
-                android:contentDescription="Notification"
-                app:tint="#FAFCFE"
-                app:layout_constraintEnd_toStartOf="@id/profileIcon"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true"/>
-
-            <ImageView
-                android:id="@+id/profileIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/profile"
-                android:contentDescription="Profile"
-                app:tint="#FAFCFE"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:clickable="true"
-                android:focusable="true"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <!-- 🔹 SCROLLABLE WHITE CONTAINER (Main Content) 🔹 -->
@@ -112,7 +94,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Candidates Position"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:textColor="#0E0E2C"
 
                 android:fontFamily="@font/montserrat_semi_bold" />
@@ -120,7 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Click the position name to see all the candidates applying for that position."
-                android:textSize="15sp"
+                android:textSize="12sp"
                 android:textColor="#0E0E2C"
                 android:layout_marginBottom="20dp"
                 android:fontFamily="@font/poppins_regular" />
@@ -156,8 +138,8 @@
                     android:layout_height="wrap_content"
                     android:text="Chairperson"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:fontFamily="@font/montserrat_bold"/>
+                    android:textSize="14sp"
+                    android:fontFamily="@font/poppins_bold"/>
 
             </LinearLayout>
 
@@ -271,7 +253,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_candidates"
                 android:contentDescription="Candidates"
-                app:tint="#0039A6" />
+                app:tint="#0098E0" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -279,7 +261,7 @@
                 android:text=" Candidates "
                 android:textSize="12sp"
                 android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_text_bg"
+                android:background="@drawable/blue_rounded_button"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>

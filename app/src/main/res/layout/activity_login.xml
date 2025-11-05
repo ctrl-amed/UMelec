@@ -7,8 +7,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background"
-    tools:context=".LoginActivity">
+    android:background="@drawable/gradient_bg"
+    tools:context=".Login">
     <!-- 🔹 Back Arrow (now outside the white container) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/HeaderLayout"
@@ -76,7 +76,7 @@
             app:boxBackgroundMode="outline"
             android:hint="Email"
             app:placeholderText="Enter Umak Email"
-            app:startIconDrawable="@drawable/email_icon"
+            app:startIconDrawable="@drawable/ic_email"
             app:startIconTint="#8C8CA1"
             app:errorIconDrawable="@null">
 
@@ -123,7 +123,7 @@
             app:boxBackgroundMode="outline"
             android:hint="Password"
             app:placeholderText="Enter Password"
-            app:startIconDrawable="@drawable/lock_icon"
+            app:startIconDrawable="@drawable/ic_lock"
             app:startIconTint="#8C8CA1"
             app:endIconMode="password_toggle"
             app:endIconTint="#8C8CA1"
@@ -234,7 +234,7 @@
             android:textAllCaps="false"
             android:fontFamily="@font/poppins_bold"
             android:layout_marginTop="12dp"
-
+            android:stateListAnimator="@animator/button_press_animator"
 
             />
 

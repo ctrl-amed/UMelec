@@ -1,46 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- This file now matches the vertical card structure defined in your main activity -->
 <LinearLayout
     android:id="@+id/cardContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:background="@drawable/rounded_gray_bg"
-    android:padding="16dp"
+    android:padding="20dp"
     android:layout_marginBottom="20dp"
-
     android:outlineProvider="bounds"
     android:clipToPadding="false"
-    android:gravity="top"
-    android:baselineAligned="false">
+    android:gravity="center_horizontal"
+    android:elevation="10dp">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="-20dp"
+        android:layout_marginStart="-20dp"
+        android:layout_marginEnd="-20dp"
+        android:layout_marginBottom="-90dp"
+        android:background="@drawable/rounded_blue_gradient_bg" />
+    <!-- 1. Profile Picture and Candidate Info (Centered Block) -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginEnd="16dp"
         android:gravity="center_horizontal"
-        android:paddingTop="4dp">
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="20dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_profile_picture"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:src="@android:drawable/sym_def_app_icon"
             android:scaleType="centerCrop"
             app:civ_border_width="2dp"
-            app:civ_border_color="#CCCCCC"
-            />
+            app:civ_border_color="#CCCCCC" />
 
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Jane Doe"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textColor="#4A4A68"
-            android:layout_marginTop="8dp"
             android:fontFamily="@font/montserrat_semi_bold"/>
 
         <TextView
@@ -48,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Marketing Director"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textColor="#8C8CA1"
             android:fontFamily="@font/poppins_regular"/>
 
@@ -57,45 +64,72 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="III - BCSAD"
-            android:textSize="12sp"
+            android:textSize="16sp"
             android:textColor="#8C8CA1"
-            android:layout_marginTop="4dp"
             android:fontFamily="@font/poppins_regular"/>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <!-- 2. Commented out preview text (Included for consistency, but hidden) -->
+    <!-- <TextView
+        android:id="@+id/tv_preview_text"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        android:textSize="14sp"
+        android:textColor="#8C8CA1"
+        android:maxLines="4"
+        android:ellipsize="end"
+        android:lineSpacingExtra="2dp"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/poppins_regular"/> -->
 
+    <!-- 4. New Footer Layout: "Candidates Platform" (Left) and "View All Link" (Right) -->
+    <LinearLayout
+        android:id="@+id/PlatformLinkLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Left Component: "Candidates Platform" Text -->
         <TextView
-            android:id="@+id/tv_preview_text"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-            android:textSize="14sp"
-            android:textColor="#8C8CA1"
-            android:maxLines="4"
-            android:ellipsize="end"
-            android:lineSpacingExtra="2dp"
-            android:layout_marginBottom="12dp"
-            android:fontFamily="@font/poppins_regular"/>
+            android:layout_weight="1"
+            android:text="Candidates Platform"
+            android:textSize="16sp"
+            android:textColor="#4A4A68"
+            android:fontFamily="@font/montserrat_semi_bold"/>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnViewAll"
+        <!-- Right Component: Clickable View All Link (TextView + Icon) -->
+        <LinearLayout
+            android:id="@+id/btnViewAllContainer"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="View All"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:background="@drawable/blue_rounded_button"
-            android:textAllCaps="false"
-            android:fontFamily="@font/montserrat_bold"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
 
+            <TextView
+                android:id="@+id/btnViewAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/view_link"
+                android:textColor="#0098E0"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_bold"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/ic_chevron_right"
+                android:contentDescription="Go to Candidate Platform"
+                app:tint="#0098E0"
+                android:layout_marginStart="2dp" />
+        </LinearLayout>
     </LinearLayout>
+
 </LinearLayout>

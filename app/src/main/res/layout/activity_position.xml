@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="#FAFCFE"
     tools:context=".RegisterActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,33 +19,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="back_button_content_description"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF"
+        <FrameLayout
+            android:id="@+id/Back_Button_Wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="back_button_content_description"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="#00537A" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/NameTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Position"
-            android:textSize="25sp"
+            android:textSize="32sp"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#FAFCFE"
+            android:textColor="#313131"
+            android:gravity="center_horizontal"
+            android:maxLines="2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/Back_Button_Wrapper"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5" />
+            app:layout_constraintHorizontal_bias="0.5"
+            android:layout_marginStart="8dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
     <androidx.core.widget.NestedScrollView
@@ -59,7 +68,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
-        android:backgroundTint="#0039A6">
+        android:backgroundTint="#FAFCFE">
 
         <LinearLayout
             android:id="@+id/registerContainer"
@@ -69,43 +78,43 @@
             android:layout_marginHorizontal="30dp"
             android:gravity="center_horizontal">
 
+            <!-- start -->
+
             <LinearLayout
                 android:id="@+id/cardContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:background="@drawable/rounded_gray_bg"
                 android:padding="20dp"
                 android:layout_marginBottom="20dp"
                 android:outlineProvider="bounds"
                 android:clipToPadding="false"
-                android:gravity="top"
-                android:baselineAligned="false">
+                android:gravity="center_horizontal"><!-- 3. Changed orientation to vertical and centered contents -->
 
+                <!-- 1. Profile Picture and Candidate Info (Centered Block) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginEnd="16dp"
                     android:gravity="center_horizontal"
-                    android:paddingTop="4dp">
+                    android:layout_marginBottom="10dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/iv_profile_picture"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
                         android:src="@android:drawable/sym_def_app_icon"
                         android:scaleType="centerCrop"
                         app:civ_border_width="2dp"
-                        app:civ_border_color="#CCCCCC"
-                        />
+                        app:civ_border_color="#CCCCCC" />
 
                     <TextView
                         android:id="@+id/tv_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Jane Doe"
-                        android:textSize="16sp"
+                        android:textSize="20sp"
                         android:textColor="#4A4A68"
                         android:layout_marginTop="8dp"
                         android:fontFamily="@font/montserrat_semi_bold"/>
@@ -115,7 +124,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Marketing Director"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textColor="#8C8CA1"
                         android:fontFamily="@font/poppins_regular"/>
 
@@ -124,51 +133,84 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="III - BCSAD"
-                        android:textSize="12sp"
+                        android:textSize="16sp"
                         android:textColor="#8C8CA1"
                         android:layout_marginTop="4dp"
                         android:fontFamily="@font/poppins_regular"/>
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="0dp"
+                <!-- 2. Commented out preview text (Kept as requested) -->
+                <!-- <TextView
+                    android:id="@+id/tv_preview_text"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                    android:textSize="14sp"
+                    android:textColor="#8C8CA1"
+                    android:maxLines="4"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="2dp"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/poppins_regular"/> -->
 
+
+
+                <!-- 4. New Footer Layout: "Candidates Platform" (Left) and "View All Link" (Right) -->
+                <LinearLayout
+                    android:id="@+id/PlatformLinkLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="5dp">
+
+                    <!-- Left Component: "Candidates Platform" Text -->
                     <TextView
-                        android:id="@+id/tv_preview_text"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-                        android:textSize="14sp"
-                        android:textColor="#8C8CA1"
-                        android:maxLines="4"
-                        android:ellipsize="end"
-                        android:lineSpacingExtra="2dp"
-                        android:layout_marginBottom="12dp"
-                        android:fontFamily="@font/poppins_regular"/>
+                        android:layout_weight="1"
+                        android:text="Candidates Platform"
+                        android:textSize="16sp"
+                        android:textColor="#4A4A68"
+                        android:fontFamily="@font/montserrat_semi_bold"/>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btnViewAll"
+                    <!-- Right Component: Clickable View All Link (TextView + Icon) -->
+                    <LinearLayout
+                        android:id="@+id/btnViewAllContainer"
                         android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:text="View All"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:background="@drawable/blue_rounded_button"
-                        android:textAllCaps="false"
-                        android:fontFamily="@font/montserrat_bold"
-                        android:layout_gravity="center_horizontal"/>
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true">
 
+                        <!-- Converted btnViewAll from AppCompatButton to a clickable TextView -->
+                        <TextView
+                            android:id="@+id/btnViewAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="View All"
+                            android:textColor="#0098E0"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/montserrat_bold"
+                            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                        <!-- Icon (ic_chevron_right) positioned to the right -->
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            android:contentDescription="Go to Candidate Platform"
+                            app:tint="#0098E0"
+                            android:layout_marginStart="2dp" />
+                    </LinearLayout>
                 </LinearLayout>
 
-
-
             </LinearLayout>
+
+
+            <!-- end -->
 
             <LinearLayout
                 android:id="@+id/CompareLayout"
@@ -178,15 +220,14 @@
                 android:background="@drawable/rounded_gray_bg"
                 android:padding="16dp"
                 android:layout_marginBottom="20dp"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center"
+                android:elevation="10dp"
                 >
 
             <TextView
                 android:id="@+id/QuestionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Want to compare candidates?"
+                android:text="Candidates Comparison"
                 android:textSize="20sp"
                 android:textColor="#4A4A68"
                 android:fontFamily="@font/montserrat_semi_bold"
@@ -197,11 +238,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="You can compare up to 2 candidates for each position."
-                android:textSize="15sp"
+                android:textSize="12sp"
                 android:textColor="#8C8CA1"
                 android:layout_marginBottom="8dp"
-                android:fontFamily="@font/poppins_regular"
-                android:gravity="center_horizontal"/>
+                android:fontFamily="@font/poppins_regular" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnCompare"
@@ -311,7 +351,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_candidates"
                 android:contentDescription="Candidates"
-                app:tint="#0039A6" />
+                app:tint="#0098E0" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -319,7 +359,7 @@
                 android:text=" Candidates "
                 android:textSize="12sp"
                 android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_text_bg"
+                android:background="@drawable/blue_rounded_button"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>

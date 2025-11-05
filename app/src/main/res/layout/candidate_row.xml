@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/CandidateRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="16dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/CandidateName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Candidate Name"
+        android:textSize="16sp"
+        android:textColor="#313131"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <RadioButton
+        android:id="@+id/CandidateRadioButton"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:button="@null"
+        android:background="@drawable/radio_button"
+        android:layout_gravity="center_vertical"
+        android:checked="false"/>
+</LinearLayout>

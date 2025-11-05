@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_bg"
+    tools:context=".Castvote">
+
+    <!-- 1. Header Content (Fixed at the top) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/HeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_white_background"
+            android:contentDescription="back_button_content_description"
+            android:src="@drawable/ic_arrow_back"
+            android:stateListAnimator="@animator/button_press_animator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#0098E0" />
+        <TextView
+            android:id="@+id/setupTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Step 2 of 2"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/btnBack"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btnBack"
+            android:layout_marginTop="30dp"/>
+
+        <View
+            android:id="@+id/progressBarBackground"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/progress_bar_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnBack" />
+        <View
+            android:id="@+id/progressBarFill"
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:background="@drawable/progress_bar_fill_gradient"
+            app:layout_constraintBottom_toBottomOf="@id/progressBarBackground"
+            app:layout_constraintStart_toStartOf="@id/progressBarBackground"
+            app:layout_constraintTop_toTopOf="@id/progressBarBackground"
+            app:layout_constraintWidth_percent="1" />
+        <TextView
+            android:id="@+id/stepCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Cast your vote"
+            android:textColor="#FFFFFF"
+            android:textSize="32sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressBarBackground"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    <!-- 2. SCROLLABLE WHITE CONTAINER (Main Content) - Now constrained above the submit button -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/WhiteContainerScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/rounded_white_bg"
+        android:layout_marginTop="150dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/FooterLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/ContentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="30dp">
+
+            <TextView
+                android:id="@+id/ElectionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="UMak Student Council \nElections 2025"
+                android:textSize="24sp"
+                android:textColor="#313131"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/montserrat_semi_bold"
+                android:gravity="center"/>
+
+
+            <!-- VOTING PROCESS CONTAINER -->
+            <LinearLayout
+                android:id="@+id/VotingContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- The Position Card Template and the Required Warning Template below it -->
+                <LinearLayout
+                    android:id="@+id/PositionCardTemplate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_gray_bg"
+                    android:backgroundTint="#FAFCFE"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:elevation="5dp"
+                    android:translationZ="1dp"
+                    android:outlineProvider="background">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Review your vote"
+                            android:textSize="20sp"
+                            android:textColor="#313131"
+                            android:gravity="center"
+                            android:fontFamily="@font/montserrat_semi_bold" />
+
+                    </LinearLayout>
+
+                    <!-- This RadioGroup is correctly emptied and populated in Castvote.kt -->
+
+                        <!-- Example rows are left for reference, but are replaced by inflation in Castvote.kt -->
+
+                    <LinearLayout
+                        android:id="@+id/ReviewVoteContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingVertical="10dp">
+                    <!-- <LinearLayout
+                        android:id="@+id/ReviewlistContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/ReviewPositionTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Position Title:"
+                            android:textSize="18sp"
+                            android:textColor="#313131"
+                            android:fontFamily="@font/poppins_regular" />
+
+                        <TextView
+                            android:id="@+id/ReviewCandidateName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Candidate Name"
+                            android:textSize="18sp"
+                            android:textColor="#313131"
+                            android:fontFamily="@font/poppins_regular"
+                            android:gravity="end"/>
+
+                    </LinearLayout> -->
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp">
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnBacktoBallot"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Back to ballot"
+                            android:textColor="#313131"
+                            android:textSize="14sp"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:background="@drawable/yellow_rounded_button"
+                            android:textAllCaps="false"
+                            android:fontFamily="@font/poppins_bold"
+                            android:layout_marginRight="10dp"/>
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnConfirm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Confirm vote"
+                            android:textColor="@android:color/white"
+                            android:textSize="14sp"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:background="@drawable/blue_rounded_button"
+                            android:textAllCaps="false"
+                            android:fontFamily="@font/poppins_bold"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!-- THE SUBMIT BUTTON HAS BEEN MOVED OUT OF HERE -->
+
+            </LinearLayout>
+            <!-- END VOTING PROCESS CONTAINER -->
+
+
+
+        </LinearLayout>
+        <!-- END CONTENT CONTAINER -->
+    </androidx.core.widget.NestedScrollView>
+
+
+    <!-- 4. FOOTER (Fixed at the bottom for navigation) -->
+    <LinearLayout
+        android:id="@+id/FooterLayout"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:background="@drawable/footer"
+        android:gravity="center"
+        android:outlineProvider="background"
+        android:elevation="20dp"
+        android:translationZ="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <!-- Navigation items here... -->
+        <LinearLayout
+            android:id="@+id/nav_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_home"
+                android:contentDescription="Home"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textSize="12sp"
+
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#333333"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_vote"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_vote"
+                android:contentDescription="Vote"
+                app:tint="#0098E0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="   Vote   "
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/blue_rounded_button"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_candidates"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_candidates"
+                android:contentDescription="Candidates"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Candidates"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_results"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_results"
+                android:contentDescription="Results"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Results"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_faq"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_faq"
+                android:contentDescription="FAQs"
+                app:tint="#666666" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="   FAQs  "
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

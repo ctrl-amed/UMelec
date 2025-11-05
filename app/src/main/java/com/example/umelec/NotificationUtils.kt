@@ -24,52 +24,17 @@ class NotificationManager(private val activity: AppCompatActivity) {
     private var isNotificationDropdownVisible = false
     private var popupWindow: PopupWindow? = null
 
-    // NEW: Load the custom typeface once for efficiency
+    // Load the custom typeface once for efficiency
     private val poppinsRegularTypeface: Typeface? by lazy {
         try {
-            // NOTE: Assumes you have a file named 'poppins_regular.ttf' in your 'res/font' directory.
             ResourcesCompat.getFont(activity, R.font.poppins_regular)
         } catch (e: Exception) {
-            // Fallback to null if the resource is not found
             null
         }
     }
 
-    // 💡 BACKEND/DATABASE GUIDE: This is simulated data.
-    private val notifications = mutableListOf(
-        NotificationItem(
-            id = "n1",
-            title = "Election Reminder",
-            previewText = "The voting period will officially end in 3 days. Cast your vote now!",
-            type = NotificationType.REMINDER,
-            timestamp = Date().time - TimeUnit.MINUTES.toMillis(15),
-            isRead = false
-        ),
-        NotificationItem(
-            id = "n2",
-            title = "Vote Submitted Successfully",
-            previewText = "Your ballot was successfully submitted on October 22, 2025.",
-            type = NotificationType.SUBMISSION,
-            timestamp = Date().time - TimeUnit.HOURS.toMillis(3),
-            isRead = true
-        ),
-        NotificationItem(
-            id = "n3",
-            title = "System Update",
-            previewText = "A minor security patch has been deployed. Check the FAQ for details.",
-            type = NotificationType.GENERIC,
-            timestamp = Date().time - TimeUnit.DAYS.toMillis(1),
-            isRead = false
-        ),
-        NotificationItem(
-            id = "n4",
-            title = "New Candidate",
-            previewText = "Alice Williams has been added to the Treasurer race.",
-            type = NotificationType.GENERIC,
-            timestamp = Date().time - TimeUnit.DAYS.toMillis(5),
-            isRead = false
-        )
-    )
+    // 💡 CHANGE: Use the centralized data list defined in NotificationData.kt
+    private val notifications = allNotifications
 
     // --- PUBLIC API ---
 
@@ -116,7 +81,7 @@ class NotificationManager(private val activity: AppCompatActivity) {
 
         notificationContainer.removeAllViews()
 
-        // 💡 CHANGE HERE: Limit to the 3 newest notifications
+        // Limit to the 3 newest notifications
         val itemsToShow = notifications.sortedByDescending { it.timestamp }.take(3)
 
         if (itemsToShow.isEmpty()) {
@@ -150,7 +115,6 @@ class NotificationManager(private val activity: AppCompatActivity) {
             popupWindow?.dismiss()
         }
 
-        // The current offset is -300, which you mentioned is working with your XML setup.
         popupWindow?.showAsDropDown(anchorView, -300, 0)
     }
 
@@ -160,15 +124,16 @@ class NotificationManager(private val activity: AppCompatActivity) {
     private fun createNotificationItemView(item: NotificationItem): View {
         val context = activity
 
+        // Generate a unique ID for the unread indicator so we can find it later
+        val unreadIndicatorId = View.generateViewId()
+
         // Define LayoutParams
         val lp = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
-        // FIX: Add horizontal margin only for the background-colored (unread) item to avoid corner clipping
         if (!item.isRead) {
-            // Note: I've kept your margin at 3.toPx() (3dp)
             val cornerRadiusMargin = 3.toPx()
             lp.leftMargin = cornerRadiusMargin
             lp.rightMargin = cornerRadiusMargin
@@ -178,24 +143,36 @@ class NotificationManager(private val activity: AppCompatActivity) {
         // 1. Root Layout
         val rootView = LinearLayout(context).apply {
             id = View.generateViewId()
-            layoutParams = lp // Assign the potentially modified layout params
+            layoutParams = lp
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
-            // Set padding here so text is indented (inner padding)
             setPadding(16.toPx(), 8.toPx(), 16.toPx(), 8.toPx())
 
             if (!item.isRead) {
-                // Set background color
                 setBackgroundColor(Color.parseColor("#ECF1F4"))
             } else {
                 setBackgroundColor(Color.TRANSPARENT)
             }
 
-            setOnClickListener {
-                // 💡 BACKEND/DATABASE GUIDE: Update the 'isRead' status for this notification ID in your backend here.
+            setOnClickListener { view ->
+                if (!item.isRead) {
+                    // 1. Update the data source (crucial for Notification.kt to see the change)
+                    val globalItem = allNotifications.find { it.id == item.id }
+                    globalItem?.isRead = true
+                    item.isRead = true // Update the local item object for immediate consistency
+
+                    // 2. Update UI visually (changing color and removing icon)
+                    view.setBackgroundColor(Color.TRANSPARENT)
+                    val indicator = view.findViewById<ImageView>(unreadIndicatorId)
+                    indicator?.visibility = View.GONE
+                }
+
+                // 3. Navigate to the detail screen
                 val intent = Intent(context, Notification2::class.java)
                 intent.putExtra("NOTIFICATION_ID", item.id)
                 context.startActivity(intent)
+
+                // 4. Close the dropdown
                 popupWindow?.dismiss()
             }
         }
@@ -204,7 +181,6 @@ class NotificationManager(private val activity: AppCompatActivity) {
         val iconRes = when (item.type) {
             NotificationType.REMINDER -> R.drawable.ic_notif_reminder
             NotificationType.SUBMISSION -> R.drawable.ic_notif_submitted
-            // Using a standard Android system icon as the generic fallback
             NotificationType.GENERIC -> android.R.drawable.ic_menu_info_details
         }
 
@@ -230,7 +206,6 @@ class NotificationManager(private val activity: AppCompatActivity) {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             text = item.title
             textSize = 16f
-            // FONT APPLICATION: Apply font and bold style
             setTypeface(poppinsRegularTypeface, Typeface.BOLD)
             setTextColor(Color.parseColor("#4A4A68"))
         }
@@ -243,7 +218,6 @@ class NotificationManager(private val activity: AppCompatActivity) {
             textSize = 12f
             maxLines = 2
             ellipsize = android.text.TextUtils.TruncateAt.END
-            // FONT APPLICATION: Apply font
             typeface = poppinsRegularTypeface
             setTextColor(Color.parseColor("#8C8CA1"))
         }
@@ -254,7 +228,6 @@ class NotificationManager(private val activity: AppCompatActivity) {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             text = formatNotificationTime(item.timestamp)
             textSize = 10f
-            // FONT APPLICATION: Apply font
             typeface = poppinsRegularTypeface
             setTextColor(Color.parseColor("#8C8CA1"))
         }
@@ -263,12 +236,13 @@ class NotificationManager(private val activity: AppCompatActivity) {
         // 4. Unread Indicator (ic_circle)
         if (!item.isRead) {
             val unreadIndicator = ImageView(context).apply {
+                id = unreadIndicatorId // Assign the generated ID
                 layoutParams = LinearLayout.LayoutParams(10.toPx(), 10.toPx()).apply {
                     marginStart = 8.toPx()
                     gravity = android.view.Gravity.CENTER_VERTICAL
                 }
                 setImageResource(R.drawable.ic_circle)
-                setColorFilter(Color.parseColor("#4A4A68"))
+                setColorFilter(Color.parseColor("#0098E0"))
                 contentDescription = "Unread Indicator"
             }
             rootView.addView(unreadIndicator)
@@ -286,7 +260,6 @@ class NotificationManager(private val activity: AppCompatActivity) {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 1.toPx() // 1dp height
             )
-            // Use a dark gray color for internal separators
             setBackgroundColor(Color.parseColor("#4A4A68"))
         }
     }
@@ -301,7 +274,6 @@ class NotificationManager(private val activity: AppCompatActivity) {
 
         // If less than 24 hours ago, show relative time (e.g., 10 minutes ago)
         return if (difference < TimeUnit.DAYS.toMillis(1)) {
-            // Uses RelativeTimeSpanString for "X minutes ago"
             DateUtils.getRelativeTimeSpanString(timestamp, now, DateUtils.MINUTE_IN_MILLIS)
         } else {
             // Otherwise, show absolute date (e.g., Oct 11, 2025)

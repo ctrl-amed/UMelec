@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 1. The Top Border (A 1dp tall solid bar) -->
+    <item android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#0098E0"/>
+        </shape>
+    </item>
+
+    <!-- 2. The Solid White Background (Placed 1dp down from the top) -->
+    <item android:top="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FAFCFE"/>
+        </shape>
+    </item>
+
+</layer-list>

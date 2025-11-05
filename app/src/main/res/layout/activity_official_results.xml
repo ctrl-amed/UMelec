@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="#FAFCFE"
     tools:context=".OfficialResults">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,31 +19,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="back_button_content_description"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <TextView
-            android:id="@+id/ResultsTitle"
+        <FrameLayout
+            android:id="@+id/Back_Button_Wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Official Result"
-            android:textSize="25sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="back_button_content_description"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="#00537A" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/TallyTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Official Results"
+            android:textSize="32sp"
             android:fontFamily="@font/montserrat_bold"
-            android:textColor="#FAFCFE"
+            android:textColor="#313131"
+            android:gravity="center_horizontal"
+            android:maxLines="2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/Back_Button_Wrapper"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5" />
+            app:layout_constraintHorizontal_bias="0.5"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -64,11 +72,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Status text loading..."
-            android:textSize="15sp"
-            android:textColor="#FAFCFE"
+            android:textSize="12sp"
+            android:textColor="#313131"
             android:fontFamily="@font/poppins_regular"
             />
     </LinearLayout>
+
+    <!-- uses list_item_winner_card-->
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/WhiteContainerScroll"
@@ -81,81 +91,82 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
-        android:backgroundTint="#0039A6">
+        android:backgroundTint="#FAFCFE">
 
         <LinearLayout
             android:id="@+id/registerContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginHorizontal="30dp"
+            android:layout_marginHorizontal="20dp"
             android:gravity="center_horizontal">
 
             <LinearLayout
                 android:id="@+id/CandidateCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center_vertical"
-                >
+                android:orientation="vertical"
+                android:background="@drawable/rounded_gray_bg"
+                android:padding="20dp"
+                android:layout_marginBottom="20dp"
+                android:clipToPadding="false"
+                android:gravity="center_horizontal"
+                android:outlineProvider="background"
+                android:elevation="10dp"
+                android:translationZ="2dp">
 
-                <!-- LEFT SIDE: Candidate Profile Photo -->
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/candidate_profile_photo"
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:src="@drawable/ic_launcher_background"
-                    android:scaleType="centerCrop"
-                    android:layout_marginEnd="16dp"
-                    app:civ_border_color="#FAFCFE"
-                    app:civ_border_width="2dp"
-                    android:contentDescription="Candidate Profile Image"/>
-
-                <!-- RIGHT SIDE: Details (Name, Position, Votes) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="-20dp"
+                    android:layout_marginStart="-20dp"
+                    android:layout_marginEnd="-20dp"
+                    android:layout_marginBottom="-90dp"
+                    android:background="@drawable/rounded_blue_gradient_bg" />
+                <!-- 1. Profile Picture and Candidate Info (Centered Block) -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:gravity="center_vertical">
+                    android:gravity="center_horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="20dp">
 
-                    <!-- Candidate Name -->
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/candidate_profile_photo"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:src="@android:drawable/sym_def_app_icon"
+                        android:scaleType="centerCrop"
+                        app:civ_border_width="2dp"
+                        app:civ_border_color="#CCCCCC" />
+
                     <TextView
                         android:id="@+id/candidate_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Jane Doe"
-                        android:textSize="18sp"
-                        android:textColor="#FAFCFE"
-                        android:fontFamily="@font/montserrat_bold"
-                        />
+                        android:textSize="20sp"
+                        android:textColor="#4A4A68"
+                        android:fontFamily="@font/montserrat_semi_bold"/>
 
-                    <!-- Position -->
                     <TextView
                         android:id="@+id/candidate_position"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Vice-Chairperson"
-                        android:textSize="14sp"
-                        android:textColor="#FAFCFE"
-                        android:fontFamily="@font/poppins_regular"
-                        android:layout_marginTop="2dp"
-                        />
+                        android:text="Marketing Director"
+                        android:textSize="16sp"
+                        android:textColor="#8C8CA1"
+                        android:fontFamily="@font/poppins_regular"/>
 
-                    <!-- Total Votes (Styled as an important number) -->
                     <TextView
                         android:id="@+id/candidate_total_votes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1,250 Votes"
+                        android:text="III - BCSAD"
                         android:textSize="16sp"
-                        android:textColor="#FAFCFE"
-                        android:fontFamily="@font/montserrat_semi_bold"
-                        android:layout_marginTop="6dp"
-                        />
+                        android:textColor="#8C8CA1"
+                        android:fontFamily="@font/poppins_regular"/>
 
                 </LinearLayout>
 
@@ -282,7 +293,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_results"
                 android:contentDescription="Results"
-                app:tint="#0039A6" />
+                app:tint="#0098E0" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -290,7 +301,7 @@
                 android:text="  Results  "
                 android:textSize="12sp"
                 android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_text_bg"
+                android:background="@drawable/blue_rounded_button"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>

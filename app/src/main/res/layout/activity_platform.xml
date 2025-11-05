@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0039A6"
+    android:background="@drawable/gradient_bg"
     tools:context=".Platform">
 
     <LinearLayout
@@ -24,12 +24,14 @@
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@android:color/transparent"
+            android:background="@drawable/circle_white_background"
             android:contentDescription="back_button_content_description"
             android:src="@drawable/ic_arrow_back"
+            app:tint="#0098E0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#FFFFFF" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:stateListAnimator="@animator/button_press_animator" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/GreetingLayout"
@@ -60,8 +62,8 @@
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/iv_header_profile_picture"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
                         android:src="@android:drawable/sym_def_app_icon"
                         android:scaleType="centerCrop"
                         app:civ_border_color="#FCBE6A"
@@ -78,7 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Jane Doe"
-                        android:textSize="30sp"
+                        android:textSize="32sp"
                         android:textColor="#FAFCFE"
                         android:fontFamily="@font/montserrat_bold"/>
 
@@ -135,7 +137,7 @@
                 android:text="Credentials:"
                 android:textSize="20sp"
                 android:fontFamily="@font/montserrat_semi_bold"
-                android:textColor="#0E0E2C"
+                android:textColor="#313131"
                 android:layout_marginBottom="5dp" />
 
             <TextView
@@ -143,9 +145,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lorem ipsum"
-                android:textSize="15sp"
+                android:textSize="16sp"
                 android:fontFamily="@font/poppins_regular"
-                android:textColor="#4A4A68"
+                android:textColor="#313131"
                 android:layout_marginBottom="20dp"
                 />
 
@@ -153,10 +155,10 @@
                 android:id="@+id/advocacyTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Advocacy:"
+                android:text="Platform:"
                 android:textSize="20sp"
                 android:fontFamily="@font/montserrat_semi_bold"
-                android:textColor="#0E0E2C"
+                android:textColor="#313131"
                 android:layout_marginBottom="5dp" />
 
             <TextView
@@ -164,10 +166,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lorem ipsum"
-                android:textSize="15sp"
+                android:textSize="16sp"
                 android:fontFamily="@font/poppins_regular"
-                android:textColor="#4A4A68"
-                />
+                android:textColor="#313131" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -256,7 +257,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_candidates"
                 android:contentDescription="Candidates"
-                app:tint="#0039A6" />
+                app:tint="#0098E0" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -264,7 +265,7 @@
                 android:text=" Candidates "
                 android:textSize="12sp"
                 android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_text_bg"
+                android:background="@drawable/blue_rounded_button"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
