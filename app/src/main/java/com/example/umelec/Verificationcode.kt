@@ -25,6 +25,10 @@ import android.view.Gravity
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast // <--- RESOLVES TOAST ERRORS
+import android.text.Spannable // <--- NEW IMPORT
+import android.text.SpannableString // <--- NEW IMPORT
+import android.text.style.UnderlineSpan // <--- NEW IMPORT
 
 
 class Verificationcode : AppCompatActivity() {
@@ -129,8 +133,8 @@ class Verificationcode : AppCompatActivity() {
         startResendTimer()
         textOTPtimer.setOnClickListener {
             // Only clickable when the timer is finished and showing "Resend code"
-            if (textOTPtimer.text == "Resend code") {
-                showResendSuccessDialog()
+            if (textOTPtimer.text.toString() == "Resend code") { // Ensure comparison is safe
+                showResendSuccessToast()
             }
         }
 
@@ -176,7 +180,7 @@ class Verificationcode : AppCompatActivity() {
     }
 
     // =========================================================================
-    // 🚨 5. CUSTOM DIALOG IMPLEMENTATIONS 🚨
+    // 🚨 5. CUSTOM DIALOG/TOAST IMPLEMENTATIONS 🚨
     // =========================================================================
 
     /**
@@ -212,31 +216,38 @@ class Verificationcode : AppCompatActivity() {
     }
 
     /**
-     * 2. Resend Success Dialog (imitate custom_toast_success, with "Ok" button)
+     * 2. Resend Success TOAST (replaces AlertDialog)
+     * Displays a custom Toast and automatically starts the timer after the Toast duration.
      */
-    private fun showResendSuccessDialog() {
+    private fun showResendSuccessToast() {
         val layoutInflater = LayoutInflater.from(this)
-        val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
+        val layout = layoutInflater.inflate(R.layout.custom_toast_success, null)
 
-        val builder = AlertDialog.Builder(this)
-        builder.setView(dialogView)
-        val dialog = builder.create()
+        // Find and customize the views
+        val titleText: TextView = layout.findViewById(R.id.toast_title)
+        val valueText: TextView = layout.findViewById(R.id.toast_value)
+        val actionButton: Button = layout.findViewById(R.id.btn_action)
 
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.setGravity(Gravity.CENTER)
-        dialog.setCanceledOnTouchOutside(false)
+        // Set content and hide button (Toast should be non-interactive)
+        titleText.text = "Code sent!"
+        valueText.text = "Check your UMak email inbox."
+        actionButton.visibility = View.GONE // Hide the button
 
-        dialogView.findViewById<TextView>(R.id.toast_title).text = "Code sent!"
-        dialogView.findViewById<TextView>(R.id.toast_value).text = "Check your UMak email inbox."
+        // We use Toast.LENGTH_SHORT (approx. 2000ms)
+        val toastDurationMs = 2000L
 
-        val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
-        btnAction.text = "Ok"
-        btnAction.setOnClickListener {
-            dialog.dismiss()
-            startResendTimer() // Restart timer after the user acknowledges the resend
+        with (Toast(applicationContext)) {
+            duration = Toast.LENGTH_SHORT
+            // Set the custom gravity and offset
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
+            view = layout
+            show()
         }
 
-        dialog.show()
+        // Schedule the timer restart to happen right after the Toast duration ends.
+        Handler(Looper.getMainLooper()).postDelayed({
+            startResendTimer()
+        }, toastDurationMs)
     }
 
     /**
@@ -347,7 +358,6 @@ class Verificationcode : AppCompatActivity() {
     // ---------------------------------------------------------------------
     // 🔹 TIMER LOGIC 🔹
     // ---------------------------------------------------------------------
-    // (This section remains unchanged from your previous code)
     private fun startResendTimer() {
         otpLayouts.forEach { clearValidationState(it) }
 
@@ -365,9 +375,23 @@ class Verificationcode : AppCompatActivity() {
             }
 
             override fun onFinish() {
+                val resendText = "Resend code"
+
+                // 1. Change text color
                 textOTPtimer.setTextColor(Color.parseColor("#318CE7"))
-                textOTPtimer.text = "Resend code"
+
+                // 2. Make it clickable
                 textOTPtimer.isClickable = true
+
+                // 3. Apply underline span
+                val spannableString = SpannableString(resendText)
+                spannableString.setSpan(
+                    UnderlineSpan(),
+                    0,
+                    resendText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                textOTPtimer.text = spannableString // Set the formatted text
             }
         }.start()
     }

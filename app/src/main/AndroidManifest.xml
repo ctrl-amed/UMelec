@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".Castvote3"
+            android:exported="false" />
+        <activity
             android:name=".Castvote2"
             android:exported="false" />
         <activity
@@ -52,9 +55,6 @@
             android:name=".Faq"
             android:exported="false" />
         <activity
-            android:name=".Livetally"
-            android:exported="false" />
-        <activity
             android:name=".Results"
             android:exported="false" />
         <activity
@@ -83,9 +83,6 @@
             android:exported="false" />
         <activity
             android:name=".Forgotpassword"
-            android:exported="false" />
-        <activity
-            android:name=".Loading"
             android:exported="false" />
         <activity
             android:name=".Login"

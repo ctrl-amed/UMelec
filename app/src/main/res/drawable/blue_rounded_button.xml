@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- Pressed state (Click/Tap) - Changes color to gold/yellow when clicked
-    <item android:state_pressed="true">
-        <shape android:shape="rectangle">
-            <corners android:radius="16dp" />
-            <solid android:color="#FCBE6A" />
-        </shape>
-    </item>-->
-
     <!-- Enabled state (Gradient Blue) - MODIFIED -->
     <item android:state_enabled="true">
         <shape android:shape="rectangle">

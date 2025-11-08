@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_regular"
-            android:text="Step 1 of 2"
+            android:text="Step 1 of 3"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -61,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="@id/progressBarBackground"
             app:layout_constraintStart_toStartOf="@id/progressBarBackground"
             app:layout_constraintTop_toTopOf="@id/progressBarBackground"
-            app:layout_constraintWidth_percent="0.5" />
+            app:layout_constraintWidth_percent="0.333" />
         <TextView
             android:id="@+id/stepCounter"
             android:layout_width="wrap_content"
@@ -79,15 +79,16 @@
 
 
 
-    <!-- 2. SCROLLABLE WHITE CONTAINER (Main Content) - Now constrained above the submit button -->
+    <!-- 2. SCROLLABLE WHITE CONTAINER (Main Content) - Now constrained to the parent bottom -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/WhiteContainerScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/rounded_white_bg"
         android:layout_marginTop="150dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/FooterLayout"
+        app:layout_constraintBottom_toTopOf="@id/FooterButtonLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -99,7 +100,7 @@
             android:padding="30dp">
 
             <TextView
-                android:id="@+id/ElectionTitle"
+                    android:id="@+id/ElectionTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="UMak Student Council \nElections 2025"
@@ -215,186 +216,38 @@
             </LinearLayout>
             <!-- END VOTING PROCESS CONTAINER -->
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end"
-                android:layout_marginTop="8dp">
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnSubmit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:text="Submit"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:background="@drawable/blue_rounded_button"
-                    android:textAllCaps="false"
-                    android:fontFamily="@font/poppins_bold"/>
-            </LinearLayout>
-
         </LinearLayout>
         <!-- END CONTENT CONTAINER -->
     </androidx.core.widget.NestedScrollView>
 
-
-    <!-- 4. FOOTER (Fixed at the bottom for navigation) -->
     <LinearLayout
-        android:id="@+id/FooterLayout"
+        android:id="@+id/FooterButtonLayout"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:orientation="horizontal"
-        android:background="@drawable/footer"
-        android:gravity="center"
-        android:outlineProvider="background"
-        android:elevation="20dp"
-        android:translationZ="10dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:gravity="center_horizontal"
+        android:elevation="8dp"
+        android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <!-- Navigation items here... -->
-        <LinearLayout
-            android:id="@+id/nav_home"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_home"
-                android:contentDescription="Home"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Home"
-                android:textSize="12sp"
-
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="#333333"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_vote"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_vote"
-                android:contentDescription="Vote"
-                app:tint="#0098E0" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="   Vote   "
-                android:textSize="12sp"
-                android:textColor="@android:color/white"
-                android:background="@drawable/blue_rounded_button"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_candidates"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_candidates"
-                android:contentDescription="Candidates"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Candidates"
-                android:textSize="12sp"
-                android:textColor="#333333"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_results"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_results"
-                android:contentDescription="Results"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Results"
-                android:textSize="12sp"
-                android:textColor="#333333"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_faq"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_faq"
-                android:contentDescription="FAQs"
-                app:tint="#666666" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="   FAQs  "
-                android:textSize="12sp"
-                android:textColor="#333333"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"/>
-        </LinearLayout>
-
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSubmit"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:text="Submit"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:background="@drawable/blue_rounded_button"
+            android:fontFamily="@font/poppins_bold"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@animator/button_press_animator"/>
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

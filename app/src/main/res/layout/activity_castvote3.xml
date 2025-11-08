@@ -6,8 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_bg"
-    tools:context=".RegisterActivity3">
+    tools:context=".Castvote3">
 
+    <!-- 1. Header Content (Fixed at the top) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/HeaderLayout"
         android:layout_width="match_parent"
@@ -18,7 +19,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="48dp"
@@ -30,15 +30,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="#0098E0" />
-
         <TextView
             android:id="@+id/setupTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat_semi_bold"
-            android:text="Finalize &amp; Confirm"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Step 3 of 3"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/btnBack"
             app:layout_constraintEnd_toEndOf="parent"
@@ -54,7 +53,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnBack" />
-
         <View
             android:id="@+id/progressBarFill"
             android:layout_width="0dp"
@@ -64,18 +62,19 @@
             app:layout_constraintStart_toStartOf="@id/progressBarBackground"
             app:layout_constraintTop_toTopOf="@id/progressBarBackground"
             app:layout_constraintWidth_percent="0.999" />
-
         <TextView
             android:id="@+id/stepCounter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins_regular"
-            android:text="Step 3 of 3"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Cast your vote"
             android:textColor="#FFFFFF"
-            android:textSize="12sp"
+            android:textSize="32sp"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/progressBarBackground" />
+            app:layout_constraintTop_toBottomOf="@id/progressBarBackground"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -83,7 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/rounded_white_bg"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="150dp"
         android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/FooterButtonLayout"
@@ -102,7 +101,7 @@
                 android:id="@+id/signatureTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Provide Your Digital Signature"
+                android:text="Sign to confirm your vote"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/montserrat_semi_bold"
@@ -113,7 +112,7 @@
                 android:id="@+id/signatureValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Your manual signature is for Account Security and Identity Verification only. It is NOT linked to your vote to guarantee the secrecy of your ballot."
+                android:text="Please sign inside the box below to verify your identity and confirm your ballot. Your signature will be securely attached to your vote."
                 android:textSize="16sp"
                 android:fontFamily="@font/poppins_regular"
                 android:textColor="#313131"
@@ -149,63 +148,10 @@
                     android:background="@drawable/blue_rounded_button"
                     android:textAllCaps="false"
                     android:fontFamily="@font/poppins_bold"
-                    android:enabled="false"/>
+                    android:enabled="false"
+                    android:stateListAnimator="@animator/button_press_animator"/>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvTermsTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Terms and Condition: "
-                android:textSize="20sp"
-                android:fontFamily="@font/montserrat_semi_bold"
-                android:textColor="#313131" />
-
-            <TextView
-                android:id="@+id/tvReviewTnC"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/terms_link"
-                android:textSize="16sp"
-                android:fontFamily="@font/poppins_bold"
-                android:textColor="#313131"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingTop="4dp"
-                android:paddingBottom="10dp"
-                android:background="?attr/selectableItemBackground" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="top"
-                android:layout_marginBottom="32dp">
-
-                <CheckBox
-                    android:id="@+id/cbAgree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:buttonTint="#0098E0"
-                    android:layout_marginEnd="8dp"/>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="top">
-                    <TextView
-                        android:id="@+id/tvAgreementText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textColor="#313131"
-                        android:textSize="16sp"
-                        android:text="@string/condition_link" />
-
-                </LinearLayout>
-            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -227,16 +173,17 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <Button
-            android:id="@+id/btnNext"
+            android:id="@+id/btnSubmit"
             android:layout_width="300dp"
             android:layout_height="55dp"
-            android:text="Finish Registration"
+            android:text="Submit"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:background="@drawable/blue_rounded_button"
             android:fontFamily="@font/poppins_bold"
             app:backgroundTint="@null"
-            android:enabled="false"/>
+            android:enabled="false"
+            android:stateListAnimator="@animator/button_press_animator"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

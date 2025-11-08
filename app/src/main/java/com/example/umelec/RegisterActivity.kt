@@ -30,11 +30,11 @@ class RegisterActivity : AppCompatActivity() {
     private var allValidationsPassed = false
     val specialChars = "!@#$%^&*-+=()_`~[]{}|\\:;\"'<,>.?/"
 
-    // 🚨 Define Color Constants
-    private val COLOR_PRIMARY_BLUE = Color.parseColor("#0039A6")
-    private val COLOR_ERROR_RED = Color.parseColor("#D32F2F")
-    private val COLOR_SUCCESS_GREEN = Color.parseColor("#31D0AA")
-    private val COLOR_HINT_GRAY = Color.parseColor("#8C8CA1")
+    // Define color constants (Used only for requirements TextView text colors)
+    private val COLOR_PRIMARY_BLUE = Color.parseColor("#00537A")
+    private val COLOR_ERROR_RED = Color.parseColor("#D33131")
+    private val COLOR_SUCCESS_GREEN = Color.parseColor("#27A688")
+    private val COLOR_HINT_GRAY = Color.parseColor("#5C5C77")
 
     // Define field layouts outside onCreate (Required for dispatchTouchEvent)
     private lateinit var layoutEmail: TextInputLayout

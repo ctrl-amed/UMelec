@@ -7,4 +7,5 @@
     <string name="condition_link">I certify that all information is true and correct, and I agree to the UMelec Terms &amp; Conditions.<font color="#D33131">*</font> </string>
     <string name="view_link"><u>View all</u></string>
     <string name="download_link"><u>Download Public Audit Log</u></string>
+    <string name="timer"><u>TIMER</u></string>
 </resources>

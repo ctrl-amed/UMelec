@@ -3,9 +3,9 @@ package com.example.umelec
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable // NEW
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.Gravity // NEW
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 
 // --- DATA STRUCTURES (Defined outside the class for shared access with Castvote2.kt) ---
 
+// --- MOCK DATA: Replace this with data fetched from your backend ---
 private val MOCK_VOTING_DATA = listOf(
     VotingPosition("PRES", "President", listOf(
         CandidateChoices("PRES_C1", "Jane Doe"),
@@ -43,24 +44,28 @@ class Castvote : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_castvote)
 
-        // Initialize views
+        // 1. Initialize views
         votingContainer = findViewById(R.id.VotingContainer)
         btnSubmit = findViewById(R.id.btnSubmit)
-        val electionTitle: TextView = findViewById(R.id.ElectionTitle)
+        val electionTitleView: TextView = findViewById(R.id.ElectionTitle)
 
-        electionTitle.text = "UMak Student Council \nElections 2025"
+        // 2. Set dynamic UI elements
+        // --- BACKEND GUIDANCE: Replace this static string with a value fetched from your database/API.
+        // Example: backend.fetchCurrentElectionTitle()
+        val currentElectionTitle = "UMak Student Council \nElections 2025" // Mock data
+        electionTitleView.text = currentElectionTitle
+        // --- END BACKEND GUIDANCE ---
 
         allRadioGroups = inflateVotingCards()
 
         setupBackNavigation()
-        setupFooterNavigation()
         setupSubmitButton()
         setupChangeTracking()
         setupModernBackPressHandler()
     }
 
     // ----------------------------------------------------------------------
-    // --- DIALOG STYLING HELPER (Copied from Castvote2.kt / Login.kt) ---
+    // --- DIALOG STYLING HELPER (Unchanged) ---
     // ----------------------------------------------------------------------
 
     /**
@@ -106,7 +111,7 @@ class Castvote : AppCompatActivity() {
 
                 radioButton.id = View.generateViewId()
 
-                // FIX: Attach listener ONLY to the RadioButton icon
+                // Attach listener ONLY to the RadioButton icon
                 radioButton.setOnClickListener {
                     radioGroup.check(radioButton.id)
                 }
@@ -228,11 +233,8 @@ class Castvote : AppCompatActivity() {
                     putStringArrayListExtra("positions", ArrayList(selections.keys))
                     putStringArrayListExtra("candidates", ArrayList(selections.values))
                 }
-
-                Toast.makeText(this, "Proceeding to Review...", Toast.LENGTH_SHORT).show()
                 startActivity(intent)
             } else {
-                Toast.makeText(this, "Please select a candidate or abstain for all positions.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -256,7 +258,7 @@ class Castvote : AppCompatActivity() {
     }
 
     // ----------------------------------------------------------------------
-    // --- NAVIGATION AND DIALOG LOGIC ---
+    // --- NAVIGATION AND DIALOG LOGIC (Unchanged) ---
     // ----------------------------------------------------------------------
 
     private fun setupBackNavigation() {
@@ -274,42 +276,21 @@ class Castvote : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
     }
 
-    private fun setupFooterNavigation() {
-        val navItems = listOf(
-            R.id.nav_home to Homepage::class.java,
-            R.id.nav_vote to Vote::class.java,
-            R.id.nav_candidates to Candidates::class.java,
-            R.id.nav_results to Results::class.java,
-            R.id.nav_faq to Faq::class.java
-        )
-
-        navItems.forEach { (id, target) ->
-            findViewById<LinearLayout>(id).setOnClickListener {
-                if (id == R.id.nav_vote) {
-                    return@setOnClickListener
-                }
-                handleExit(target) // Use handleExit to check for unsaved changes
-            }
-        }
-    }
-
     /**
-     * Triggers the Unsaved Changes warning dialog if votes are not submitted, otherwise proceeds.
+     * Triggers the Unsaved Changes warning dialog if votes are not submitted, otherwise proceeds to exit.
      */
-    private fun handleExit(targetActivity: Class<*>? = null) {
+    private fun handleExit() {
         if (unsavedChanges) {
-            showUnsavedChangesDialog(targetActivity)
-        } else if (targetActivity != null) {
-            navigateTo(targetActivity)
+            showUnsavedChangesDialog()
         } else {
             finish()
         }
     }
 
     /**
-     * Displays the WARNING dialog when leaving with unsaved changes, now using the styled AlertDialog.
+     * Displays the WARNING dialog when leaving with unsaved changes.
      */
-    private fun showUnsavedChangesDialog(targetActivity: Class<*>? = null) {
+    private fun showUnsavedChangesDialog() {
         // NOTE: Assumes R.layout.custom_toast_warning exists
         val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_toast_warning, null)
 
@@ -321,18 +302,16 @@ class Castvote : AppCompatActivity() {
         dialogView.findViewById<AppCompatButton>(R.id.btn_action_primary).text = "Leave"
         dialogView.findViewById<AppCompatButton>(R.id.btn_action_secondary).text = "Stay"
 
-        dialogView.findViewById<View>(R.id.color_strip).setBackgroundColor(Color.parseColor("#F5A304"))
-
+        // --- REVISED: HIDE THE COLOR STRIP ---
+        dialogView.findViewById<View>(R.id.color_strip).visibility = View.GONE
+        // The previous line setting the background color is now removed/replaced.
+        // ------------------------------------
 
         dialogView.findViewById<AppCompatButton>(R.id.btn_action_primary).setOnClickListener {
             // Leave / Proceed with navigation
             unsavedChanges = false
             alertDialog.dismiss()
-            if (targetActivity != null) {
-                navigateTo(targetActivity)
-            } else {
-                finish() // Exit the current activity
-            }
+            finish() // Exit the current activity
         }
 
         dialogView.findViewById<AppCompatButton>(R.id.btn_action_secondary).setOnClickListener {
@@ -341,11 +320,5 @@ class Castvote : AppCompatActivity() {
         }
 
         alertDialog.show()
-    }
-
-    private fun navigateTo(activityClass: Class<*>) {
-        val intent = Intent(this, activityClass)
-        intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-        startActivity(intent)
     }
 }
