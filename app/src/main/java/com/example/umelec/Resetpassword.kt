@@ -57,6 +57,7 @@ class Resetpassword : AppCompatActivity() {
     private lateinit var reqMatch: TextView
 
     private var allPasswordValidationsPassed = false
+    private var actionCode: String? = null // Action code from email link
 
     // =========================================================================
     // 1. HELPER FUNCTIONS
@@ -76,11 +77,10 @@ class Resetpassword : AppCompatActivity() {
     }
 
     /**
-     * Custom dialog for successful password reset (Imitates showLoginSuccessDialog).
+     * Custom dialog for successful password reset.
      */
     private fun showResetSuccessDialog() {
         val layoutInflater = LayoutInflater.from(this)
-        // NOTE: Assumes you have R.layout.custom_toast_success available
         val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
 
         val builder = AlertDialog.Builder(this)
@@ -91,22 +91,44 @@ class Resetpassword : AppCompatActivity() {
         dialog.window?.setGravity(Gravity.CENTER)
         dialog.setCanceledOnTouchOutside(false)
 
-        // Set custom text as requested
         dialogView.findViewById<TextView>(R.id.toast_title).text = "Password Reset Successful!"
-        dialogView.findViewById<TextView>(R.id.toast_value).text = "You can now log in."
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Your password has been reset. You can now log in with your new password."
 
         val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
-        btnAction.text = "Continue to Login" // Set button text
+        btnAction.text = "Continue to Login"
 
         btnAction.setOnClickListener {
             dialog.dismiss()
-
-            // Navigate to Login.kt
+            // Navigate to Login
             val intent = Intent(this, Login::class.java)
-            // Clear the back stack
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-            finish() // Finish ResetPassword activity
+            finish()
+        }
+
+        dialog.show()
+    }
+
+    /**
+     * Custom dialog for password reset error.
+     */
+    private fun showResetErrorDialog(errorMessage: String) {
+        val layoutInflater = LayoutInflater.from(this)
+        val dialogView = layoutInflater.inflate(R.layout.custom_toast_error, null)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(false)
+
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Password Reset Failed"
+        dialogView.findViewById<TextView>(R.id.toast_value).text = errorMessage
+
+        dialogView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
+            dialog.dismiss()
         }
 
         dialog.show()
@@ -116,6 +138,17 @@ class Resetpassword : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_resetpassword)
+
+        // Check if we have an action code from email link or intent
+        // Firebase email link format: https://umelec-70618.firebaseapp.com/__/auth/action?mode=resetPassword&oobCode=CODE&apiKey=KEY
+        val data = intent.data
+        actionCode = intent.getStringExtra("actionCode")
+        
+        // Try to extract action code from Firebase email link URL
+        if (actionCode == null && data != null) {
+            // Extract oobCode from query parameters (Firebase uses 'oobCode' parameter)
+            actionCode = data.getQueryParameter("oobCode")
+        }
 
         // =====================================================================
         // 2. VIEW INITIALIZATION (FIND VIEW BY ID)
@@ -161,10 +194,68 @@ class Resetpassword : AppCompatActivity() {
 
         btnBack.setOnClickListener { finish() }
 
-        // 🚨 REVISED: Use the custom success dialog
+        // Handle password reset
         btnConfirm.setOnClickListener {
             hideKeyboardAndClearFocus()
-            showResetSuccessDialog()
+            
+            val newPassword = inputNewPassword.text.toString()
+            val confirmPassword = inputConfirmPassword.text.toString()
+            
+            // Validate passwords match
+            if (newPassword != confirmPassword) {
+                // Show error - passwords don't match
+                return@setOnClickListener
+            }
+            
+            // Validate password requirements
+            if (!allPasswordValidationsPassed) {
+                // Show error - password doesn't meet requirements
+                return@setOnClickListener
+            }
+            
+            // Disable button during reset
+            btnConfirm.isEnabled = false
+            
+            // Get action code from class property
+            val code = actionCode
+            
+            if (code != null && code.isNotEmpty()) {
+                // Reset password using action code from email link
+                FirebaseAuthHelper.confirmPasswordReset(
+                    actionCode = code,
+                    newPassword = newPassword,
+                    onSuccess = {
+                        // Password reset successful
+                        showResetSuccessDialog()
+                    },
+                    onFailure = { errorMessage ->
+                        // Re-enable button
+                        btnConfirm.isEnabled = true
+                        // Show error dialog
+                        showResetErrorDialog(errorMessage)
+                    }
+                )
+            } else {
+                // No action code - try to update password if user is logged in
+                val currentUser = FirebaseAuthHelper.getCurrentUser()
+                if (currentUser != null) {
+                    // User is logged in, update password directly (for change password feature)
+                    currentUser.updatePassword(newPassword)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                showResetSuccessDialog()
+                            } else {
+                                btnConfirm.isEnabled = true
+                                val errorMessage = task.exception?.message ?: "Failed to reset password"
+                                showResetErrorDialog(errorMessage)
+                            }
+                        }
+                } else {
+                    // No action code and user not logged in - show error
+                    btnConfirm.isEnabled = true
+                    showResetErrorDialog("Invalid or expired reset link. Please request a new password reset from the login screen.")
+                }
+            }
         }
 
         // Set up the TextWatchers and Focus Listeners

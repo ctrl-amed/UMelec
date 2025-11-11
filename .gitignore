@@ -13,3 +13,17 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Node modules
+node_modules/
+functions/node_modules/
+
+# Firebase service account key (never commit this!)
+serviceAccountKey.json
+*serviceAccount*.json
+*firebase-adminsdk*.json
+
+# Firebase config (may contain sensitive info)
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log

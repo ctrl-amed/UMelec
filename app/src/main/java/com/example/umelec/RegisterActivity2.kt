@@ -123,9 +123,9 @@ class RegisterActivity2 : AppCompatActivity() {
     }
 
     /**
-     * Shows a custom AlertDialog for a Student ID conflict.
+     * Shows a custom AlertDialog for a save error.
      */
-    private fun showStudentIDErrorDialog() {
+    private fun showStudentIDErrorDialog(errorMessage: String = "Failed to save user data. Please try again.") {
         val layoutInflater = LayoutInflater.from(this)
         // Ensure R.layout.custom_toast_error exists in your resources
         val dialogView = layoutInflater.inflate(R.layout.custom_toast_error, null)
@@ -140,9 +140,9 @@ class RegisterActivity2 : AppCompatActivity() {
         dialog.window?.setGravity(Gravity.CENTER)
         dialog.setCanceledOnTouchOutside(false)
 
-        // Set custom title and value
+        // Set custom title and value with actual error message
         dialogView.findViewById<TextView>(R.id.toast_title).text = "Registration Error"
-        dialogView.findViewById<TextView>(R.id.toast_value).text = "Student ID already in use."
+        dialogView.findViewById<TextView>(R.id.toast_value).text = errorMessage
         dialogView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
             dialog.dismiss()
             // Clear the error/activation state on the Student ID field only
@@ -800,16 +800,70 @@ class RegisterActivity2 : AppCompatActivity() {
             hideKeyboardAndClearFocus()
 
             val studentID = inputStudentID.text.toString().trim()
+            val firstname = inputFirstname.text.toString().trim()
+            val lastname = inputLastname.text.toString().trim()
+            val gender = inputGender.text.toString().trim()
+            val year = inputYear.text.toString().trim()
+            val college = inputCollege.text.toString().trim()
 
-            // ⚠️ SIMULATION: Check if the ID matches the registered one ⚠️
-            if (studentID.equals(REGISTERED_STUDENT_ID_SIMULATION, ignoreCase = true)) {
-                showStudentIDErrorDialog()
-            } else {
-                // ✅ SUCCESS: Proceed to the final registration step
-                //Toast.makeText(this, "Details Verified. Proceeding...", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, RegisterActivity3::class.java)
+            // Get current Firebase user
+            val currentUser = FirebaseAuthHelper.getCurrentUser()
+            if (currentUser == null) {
+                // User not authenticated, redirect to login
+                val intent = Intent(this, Login::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
+                finish()
+                return@setOnClickListener
             }
+
+            // Disable button during save
+            btnConfirm.isEnabled = false
+
+            // Prepare user data for Firestore
+            val userData = hashMapOf<String, Any>(
+                "studentId" to studentID,
+                "firstname" to firstname,
+                "lastname" to lastname,
+                "gender" to gender,
+                "year" to year,
+                "college" to college,
+                "email" to (currentUser.email ?: ""),
+                "createdAt" to com.google.firebase.Timestamp.now()
+            )
+
+            // Save user data to Firestore
+            FirebaseAuthHelper.saveUserDataToFirestore(
+                userId = currentUser.uid,
+                userData = userData,
+                onSuccess = {
+                    // Success: Proceed to the final registration step
+                    val intent = Intent(this, RegisterActivity3::class.java)
+                    startActivity(intent)
+                },
+                onFailure = { errorMessage ->
+                    // Re-enable button
+                    btnConfirm.isEnabled = true
+                    
+                    // Log error for debugging
+                    android.util.Log.e("RegisterActivity2", "Failed to save user data: $errorMessage")
+                    
+                    // Show error dialog with actual error message
+                    // Format error message for user display
+                    val displayMessage = when {
+                        errorMessage.contains("PERMISSION_DENIED", ignoreCase = true) -> 
+                            "Permission denied. Please check your internet connection and try again."
+                        errorMessage.contains("network", ignoreCase = true) -> 
+                            "Network error. Please check your internet connection and try again."
+                        errorMessage.contains("already exists", ignoreCase = true) -> 
+                            "User data already exists. Please continue to the next step."
+                        else -> 
+                            "Failed to save user data: $errorMessage"
+                    }
+                    
+                    showStudentIDErrorDialog(displayMessage)
+                }
+            )
         }
     } // End of onCreate
 

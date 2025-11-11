@@ -31,6 +31,17 @@ class Profile : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Check if user is logged in
+        if (!FirebaseAuthHelper.isUserLoggedIn()) {
+            // User not logged in, redirect to login
+            val intent = Intent(this, Login::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+        
         setContentView(R.layout.activity_profile)
 
         // 1. Initialize all the UI elements by finding them by their ID
@@ -171,11 +182,13 @@ class Profile : AppCompatActivity() {
      * Handles the actual logout process.
      */
     private fun performLogout() {
-        // 1. Clear user session/credentials (IMPORTANT for actual backend integration)
-        //    * DB/BACKEND GUIDE: Implement logic here to clear local stored tokens,
-        //      session data, or user preferences (e.g., using SharedPreferences or Jetpack DataStore).
+        // 1. Sign out from Firebase
+        FirebaseAuthHelper.signOut()
+        
+        // 2. Clear temporary credentials if any
+        FirebaseAuthHelper.clearTemporaryCredentials(this)
 
-        // 2. Navigate back to the main login/landing activity (assuming MainActivity.kt is your entry point)
+        // 3. Navigate back to the main login/landing activity
         val intent = Intent(this, MainActivity::class.java)
 
         // Add flags to clear the activity stack so the user cannot press 'back'
@@ -190,32 +203,60 @@ class Profile : AppCompatActivity() {
 
 
     /**
-     * This function demonstrates how to set the text on your TextViews.
+     * This function fetches and displays user profile data from Firestore.
      */
     fun populateProfileData() {
-        // Example data structure (updated to include new fields)
-        val userProfile = mapOf(
-            "email" to "user.new@example.com",
-            "studentId" to "S98765432",
-            "year" to "4th year",
-            "college" to "College of Computing and Information Sciences (CCIS)",
-            "status" to "Ineligible",
-            // ⭐️ NEW PROFILE DATA ⭐️
-            "profileAcronym" to "UN",
-            "moduleValue" to "Voter",
-            "gender" to "Female"
+        val currentUser = FirebaseAuthHelper.getCurrentUser()
+        if (currentUser == null) {
+            // User not logged in, redirect to login
+            val intent = Intent(this, Login::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+
+        // Set email from Firebase Auth
+        emailValue.text = currentUser.email ?: ""
+
+        // Get user data from Firestore
+        FirebaseAuthHelper.getUserDataFromFirestore(
+            userId = currentUser.uid,
+            onSuccess = { userData ->
+                if (userData != null) {
+                    // Set the text of each TextView using the retrieved data
+                    studentIdValue.text = userData["studentId"] as? String ?: ""
+                    yearValue.text = userData["year"] as? String ?: ""
+                    collegeValue.text = userData["college"] as? String ?: ""
+                    statusValue.text = userData["status"] as? String ?: "Ineligible"
+                    
+                    // ⭐️ NEW: Set the text for the new TextViews ⭐️
+                    val firstname = userData["firstname"] as? String ?: ""
+                    val lastname = userData["lastname"] as? String ?: ""
+                    profileAcronym.text = "${firstname.take(1)}${lastname.take(1)}".uppercase()
+                    moduleValue.text = userData["moduleValue"] as? String ?: "Voter"
+                    genderValue.text = userData["gender"] as? String ?: ""
+                } else {
+                    // No user data in Firestore, use defaults
+                    studentIdValue.text = ""
+                    yearValue.text = ""
+                    collegeValue.text = ""
+                    statusValue.text = "Ineligible"
+                    profileAcronym.text = currentUser.email?.substring(0, 2)?.uppercase() ?: "UN"
+                    moduleValue.text = "Voter"
+                    genderValue.text = ""
+                }
+            },
+            onFailure = { errorMessage ->
+                // Error loading data, use defaults
+                studentIdValue.text = ""
+                yearValue.text = ""
+                collegeValue.text = ""
+                statusValue.text = "Ineligible"
+                profileAcronym.text = currentUser.email?.substring(0, 2)?.uppercase() ?: "UN"
+                moduleValue.text = "Voter"
+                genderValue.text = ""
+            }
         )
-
-        // Set the text of each TextView using the retrieved data
-        emailValue.text = userProfile["email"]
-        studentIdValue.text = userProfile["studentId"]
-        yearValue.text = userProfile["year"]
-        collegeValue.text = userProfile["college"]
-        statusValue.text = userProfile["status"]
-
-        // ⭐️ NEW: Set the text for the new TextViews ⭐️
-        profileAcronym.text = userProfile["profileAcronym"]
-        moduleValue.text = userProfile["moduleValue"]
-        genderValue.text = userProfile["gender"]
     }
 }

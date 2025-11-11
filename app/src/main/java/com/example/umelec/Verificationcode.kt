@@ -45,8 +45,8 @@ class Verificationcode : AppCompatActivity() {
     private lateinit var textOTPtimer: TextView
     private lateinit var countDownTimer: CountDownTimer
 
-    // 🚨 SIMULATED CORRECT OTP (Replace with logic that checks against a sent code)
-    private val CORRECT_OTP = "123456"
+    // Email address from intent
+    private var userEmail: String = ""
     private val TIMER_DURATION_SECONDS = 60L
     private val RESEND_DIALOG_DURATION_MS = 2000L // 💡 Duration for the auto-dismiss resend dialog
 
@@ -80,6 +80,9 @@ class Verificationcode : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_verificationcode)
+
+        // Get email from intent
+        userEmail = intent.getStringExtra(Forgotpassword.EXTRA_EMAIL_ADDRESS) ?: ""
 
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener {
@@ -158,13 +161,31 @@ class Verificationcode : AppCompatActivity() {
     private fun handleOtpConfirmation() {
         val enteredCode = otpInputs.joinToString("") { it.text.toString() }
 
-        if (enteredCode == CORRECT_OTP) {
-            showVerificationSuccessDialog()
-        } else {
-            // 🚨 Set all fields to error state on failure (Red border)
-            otpLayouts.forEach { showValidationError(it) }
-            showVerificationFailureDialog()
+        if (userEmail.isEmpty()) {
+            showVerificationFailureDialog("Email address not found. Please try again.")
+            return
         }
+
+        // Disable button during verification
+        btnSendVerification.isEnabled = false
+
+        // Verify code using VerificationCodeHelper
+        VerificationCodeHelper.verifyCode(
+            email = userEmail,
+            code = enteredCode,
+            onSuccess = {
+                // Code is valid, generate Firebase Auth action code
+                generatePasswordResetActionCode()
+            },
+            onFailure = { errorMessage ->
+                // Re-enable button
+                btnSendVerification.isEnabled = true
+                
+                // 🚨 Set all fields to error state on failure (Red border)
+                otpLayouts.forEach { showValidationError(it) }
+                showVerificationFailureDialog(errorMessage)
+            }
+        )
     }
 
     private fun updateButtonState() {
@@ -184,9 +205,29 @@ class Verificationcode : AppCompatActivity() {
     // =========================================================================
 
     /**
+     * Generate password reset action code after verification code is verified
+     */
+    private fun generatePasswordResetActionCode() {
+        FirebaseAuthHelper.generatePasswordResetActionCode(
+            email = userEmail,
+            onSuccess = { actionCode ->
+                // Action code generated successfully, proceed to reset password
+                showVerificationSuccessDialog(actionCode)
+            },
+            onFailure = { errorMessage ->
+                // Re-enable button
+                btnSendVerification.isEnabled = true
+                
+                // Show error dialog
+                showVerificationFailureDialog("Failed to proceed: $errorMessage")
+            }
+        )
+    }
+
+    /**
      * 1. Success Dialog (imitate custom_toast_success)
      */
-    private fun showVerificationSuccessDialog() {
+    private fun showVerificationSuccessDialog(actionCode: String) {
         val layoutInflater = LayoutInflater.from(this)
         val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
 
@@ -206,8 +247,9 @@ class Verificationcode : AppCompatActivity() {
         btnAction.setOnClickListener {
             dialog.dismiss()
 
-            // Proceed to Resetpassword.kt
+            // Proceed to Resetpassword.kt with action code
             val intent = Intent(this, Resetpassword::class.java)
+            intent.putExtra("actionCode", actionCode)
             startActivity(intent)
             finish()
         }
@@ -220,40 +262,77 @@ class Verificationcode : AppCompatActivity() {
      * Displays a custom Toast and automatically starts the timer after the Toast duration.
      */
     private fun showResendSuccessToast() {
-        val layoutInflater = LayoutInflater.from(this)
-        val layout = layoutInflater.inflate(R.layout.custom_toast_success, null)
-
-        // Find and customize the views
-        val titleText: TextView = layout.findViewById(R.id.toast_title)
-        val valueText: TextView = layout.findViewById(R.id.toast_value)
-        val actionButton: Button = layout.findViewById(R.id.btn_action)
-
-        // Set content and hide button (Toast should be non-interactive)
-        titleText.text = "Code sent!"
-        valueText.text = "Check your UMak email inbox."
-        actionButton.visibility = View.GONE // Hide the button
-
-        // We use Toast.LENGTH_SHORT (approx. 2000ms)
-        val toastDurationMs = 2000L
-
-        with (Toast(applicationContext)) {
-            duration = Toast.LENGTH_SHORT
-            // Set the custom gravity and offset
-            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
-            view = layout
-            show()
+        if (userEmail.isEmpty()) {
+            return
         }
 
-        // Schedule the timer restart to happen right after the Toast duration ends.
-        Handler(Looper.getMainLooper()).postDelayed({
-            startResendTimer()
-        }, toastDurationMs)
+        // Generate new code
+        val newCode = VerificationCodeHelper.generateCode()
+
+        // Disable resend button during send
+        textOTPtimer.isClickable = false
+
+        // Resend code
+        VerificationCodeHelper.resendCode(
+            email = userEmail,
+            code = newCode,
+            onSuccess = {
+                // Send email with new code using Trigger Email extension
+                TriggerEmailHelper.sendPasswordResetCode(
+                    email = userEmail,
+                    verificationCode = newCode,
+                    userName = null,
+                    onSuccess = {
+                        val layoutInflater = LayoutInflater.from(this)
+                        val layout = layoutInflater.inflate(R.layout.custom_toast_success, null)
+
+                        // Find and customize the views
+                        val titleText: TextView = layout.findViewById(R.id.toast_title)
+                        val valueText: TextView = layout.findViewById(R.id.toast_value)
+                        val actionButton: Button = layout.findViewById(R.id.btn_action)
+
+                        // Set content and hide button (Toast should be non-interactive)
+                        titleText.text = "Code sent!"
+                        valueText.text = "Check your UMak email inbox."
+                        actionButton.visibility = View.GONE // Hide the button
+
+                        // We use Toast.LENGTH_SHORT (approx. 2000ms)
+                        val toastDurationMs = 2000L
+
+                        with (Toast(applicationContext)) {
+                            duration = Toast.LENGTH_SHORT
+                            // Set the custom gravity and offset
+                            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
+                            view = layout
+                            show()
+                        }
+
+                        // Schedule the timer restart to happen right after the Toast duration ends.
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            startResendTimer()
+                        }, toastDurationMs)
+                    },
+                    onFailure = { errorMessage ->
+                        // Re-enable resend button
+                        textOTPtimer.isClickable = true
+                        // Show error toast
+                        Toast.makeText(this, "Failed to send code: $errorMessage", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            onFailure = { errorMessage ->
+                // Re-enable resend button
+                textOTPtimer.isClickable = true
+                // Show error toast
+                Toast.makeText(this, "Failed to resend code: $errorMessage", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     /**
      * 3. Failure Dialog (imitate custom_toast_error)
      */
-    private fun showVerificationFailureDialog() {
+    private fun showVerificationFailureDialog(errorMessage: String = "Incorrect Code.") {
         val layoutInflater = LayoutInflater.from(this)
         val dialogView = layoutInflater.inflate(R.layout.custom_toast_error, null)
 
@@ -266,7 +345,7 @@ class Verificationcode : AppCompatActivity() {
         dialog.setCanceledOnTouchOutside(false)
 
         dialogView.findViewById<TextView>(R.id.toast_title).text = "Code error"
-        dialogView.findViewById<TextView>(R.id.toast_value).text = "Incorrect Code."
+        dialogView.findViewById<TextView>(R.id.toast_value).text = errorMessage
 
         dialogView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
             dialog.dismiss()

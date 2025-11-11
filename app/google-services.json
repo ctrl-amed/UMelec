@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "103159835421",
+    "project_id": "umelec-70618",
+    "storage_bucket": "umelec-70618.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:103159835421:android:682c6f3c04bc849d6dcff4",
+        "android_client_info": {
+          "package_name": "com.example.umelec"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBb-1rlvv9pEV0L7nsVVYSnhdec0yPcHUU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -74,7 +74,28 @@
             android:exported="false" />
         <activity
             android:name=".Resetpassword"
-            android:exported="false" />
+            android:exported="true">
+            <!-- Deep link intent filter for password reset -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Handle umelec://reset?oobCode=ACTION_CODE -->
+                <data
+                    android:scheme="umelec"
+                    android:host="reset" />
+            </intent-filter>
+            <!-- Also handle HTTPS links (for Firebase email links) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="umelec-70618.firebaseapp.com"
+                    android:pathPrefix="/__/auth/action" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Verificationcode"
             android:exported="false" />

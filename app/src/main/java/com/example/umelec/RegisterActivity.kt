@@ -100,9 +100,9 @@ class RegisterActivity : AppCompatActivity() {
         dialog.window?.setGravity(Gravity.CENTER)
         dialog.setCanceledOnTouchOutside(false)
 
-        // Set custom text
+        // Set custom text (will be updated based on error)
         dialogView.findViewById<TextView>(R.id.toast_title).text = "Registration Error"
-        dialogView.findViewById<TextView>(R.id.toast_value).text = "Email address already in use."
+        dialogView.findViewById<TextView>(R.id.toast_value).text = "Email address already in use or registration failed."
 
         // Trigger Red border on the Email field
         layoutEmail.error = " "
@@ -192,14 +192,44 @@ class RegisterActivity : AppCompatActivity() {
         btnNext.setOnClickListener {
             hideKeyboardAndClearFocus()
             val email = inputEmail.text.toString().trim()
-            val REGISTERED_EMAIL_SIMULATION = "test@umak.edu.ph"
+            val password = inputPassword.text.toString()
+            val confirmPassword = inputConfirmPassword.text.toString()
 
-            if (email.equals(REGISTERED_EMAIL_SIMULATION, ignoreCase = true)) {
-                showEmailAlreadyRegisteredDialog()
-            } else {
-                val intent = Intent(this, RegisterActivity2::class.java)
-                startActivity(intent)
+            // Validate that passwords match
+            if (password != confirmPassword) {
+                showEmailAlreadyRegisteredDialog() // Reuse for error display
+                return@setOnClickListener
             }
+
+            // Disable button during registration
+            btnNext.isEnabled = false
+
+            // Create Firebase user account
+            FirebaseAuthHelper.createUser(
+                email = email,
+                password = password,
+                onSuccess = { user ->
+                    // Save credentials temporarily for next steps
+                    FirebaseAuthHelper.saveTemporaryCredentials(this, email, password)
+                    
+                    // Navigate to next registration step
+                    val intent = Intent(this, RegisterActivity2::class.java)
+                    startActivity(intent)
+                },
+                onFailure = { errorMessage ->
+                    // Re-enable button
+                    btnNext.isEnabled = true
+                    
+                    // Check if email already exists
+                    if (errorMessage.contains("email address is already", ignoreCase = true) ||
+                        errorMessage.contains("already in use", ignoreCase = true)) {
+                        showEmailAlreadyRegisteredDialog()
+                    } else {
+                        // Show generic error
+                        showEmailAlreadyRegisteredDialog()
+                    }
+                }
+            )
         }
 
         // 💡 Click listeners to clear errors on tap

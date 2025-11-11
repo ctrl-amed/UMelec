@@ -101,7 +101,19 @@ class RegisterActivity3 : AppCompatActivity() {
         // 6. Next Button Logic (Data Processing)
         btnNext.setOnClickListener {
             if (isSignatureDrawn && isTermsAgreed) {
-                // --- BACKEND/DATABASE GUIDANCE START ---
+                // Get current Firebase user
+                val currentUser = FirebaseAuthHelper.getCurrentUser()
+                if (currentUser == null) {
+                    // User not authenticated, redirect to login
+                    val intent = Intent(this, Login::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                    return@setOnClickListener
+                }
+
+                // Disable button during save
+                btnNext.isEnabled = false
 
                 // 1. Capture the signature as a high-quality Bitmap
                 val signatureBitmap: Bitmap = signaturePad.getSignatureBitmap()
@@ -113,20 +125,31 @@ class RegisterActivity3 : AppCompatActivity() {
                 val byteArray = byteArrayOutputStream.toByteArray()
                 val signatureBase64String: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
 
-                // 3. 🚨 FAKE DATA LOGGING for Backend Team 🚨
-                // At this point, you would send signatureBase64String along with
-                // all other registration data (ID, name, etc.) to your backend API.
-                println("--- FAKE DATABASE CALL ---")
-                println("Signature captured and converted to Base64 String.")
-                println("Payload for Backend:")
-                println("  - signature_data: ${signatureBase64String.substring(0, 50)}... [Base64 of JPEG image]")
-                println("  - agreement_status: $isTermsAgreed")
-                println("  - (Other user data from previous steps)")
+                // 3. Prepare signature data for Firestore
+                val signatureData = hashMapOf<String, Any>(
+                    "signature" to signatureBase64String,
+                    "termsAgreed" to isTermsAgreed,
+                    "registrationCompleted" to true,
+                    "completedAt" to com.google.firebase.Timestamp.now()
+                )
 
-                // 4. Proceed to success dialog after successful API response (simulated here)
-                // --- BACKEND/DATABASE GUIDANCE END ---
-
-                showRegistrationSuccessDialog()
+                // 4. Update user document in Firestore with signature
+                FirebaseAuthHelper.updateUserDataInFirestore(
+                    userId = currentUser.uid,
+                    userData = signatureData,
+                    onSuccess = {
+                        // Clear temporary credentials
+                        FirebaseAuthHelper.clearTemporaryCredentials(this)
+                        // Proceed to success dialog
+                        showRegistrationSuccessDialog()
+                    },
+                    onFailure = { errorMessage ->
+                        // Re-enable button
+                        btnNext.isEnabled = true
+                        // Show error (you might want to create a proper error dialog here)
+                        android.widget.Toast.makeText(this, "Failed to save signature: $errorMessage", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         }
     }

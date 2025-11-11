@@ -3,6 +3,7 @@ package com.example.umelec
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -44,6 +45,17 @@ class Homepage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        
+        // Check if user is logged in
+        if (!FirebaseAuthHelper.isUserLoggedIn()) {
+            // User not logged in, redirect to login
+            val intent = Intent(this, Login::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+        
         // Set the content view
         setContentView(R.layout.activity_homepage)
 
@@ -77,13 +89,37 @@ class Homepage : AppCompatActivity() {
 
         // --- Dynamic Greeting Implementation ---
 
-        // **IMPORTANT:** This is where you would fetch the user's name
-
-
-        // from your backend or local database (e.g., using SharedPreferences).
-        // For demonstration, we'll use a hardcoded name.
-        val userName = "Alice" // Replace with actual backend call
-        nameTextView.text = userName
+        // Get user's full name from Firestore
+        val currentUser = FirebaseAuthHelper.getCurrentUser()
+        if (currentUser != null) {
+            // Fetch user data from Firestore to get firstname and lastname
+            FirebaseAuthHelper.getUserDataFromFirestore(
+                userId = currentUser.uid,
+                onSuccess = { userData ->
+                    if (userData != null) {
+                        val firstname = userData["firstname"] as? String ?: ""
+                        val lastname = userData["lastname"] as? String ?: ""
+                        val fullName = if (firstname.isNotEmpty() || lastname.isNotEmpty()) {
+                            "$firstname $lastname".trim()
+                        } else {
+                            // Fallback to email username if name not available
+                            currentUser.email?.substringBefore("@") ?: "User"
+                        }
+                        nameTextView.text = fullName
+                    } else {
+                        // No user data in Firestore, use email as fallback
+                        nameTextView.text = currentUser.email?.substringBefore("@") ?: "User"
+                    }
+                },
+                onFailure = { errorMessage ->
+                    // If Firestore fetch fails, use email as fallback
+                    Log.e("Homepage", "Failed to fetch user data: $errorMessage")
+                    nameTextView.text = currentUser.email?.substringBefore("@") ?: "User"
+                }
+            )
+        } else {
+            nameTextView.text = "User"
+        }
 
         // --- Profile Icon Click Listener ---
 

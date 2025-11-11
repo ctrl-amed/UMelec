@@ -22,10 +22,7 @@ import android.content.Context
 
 class Login : AppCompatActivity() {
 
-    // 🚨 SIMULATED CREDENTIALS (Replace with your actual authentication logic)
-    private val CORRECT_EMAIL = "@umak.edu.ph"
-    private val CORRECT_PASSWORD = "a"
-    private val CORRECT_USER_NAME = "Juanwfafwa"
+    // Firebase Auth Helper (No hardcoded credentials)
 
     // Define color constants (Used only for requirements TextView text colors)
     private val COLOR_PRIMARY_BLUE = Color.parseColor("#00537A")
@@ -79,7 +76,7 @@ class Login : AppCompatActivity() {
 
         // --- HELPER FUNCTIONS ---
         fun isEmailValid(email: String): Boolean {
-            return email.isNotEmpty() && email.endsWith(CORRECT_EMAIL, ignoreCase = true)
+            return email.isNotEmpty() && email.endsWith("@umak.edu.ph", ignoreCase = true)
         }
 
         fun isPasswordValid(password: String): Boolean {
@@ -95,7 +92,7 @@ class Login : AppCompatActivity() {
             btnLogin.isEnabled = allFieldsValid
         }
 
-        fun showLoginSuccessDialog(userName: String) {
+        fun showLoginSuccessDialog(userEmail: String) {
             val layoutInflater = LayoutInflater.from(this)
             val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
 
@@ -108,7 +105,7 @@ class Login : AppCompatActivity() {
             dialog.setCanceledOnTouchOutside(false)
 
             dialogView.findViewById<TextView>(R.id.toast_title).text = "Login Success"
-            dialogView.findViewById<TextView>(R.id.toast_value).text = "Welcome back, $userName!"
+            dialogView.findViewById<TextView>(R.id.toast_value).text = "Welcome back!"
 
             val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
             btnAction.text = "Continue to Homepage"
@@ -242,7 +239,7 @@ class Login : AppCompatActivity() {
                         // ❌ INVALID on BLUR: Keep error visible, trigger RED border
                         emailRequirementsContainer.visibility = View.VISIBLE
                         reqEmail.setTextColor(COLOR_ERROR_RED)
-                        reqEmail.text = "• Please use your UMak email ($CORRECT_EMAIL)"
+                        reqEmail.text = "• Please use your UMak email (@umak.edu.ph)"
                         layoutEmail.error = " " // Triggers RED border
                         layoutEmail.isActivated = false
                     }
@@ -271,20 +268,20 @@ class Login : AppCompatActivity() {
                 when {
                     // ✅ VALID MATCH: Complete and correct domain
                     isValid -> {
-                        reqEmail.setTextColor(COLOR_SUCCESS_GREEN)
-                        reqEmail.text = "✓ Please use your UMak email ($CORRECT_EMAIL)"
-                        emailRequirementsContainer.visibility = View.VISIBLE
+                    reqEmail.setTextColor(COLOR_SUCCESS_GREEN)
+                    reqEmail.text = "✓ Please use your UMak email (@umak.edu.ph)"
+                    emailRequirementsContainer.visibility = View.VISIBLE
 
-                        // 🟢 LIVE FEEDBACK: Set to Green border
-                        //layoutEmail.error = null        // Clear red border
-                        layoutEmail.boxStrokeColor = COLOR_SUCCESS_GREEN
-                        layoutEmail.isActivated = true  // Triggers GREEN border
-                    }
+                    // 🟢 LIVE FEEDBACK: Set to Green border
+                    //layoutEmail.error = null        // Clear red border
+                    layoutEmail.boxStrokeColor = COLOR_SUCCESS_GREEN
+                    layoutEmail.isActivated = true  // Triggers GREEN border
+                }
 
-                    // ❌ INVALID FORMAT: Contains text but doesn't end with required domain
-                    text.isNotEmpty() && !text.endsWith(CORRECT_EMAIL, ignoreCase = true) -> {
-                        reqEmail.setTextColor(COLOR_ERROR_RED)
-                        reqEmail.text = "• Please use your UMak email ($CORRECT_EMAIL)"
+                // ❌ INVALID FORMAT: Contains text but doesn't end with required domain
+                text.isNotEmpty() && !text.endsWith("@umak.edu.ph", ignoreCase = true) -> {
+                    reqEmail.setTextColor(COLOR_ERROR_RED)
+                    reqEmail.text = "• Please use your UMak email (@umak.edu.ph)"
                         emailRequirementsContainer.visibility = View.VISIBLE
 
                         // 🔴 LIVE FEEDBACK: Set to Red border
@@ -295,7 +292,7 @@ class Login : AppCompatActivity() {
                     // 🩶 DEFAULT TYPING STATE: Empty or still typing
                     else -> {
                         reqEmail.setTextColor(COLOR_HINT_GRAY)
-                        reqEmail.text = "• Please use your UMak email ($CORRECT_EMAIL)"
+                        reqEmail.text = "• Please use your UMak email (@umak.edu.ph)"
                         emailRequirementsContainer.visibility = View.VISIBLE
 
                         // Reset to default/primary color border while actively typing
@@ -362,16 +359,32 @@ class Login : AppCompatActivity() {
             val email = inputEmail.text.toString().trim()
             val password = inputPassword.text.toString()
 
-            // ⚠️ SIMULATED LOGIN CHECK ⚠️
-            if (email.endsWith(CORRECT_EMAIL, ignoreCase = true) && password == CORRECT_PASSWORD) {
-                // Clear any error state before navigating
-                layoutEmail.error = null
-                layoutPassword.error = null
-                showLoginSuccessDialog(CORRECT_USER_NAME)
-            } else {
-                // FAILED LOGIN: Show custom error DIALOG and trigger RED border on both fields
+            // Validate inputs
+            if (!isEmailValid(email) || !isPasswordValid(password)) {
                 showLoginErrorDialog()
+                return@setOnClickListener
             }
+
+            // Disable button during login
+            btnLogin.isEnabled = false
+
+            // Firebase Authentication
+            FirebaseAuthHelper.signIn(
+                email = email,
+                password = password,
+                onSuccess = { user ->
+                    // Clear any error state before navigating
+                    layoutEmail.error = null
+                    layoutPassword.error = null
+                    showLoginSuccessDialog(user.email ?: email)
+                },
+                onFailure = { errorMessage ->
+                    // Re-enable button
+                    btnLogin.isEnabled = true
+                    // Show error dialog
+                    showLoginErrorDialog()
+                }
+            )
         }
     }
 }

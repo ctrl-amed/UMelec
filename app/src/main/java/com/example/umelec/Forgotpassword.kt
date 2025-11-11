@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -92,7 +93,7 @@ class Forgotpassword : AppCompatActivity() {
     /**
      * Shows a custom error dialog for server/database errors (e.g., email not found).
      */
-    private fun showEmailErrorDialog() {
+    private fun showEmailErrorDialog(errorMessage: String = "Failed to send verification code. Please try again.") {
         val layoutInflater = LayoutInflater.from(this)
         val dialogView = layoutInflater.inflate(R.layout.custom_toast_error, null)
 
@@ -105,9 +106,22 @@ class Forgotpassword : AppCompatActivity() {
         dialog.window?.setGravity(Gravity.CENTER)
         dialog.setCanceledOnTouchOutside(false)
 
-        // Set custom title and message
-        dialogView.findViewById<TextView>(R.id.toast_title).text = "Email Error"
-        dialogView.findViewById<TextView>(R.id.toast_value).text = "Email does not exist."
+        // Set custom title and message with actual error
+        dialogView.findViewById<TextView>(R.id.toast_title).text = "Error"
+        
+        // Format error message for user display
+        val displayMessage = when {
+            errorMessage.contains("PERMISSION_DENIED", ignoreCase = true) -> 
+                "Permission denied. Please check your internet connection and try again."
+            errorMessage.contains("network", ignoreCase = true) || errorMessage.contains("UNAVAILABLE", ignoreCase = true) -> 
+                "Network error. Please check your internet connection and try again."
+            errorMessage.contains("INTERNAL", ignoreCase = true) -> 
+                "Server error. Please try again later."
+            else -> 
+                errorMessage.takeIf { it.isNotEmpty() } ?: "Failed to send verification code. Please try again."
+        }
+        
+        dialogView.findViewById<TextView>(R.id.toast_value).text = displayMessage
 
         // Set click listener for the close button
         dialogView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
@@ -120,11 +134,9 @@ class Forgotpassword : AppCompatActivity() {
         layoutEmail.error = " "
         emailRequirementsContainer.visibility = View.GONE
 
-
-        // Show the dialog
-
         dialog.show()
     }
+
 
     // =========================================================================
     // 4. ONCREATE
@@ -145,7 +157,7 @@ class Forgotpassword : AppCompatActivity() {
         val defaultEmailRequirementText = "• Email must end with @umak.edu.ph"
 
         // --- HELPER FUNCTIONS ---
-        // Function to update the Send Verification button's enabled/disabled state
+        // Function to update the Send Code button's enabled/disabled state
         fun updateButtonState() {
             val emailText = inputEmail.text.toString().trim()
             // Button is enabled only if the field is NOT empty AND is a UMak email
@@ -231,28 +243,64 @@ class Forgotpassword : AppCompatActivity() {
         })
 
         // =====================================================================
-        // 6. SEND VERIFICATION BUTTON CLICK LISTENER
+        // 6. SEND CODE BUTTON CLICK LISTENER
         // =====================================================================
 
         btnSendVerification.setOnClickListener {
             val email = inputEmail.text.toString().trim()
 
-            if (isUmakEmail(email)) {
-                // 💡 MOCK SERVER CHECK: Since the button is enabled, we assume client-side validation passed.
-                // We'll use a mock condition to show the requested error dialog.
-                if (email.lowercase().contains("test")) { // Example mock error
-                    showEmailErrorDialog()
-                } else {
-                    // SUCCESS: Go to Verification activity and PASS the email
-                    val intent = Intent(this, Verification::class.java).apply {
-                        putExtra(EXTRA_EMAIL_ADDRESS, email)
-                    }
-                    startActivity(intent)
-                }
-            } else {
+            if (!isUmakEmail(email)) {
                 // Failsafe: Should not be hit if button is disabled correctly
                 showValidationError(layoutEmail, emailRequirementsContainer, reqEmail, defaultEmailRequirementText)
+                return@setOnClickListener
             }
+
+            // Disable button during send
+            btnSendVerification.isEnabled = false
+
+            // Generate 6-digit verification code
+            val verificationCode = VerificationCodeHelper.generateCode()
+            
+            // Save code to Firestore with expiration
+            VerificationCodeHelper.saveVerificationCode(
+                email = email,
+                code = verificationCode,
+                onSuccess = {
+                    // Send verification code via email using Trigger Email extension
+                    TriggerEmailHelper.sendPasswordResetCode(
+                        email = email,
+                        verificationCode = verificationCode,
+                        userName = null,
+                        onSuccess = {
+                            // Navigate to verification code page
+                            val intent = Intent(this, Verificationcode::class.java)
+                            intent.putExtra(EXTRA_EMAIL_ADDRESS, email)
+                            startActivity(intent)
+                            finish()
+                        },
+                        onFailure = { errorMessage ->
+                            // Re-enable button
+                            btnSendVerification.isEnabled = true
+                            
+                            // Log error for debugging
+                            Log.e("Forgotpassword", "Failed to send email: $errorMessage")
+                            
+                            // Show error dialog with actual error message
+                            showEmailErrorDialog(errorMessage)
+                        }
+                    )
+                },
+                onFailure = { errorMessage ->
+                    // Re-enable button
+                    btnSendVerification.isEnabled = true
+                    
+                    // Log error for debugging
+                    Log.e("Forgotpassword", "Failed to save verification code: $errorMessage")
+                    
+                    // Show error dialog with actual error message
+                    showEmailErrorDialog(errorMessage)
+                }
+            )
         }
     } // End of onCreate
 
