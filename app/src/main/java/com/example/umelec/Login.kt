@@ -92,7 +92,9 @@ class Login : AppCompatActivity() {
             btnLogin.isEnabled = allFieldsValid
         }
 
-        fun showLoginSuccessDialog(userEmail: String) {
+        fun showLoginSuccessDialog(userEmail: String, fullName: String? = null) {
+            val firstName = fullName?.split(" ")?.first() ?: userEmail.substringBefore("@")
+
             val layoutInflater = LayoutInflater.from(this)
             val dialogView = layoutInflater.inflate(R.layout.custom_toast_success, null)
 
@@ -105,7 +107,7 @@ class Login : AppCompatActivity() {
             dialog.setCanceledOnTouchOutside(false)
 
             dialogView.findViewById<TextView>(R.id.toast_title).text = "Login Success"
-            dialogView.findViewById<TextView>(R.id.toast_value).text = "Welcome back!"
+            dialogView.findViewById<TextView>(R.id.toast_value).text = "Welcome back, $firstName!"
 
             val btnAction = dialogView.findViewById<Button>(R.id.btn_action)
             btnAction.text = "Continue to Homepage"
@@ -120,6 +122,7 @@ class Login : AppCompatActivity() {
 
             dialog.show()
         }
+
 
         fun clearValidationState(layout: TextInputLayout) {
             layout.error = null // Clears RED border/error text
@@ -373,18 +376,29 @@ class Login : AppCompatActivity() {
                 email = email,
                 password = password,
                 onSuccess = { user ->
-                    // Clear any error state before navigating
                     layoutEmail.error = null
                     layoutPassword.error = null
-                    showLoginSuccessDialog(user.email ?: email)
+
+                    // Fetch firstname from Firestore
+                    val uid = user.uid
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    db.collection("users").document(uid)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            val firstName = document.getString("firstname") ?: "User"
+                            showLoginSuccessDialog(firstName) // pass firstName only
+                        }
+                        .addOnFailureListener {
+                            // fallback if fetch fails
+                            showLoginSuccessDialog("User")
+                        }
                 },
                 onFailure = { errorMessage ->
-                    // Re-enable button
                     btnLogin.isEnabled = true
-                    // Show error dialog
                     showLoginErrorDialog()
                 }
             )
         }
+
     }
 }

@@ -45,7 +45,7 @@ class Homepage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        
+
         // Check if user is logged in
         if (!FirebaseAuthHelper.isUserLoggedIn()) {
             // User not logged in, redirect to login
@@ -55,7 +55,7 @@ class Homepage : AppCompatActivity() {
             finish()
             return
         }
-        
+
         // Set the content view
         setContentView(R.layout.activity_homepage)
 
@@ -98,25 +98,22 @@ class Homepage : AppCompatActivity() {
                 onSuccess = { userData ->
                     if (userData != null) {
                         val firstname = userData["firstname"] as? String ?: ""
-                        val lastname = userData["lastname"] as? String ?: ""
-                        val fullName = if (firstname.isNotEmpty() || lastname.isNotEmpty()) {
-                            "$firstname $lastname".trim()
+                        val displayName = if (firstname.isNotEmpty()) {
+                            firstname // Only first name
                         } else {
-                            // Fallback to email username if name not available
                             currentUser.email?.substringBefore("@") ?: "User"
                         }
-                        nameTextView.text = fullName
+                        nameTextView.text = displayName
                     } else {
-                        // No user data in Firestore, use email as fallback
                         nameTextView.text = currentUser.email?.substringBefore("@") ?: "User"
                     }
                 },
                 onFailure = { errorMessage ->
-                    // If Firestore fetch fails, use email as fallback
                     Log.e("Homepage", "Failed to fetch user data: $errorMessage")
                     nameTextView.text = currentUser.email?.substringBefore("@") ?: "User"
                 }
             )
+
         } else {
             nameTextView.text = "User"
         }
