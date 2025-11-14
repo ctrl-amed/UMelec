@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UMelec">
         <activity
+            android:name=".Leader_homepage"
+            android:exported="false" />
+        <activity
+            android:name=".Leader_Verification"
+            android:exported="false" />
+        <activity
             android:name=".Castvote3"
             android:exported="false" />
         <activity
