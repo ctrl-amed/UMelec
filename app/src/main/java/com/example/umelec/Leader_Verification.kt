@@ -19,7 +19,6 @@ import android.content.Context
 import android.view.inputmethod.InputMethodManager
 import android.view.MotionEvent
 import android.graphics.Rect
-// 💡 REQUIRED IMPORTS FOR CUSTOM DIALOGS AND TIMER
 import android.view.LayoutInflater
 import android.view.Gravity
 import android.graphics.drawable.ColorDrawable
@@ -84,6 +83,7 @@ class Leader_Verification : AppCompatActivity() {
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener {
             finish()
+            overridePendingTransition(0, 0)
         }
 
         // =====================================================================
@@ -210,6 +210,7 @@ class Leader_Verification : AppCompatActivity() {
             val intent = Intent(this, Leader_homepage::class.java)
             startActivity(intent)
             finish()
+            overridePendingTransition(0, 0)
         }
 
         dialog.show()

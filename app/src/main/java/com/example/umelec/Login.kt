@@ -154,6 +154,7 @@ class Login : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
                 finish()
+                overridePendingTransition(0, 0)
             }
 
             dialog.show()
@@ -209,17 +210,21 @@ class Login : AppCompatActivity() {
                 val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
+                overridePendingTransition(0, 0)
             } else {
                 finish()
+                overridePendingTransition(0, 0)
             }
         }
 
 
         forgotPassword.setOnClickListener {
             startActivity(Intent(this, Forgotpassword::class.java))
+            overridePendingTransition(0, 0)
         }
         registerButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+            overridePendingTransition(0, 0)
         }
 
         btnLogin.isEnabled = false
@@ -402,6 +407,7 @@ class Login : AppCompatActivity() {
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
                             finish()
+                            overridePendingTransition(0, 0)
                         }
                     }
                     // Add other roles here if needed

@@ -159,6 +159,7 @@ class Forgotpassword : AppCompatActivity() {
         // BACK BUTTON SETUP
         btnBack.setOnClickListener {
             finish()
+            overridePendingTransition(0, 0)
         }
 
         // Initial state: Button is disabled and help text is visible
@@ -248,6 +249,7 @@ class Forgotpassword : AppCompatActivity() {
                         putExtra(EXTRA_EMAIL_ADDRESS, email)
                     }
                     startActivity(intent)
+                    overridePendingTransition(0, 0)
                 }
             } else {
                 // Failsafe: Should not be hit if button is disabled correctly

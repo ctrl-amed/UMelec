@@ -264,11 +264,12 @@
             android:layout_width="300dp"
             android:layout_height="55dp"
             android:background="@drawable/blue_rounded_button"
-            android:text="Confirm"
+            android:text="Enter Code"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             app:backgroundTint="@null"
-            android:fontFamily="@font/poppins_bold"/>
+            android:fontFamily="@font/poppins_bold"
+            android:stateListAnimator="@animator/button_press_animator"/>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

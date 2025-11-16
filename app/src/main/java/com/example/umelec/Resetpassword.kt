@@ -13,12 +13,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-// IMPORTS for Keyboard, Focus, and Custom Dialog
 import android.view.inputmethod.InputMethodManager
 import android.content.Context
 import android.view.MotionEvent
 import android.graphics.Rect
-// 💡 REQUIRED IMPORTS for custom dialog (Added these)
 import android.view.Gravity
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
@@ -107,6 +105,7 @@ class Resetpassword : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish() // Finish ResetPassword activity
+            overridePendingTransition(0, 0)
         }
 
         dialog.show()
@@ -159,7 +158,10 @@ class Resetpassword : AppCompatActivity() {
         clearValidationState(layoutConfirmPassword)
 
 
-        btnBack.setOnClickListener { finish() }
+        btnBack.setOnClickListener {
+            finish()
+            overridePendingTransition(0, 0)
+        }
 
         // 🚨 REVISED: Use the custom success dialog
         btnConfirm.setOnClickListener {
