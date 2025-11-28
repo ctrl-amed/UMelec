@@ -102,10 +102,10 @@ class Homepage : AppCompatActivity() {
     private fun determineElectionState(): ElectionState {
         // **IMPORTANT:** Replace this with your actual backend call logic.
         // Use the desired state for testing:
-        return ElectionState.ONGOING
+        //return ElectionState.ONGOING
         //return ElectionState.NO_ELECTION
         // return ElectionState.UPCOMING
-        //return ElectionState.ENDED
+        return ElectionState.ENDED
     }
 
     /**
